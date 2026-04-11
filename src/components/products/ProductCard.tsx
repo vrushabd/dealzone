@@ -180,15 +180,16 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
 
             {/* Content */}
-            <div className="p-4 flex flex-col flex-1">
+            <div className="p-3 sm:p-4 flex flex-col flex-1">
                 <Link href={`/products/${product.slug}`}>
-                    <h2 className="font-semibold text-[hsl(210_30%_92%)] line-clamp-2 hover:text-orange-400 transition-colors text-sm leading-snug mb-3">
+                    {/* Fixed 2-line height — keeps all cards uniform */}
+                    <h2 className="font-semibold text-[hsl(210_30%_92%)] line-clamp-2 hover:text-orange-400 transition-colors text-xs sm:text-sm leading-snug mb-3 h-[2.6em] overflow-hidden">
                         {product.title}
                     </h2>
                 </Link>
 
-                {/* Pricing */}
-                <div className="flex flex-col gap-1.5 mb-4">
+                {/* Pricing — fixed min-height so rows align */}
+                <div className="flex flex-col gap-1 mb-3 min-h-[3.5rem]">
                     <div className="flex items-baseline gap-2">
                         {product.price && (
                             <span className="text-xl font-extrabold text-orange-400 leading-none">

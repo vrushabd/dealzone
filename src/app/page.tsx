@@ -86,7 +86,7 @@ export default async function HomePage() {
                 {/* ── Category Bar ────────────────────────────── */}
                 <section className="bg-[var(--bg-base)]/95 border-b border-[var(--border)] sticky top-14 z-40 backdrop-blur-xl">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-x-auto no-scrollbar">
-                        <span className="text-[10px] font-semibold text-[hsl(215_12%_38%)] uppercase tracking-widest whitespace-nowrap flex-shrink-0">
+                        <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap flex-shrink-0">
                             Browse:
                         </span>
                         {(categories as any[]).map((cat) => (
@@ -98,7 +98,7 @@ export default async function HomePage() {
                                 <CategoryIcon slug={cat.slug} variant="bar" />
                                 <span>{cat.name}</span>
                                 {cat._count?.products > 0 && (
-                                    <span className="text-[9px] text-[hsl(215_10%_35%)]">
+                                    <span className="text-[9px] text-[var(--text-muted)]">
                                         ({cat._count.products})
                                     </span>
                                 )}
@@ -164,11 +164,11 @@ export default async function HomePage() {
                                             <div className="w-16 h-16 bg-[var(--bg-elevated)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                                                 <Zap size={32} className="text-[hsl(224_20%_22%)]" />
                                             </div>
-                                            <h3 className="text-[hsl(215_15%_45%)] font-semibold text-sm">
+                                            <h3 className="text-[var(--text-muted)] font-semibold text-sm">
                                                 New deals incoming...
                                             </h3>
-                                            <p className="text-[hsl(215_12%_35%)] text-xs mt-1">
-                                                Run <code className="bg-[hsl(224_25%_12%)] px-1 rounded text-orange-400">npm run seed</code> to populate
+                                            <p className="text-[var(--text-muted)] text-xs mt-1">
+                                                Run <code className="bg-[var(--bg-elevated)] px-1 rounded text-orange-400">npm run seed</code> to populate
                                             </p>
                                         </div>
                                     )}
@@ -188,17 +188,17 @@ export default async function HomePage() {
                                 <div className="space-y-4">
                                     {(recentPosts as any[]).map((post) => (
                                         <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
-                                            <h4 className="text-xs font-medium text-[hsl(215_15%_65%)] group-hover:text-orange-400 line-clamp-2 transition-colors leading-snug">
+                                            <h4 className="text-xs font-medium text-[var(--text-secondary)] group-hover:text-orange-400 line-clamp-2 transition-colors leading-snug">
                                                 {post.title}
                                             </h4>
-                                            <div className="flex items-center gap-1 text-[9px] text-[hsl(215_10%_38%)] mt-1.5">
+                                            <div className="flex items-center gap-1 text-[9px] text-[var(--text-muted)] mt-1.5">
                                                 <Clock size={8} />
                                                 {new Date(post.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                                             </div>
                                         </Link>
                                     ))}
                                     {recentPosts.length === 0 && (
-                                        <p className="text-xs text-[hsl(215_10%_38%)]">No posts yet.</p>
+                                        <p className="text-xs text-[var(--text-muted)]">No posts yet.</p>
                                     )}
                                 </div>
                                 <Link
@@ -227,7 +227,7 @@ export default async function HomePage() {
                                                 {cat.name}
                                             </div>
                                             {cat._count?.products > 0 && (
-                                                <div className="text-[9px] text-[hsl(215_10%_32%)] mt-0.5">
+                                                <div className="text-[9px] text-[var(--text-muted)] mt-0.5">
                                                     {cat._count.products} deals
                                                 </div>
                                             )}
@@ -244,7 +244,7 @@ export default async function HomePage() {
                                         <Zap size={20} className="text-orange-400" fill="currentColor" />
                                     </div>
                                     <h4 className="text-[var(--text-primary)] font-bold text-sm mb-1">Never Miss a Deal</h4>
-                                    <p className="text-[hsl(215_12%_48%)] text-xs leading-relaxed mb-4">
+                                    <p className="text-[var(--text-muted)] text-xs leading-relaxed mb-4">
                                         Set price alerts on any product and we&apos;ll notify you when it drops.
                                     </p>
                                     <Link

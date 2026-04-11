@@ -144,21 +144,21 @@ body {
    GLASS MORPHISM
    ═══════════════════════════════════════════════════════ */
 .glass {
-  background: hsl(224 28% 9% / 0.75);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(224 20% 20% / 0.6);
+  border: 1px solid var(--border);
 }
 
 .glass-strong {
-  background: hsl(224 32% 7% / 0.92);
+  background: var(--bg-surface);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
-  border: 1px solid hsl(224 22% 22% / 0.5);
+  border: 1px solid var(--border-subtle);
 }
 
 .glass-brand {
-  background: hsl(224 28% 9% / 0.8);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-brand);
@@ -324,9 +324,9 @@ body {
 
 .skeleton {
   background: linear-gradient(90deg,
-    hsl(224 25% 11%) 25%,
-    hsl(224 22% 15%) 50%,
-    hsl(224 25% 11%) 75%
+    var(--bg-elevated) 25%,
+    var(--bg-card-hover) 50%,
+    var(--bg-elevated) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.6s infinite;
@@ -337,7 +337,7 @@ body {
    INPUTS
    ═══════════════════════════════════════════════════════ */
 .input-base {
-  background: hsl(224 28% 9% / 0.8);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 0.625rem 1rem;
@@ -351,7 +351,7 @@ body {
 .input-base:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px var(--brand-glow);
-  background: hsl(224 28% 11%);
+  background: var(--bg-card-hover);
 }
 
 .input-base::placeholder {
@@ -396,12 +396,7 @@ body {
    LIVE ANIMATED HERO BG
    ═══════════════════════════════════════════════════════ */
 .hero-gradient {
-  background: linear-gradient(-45deg,
-    hsl(224 44% 4%),
-    hsl(240 30% 7%),
-    hsl(224 44% 5%),
-    hsl(220 40% 6%)
-  );
+  background: var(--gradient-hero);
   background-size: 400% 400%;
   animation: gradientShift 12s ease infinite;
 }

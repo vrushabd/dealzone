@@ -14,13 +14,13 @@ export default function Footer() {
             <div className="h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
 
             {/* Background */}
-            <div className="relative bg-[hsl(224_32%_7%)] mesh-bg">
+            <div className="relative bg-[var(--bg-surface)] mesh-bg">
                 {/* Ambient glow orbs */}
                 <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-orange-500/4 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-0 right-1/4 w-48 h-48 bg-indigo-500/4 rounded-full blur-3xl pointer-events-none" />
 
                 {/* Stats Strip */}
-                <div className="border-b border-[hsl(224_20%_12%)]">
+                <div className="border-b border-[var(--border-subtle)]">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
                         <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16">
                             {stats.map((s) => (
@@ -29,8 +29,8 @@ export default function Footer() {
                                         {s.icon}
                                     </div>
                                     <div>
-                                        <div className="text-base font-bold text-white leading-none">{s.value}</div>
-                                        <div className="text-[11px] text-[hsl(215_12%_42%)] mt-0.5">{s.label}</div>
+                                        <div className="text-base font-bold text-[var(--text-primary)] leading-none">{s.value}</div>
+                                        <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{s.label}</div>
                                     </div>
                                 </div>
                             ))}
@@ -49,17 +49,17 @@ export default function Footer() {
                                 </div>
                                 <span className="text-xl font-extrabold gradient-text">DealZone</span>
                             </div>
-                            <p className="text-[hsl(215_18%_65%)] text-sm leading-relaxed max-w-xs">
+                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
                                 Discover the best deals and discounts from Amazon & Flipkart. Handpicked deals updated daily — so you never miss a bargain.
                             </p>
-                            <p className="text-[hsl(215_12%_38%)] text-xs mt-4 leading-relaxed">
+                            <p className="text-[var(--text-muted)] text-xs mt-4 leading-relaxed">
                                 As an Amazon Associate and Flipkart affiliate, we earn from qualifying purchases at no extra cost to you.
                             </p>
                         </div>
 
                         {/* Links */}
                         <div>
-                            <h3 className="text-xs font-semibold text-[hsl(215_18%_65%)] uppercase tracking-widest mb-4">Browse</h3>
+                            <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Browse</h3>
                             <ul className="space-y-2.5">
                                 {[
                                     { href: "/products",   label: "All Deals" },
@@ -71,7 +71,7 @@ export default function Footer() {
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-[hsl(215_15%_52%)] hover:text-orange-400 text-sm transition-colors duration-200 hover:translate-x-0.5 inline-block"
+                                            className="text-[var(--text-muted)] hover:text-orange-400 text-sm transition-colors duration-200 hover:translate-x-0.5 inline-block"
                                         >
                                             {link.label}
                                         </Link>
@@ -82,7 +82,7 @@ export default function Footer() {
 
                         {/* Affiliates */}
                         <div>
-                            <h3 className="text-xs font-semibold text-[hsl(215_18%_65%)] uppercase tracking-widest mb-4">Shop On</h3>
+                            <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Shop On</h3>
                             <ul className="space-y-3">
                                 {[
                                     { href: "https://www.amazon.in",   label: "Amazon India",  color: "text-yellow-400" },
@@ -106,20 +106,20 @@ export default function Footer() {
                     </div>
 
                     {/* Bottom bar */}
-                    <div className="border-t border-[hsl(224_20%_12%)] mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <p className="text-[hsl(215_12%_42%)] text-xs">
+                    <div className="border-t border-[var(--border-subtle)] mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <p className="text-[var(--text-muted)] text-xs">
                             © {new Date().getFullYear()} DealZone. All rights reserved.
                         </p>
                         <div className="flex items-center gap-4">
-                            <Link href="/privacy" className="text-[hsl(215_12%_42%)] hover:text-orange-400 text-xs transition-colors">
+                            <Link href="/privacy" className="text-[var(--text-muted)] hover:text-orange-400 text-xs transition-colors">
                                 Privacy Policy
                             </Link>
-                            <span className="text-[hsl(224_20%_20%)]">·</span>
-                            <Link href="/terms" className="text-[hsl(215_12%_42%)] hover:text-orange-400 text-xs transition-colors">
+                            <span className="text-[var(--border)]">·</span>
+                            <Link href="/terms" className="text-[var(--text-muted)] hover:text-orange-400 text-xs transition-colors">
                                 Terms
                             </Link>
-                            <span className="text-[hsl(224_20%_20%)]">·</span>
-                            <Link href="/affiliate-disclosure" className="text-[hsl(215_12%_42%)] hover:text-orange-400 text-xs transition-colors">
+                            <span className="text-[var(--border)]">·</span>
+                            <Link href="/affiliate-disclosure" className="text-[var(--text-muted)] hover:text-orange-400 text-xs transition-colors">
                                 Disclosure
                             </Link>
                         </div>

@@ -90,7 +90,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         />
                     ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <ShoppingCart size={44} className="text-[hsl(224_20%_20%)]" />
+                            <ShoppingCart size={44} className="text-[var(--text-muted)]" />
                         </div>
                     )}
                     {/* Bottom gradient on image */}

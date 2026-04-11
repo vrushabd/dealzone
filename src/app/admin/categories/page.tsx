@@ -67,7 +67,7 @@ export default function AdminCategoriesPage() {
                         <div className="flex flex-wrap gap-2">
                             {EMOJI_OPTIONS.map((e) => (
                                 <button key={e} type="button" onClick={() => setIcon(e)}
-                                    className={`text-xl w-10 h-10 rounded-md transition-all ${icon === e ? "bg-[hsl(214_89%_52%)]/20 ring-2 ring-orange-500 scale-110" : "bg-gray-800 hover:bg-gray-700"}`}>
+                                    className={`text-xl w-10 h-10 rounded-md transition-all ${icon === e ? "bg-[hsl(214_89%_52%)]/20 ring-2 ring-[hsl(214_89%_52%)] scale-110" : "bg-gray-800 hover:bg-gray-700"}`}>
                                     {e}
                                 </button>
                             ))}
@@ -105,7 +105,7 @@ export default function AdminCategoriesPage() {
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {filtered.map((cat) => (
-                        <div key={cat.id} className="glass rounded-md p-4 flex flex-col items-center text-center gap-2 group relative hover:border-orange-500/30 transition-all">
+                        <div key={cat.id} className="glass rounded-md p-4 flex flex-col items-center text-center gap-2 group relative hover:border-[hsl(214_89%_52%/0.30)] transition-all">
                             <div className="text-4xl">{cat.icon || "📦"}</div>
                             <div className="font-semibold text-gray-200 text-sm">{cat.name}</div>
                             <div className="text-xs text-gray-500">{cat._count?.products || 0} products</div>

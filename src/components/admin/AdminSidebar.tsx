@@ -30,7 +30,7 @@ export default function AdminSidebar() {
         <div className="flex flex-col h-full">
             {/* Logo */}
             <div className={`flex items-center gap-2.5 px-4 py-5 border-b border-gray-800 ${collapsed ? "justify-center" : ""}`}>
-                <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-orange-500/25">
+                <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-[hsl(214_89%_52%/0.25)]">
                     <Zap size={16} className="text-white" />
                 </div>
                 {!collapsed && <span className="text-base font-bold gradient-text">DealZone</span>}

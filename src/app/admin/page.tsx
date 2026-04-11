@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
     ];
 
     const colorMap: Record<string, string> = {
-        orange: "from-orange-500/20 to-orange-600/5 border-[hsl(214_89%_52%/0.20)] text-[hsl(214_89%_55%)]",
+        orange: "from-[hsl(214_89%_52%/0.12)] to-[hsl(214_89%_52%/0.03)] border-[hsl(214_89%_52%/0.20)] text-[hsl(214_89%_55%)]",
         blue: "from-blue-500/20 to-blue-600/5 border-blue-500/20 text-blue-400",
         purple: "from-purple-500/20 to-purple-600/5 border-purple-500/20 text-purple-400",
         yellow: "from-yellow-500/20 to-yellow-600/5 border-yellow-500/20 text-yellow-400",
@@ -73,7 +73,7 @@ export default async function AdminDashboard() {
                     <Link
                         key={href}
                         href={href}
-                        className="glass rounded-md p-5 flex items-center gap-4 hover:border-orange-500/30 transition-all duration-200 hover:bg-gray-800/60 group"
+                        className="glass rounded-md p-5 flex items-center gap-4 hover:border-[hsl(214_89%_52%/0.30)] transition-all duration-200 hover:bg-gray-800/60 group"
                     >
                         <div className="w-10 h-10 bg-[hsl(214_89%_52%/0.08)] rounded-md flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(214_89%_45%)]/20 transition-colors">
                             <Plus size={18} className="text-[hsl(214_89%_55%)]" />
@@ -91,7 +91,7 @@ export default async function AdminDashboard() {
             <div className="glass rounded-md overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
                     <h2 className="font-semibold text-gray-200">Recent Products</h2>
-                    <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-orange-300 flex items-center gap-1 transition-colors">
+                    <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_62%)] flex items-center gap-1 transition-colors">
                         View all <ArrowRight size={12} />
                     </Link>
                 </div>

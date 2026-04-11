@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
     ];
 
     const colorMap: Record<string, string> = {
-        orange: "from-orange-500/20 to-orange-600/5 border-orange-500/20 text-orange-400",
+        orange: "from-orange-500/20 to-orange-600/5 border-[hsl(214_89%_52%/0.20)] text-[hsl(214_89%_55%)]",
         blue: "from-blue-500/20 to-blue-600/5 border-blue-500/20 text-blue-400",
         purple: "from-purple-500/20 to-purple-600/5 border-purple-500/20 text-purple-400",
         yellow: "from-yellow-500/20 to-yellow-600/5 border-yellow-500/20 text-yellow-400",
@@ -51,7 +51,7 @@ export default async function AdminDashboard() {
                     <Link
                         key={label}
                         href={href}
-                        className={`bg-gradient-to-br ${colorMap[color]} border rounded-2xl p-5 hover:scale-[1.02] transition-all duration-200 animate-fade-in-up`}
+                        className={`bg-gradient-to-br ${colorMap[color]} border rounded-md p-5 hover:scale-[1.02] transition-all duration-200 animate-fade-in-up`}
                     >
                         <div className="flex items-start justify-between mb-3">
                             <Icon size={20} className="opacity-80" />
@@ -73,38 +73,38 @@ export default async function AdminDashboard() {
                     <Link
                         key={href}
                         href={href}
-                        className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-orange-500/30 transition-all duration-200 hover:bg-gray-800/60 group"
+                        className="glass rounded-md p-5 flex items-center gap-4 hover:border-orange-500/30 transition-all duration-200 hover:bg-gray-800/60 group"
                     >
-                        <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/20 transition-colors">
-                            <Plus size={18} className="text-orange-400" />
+                        <div className="w-10 h-10 bg-[hsl(214_89%_52%/0.08)] rounded-md flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(214_89%_45%)]/20 transition-colors">
+                            <Plus size={18} className="text-[hsl(214_89%_55%)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-gray-200 text-sm group-hover:text-orange-400 transition-colors">{label}</div>
+                            <div className="font-semibold text-gray-200 text-sm group-hover:text-[hsl(214_89%_55%)] transition-colors">{label}</div>
                             <div className="text-xs text-gray-500">{desc}</div>
                         </div>
-                        <ArrowRight size={16} className="text-gray-600 group-hover:text-orange-400 transition-colors flex-shrink-0" />
+                        <ArrowRight size={16} className="text-gray-600 group-hover:text-[hsl(214_89%_55%)] transition-colors flex-shrink-0" />
                     </Link>
                 ))}
             </div>
 
             {/* Recent Products */}
-            <div className="glass rounded-2xl overflow-hidden">
+            <div className="glass rounded-md overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
                     <h2 className="font-semibold text-gray-200">Recent Products</h2>
-                    <Link href="/admin/products" className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-colors">
+                    <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-orange-300 flex items-center gap-1 transition-colors">
                         View all <ArrowRight size={12} />
                     </Link>
                 </div>
 
                 {recentProducts.length === 0 ? (
                     <div className="py-12 text-center text-gray-500 text-sm">
-                        No products yet. <Link href="/admin/products" className="text-orange-400 hover:underline">Add your first deal →</Link>
+                        No products yet. <Link href="/admin/products" className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</Link>
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-800">
                         {recentProducts.map((p) => (
                             <div key={p.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-800/30 transition-colors">
-                                <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                <div className="w-10 h-10 bg-gray-800 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                                     {p.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
@@ -118,7 +118,7 @@ export default async function AdminDashboard() {
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     {p.price && (
-                                        <div className="text-orange-400 text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>
+                                        <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>
                                     )}
                                     <div className="flex gap-1 mt-1 justify-end">
                                         {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-1.5 py-0.5 rounded-full">AMZ</span>}

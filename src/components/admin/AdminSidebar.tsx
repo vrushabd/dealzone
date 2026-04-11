@@ -30,7 +30,7 @@ export default function AdminSidebar() {
         <div className="flex flex-col h-full">
             {/* Logo */}
             <div className={`flex items-center gap-2.5 px-4 py-5 border-b border-gray-800 ${collapsed ? "justify-center" : ""}`}>
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-orange-500/25">
+                <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-orange-500/25">
                     <Zap size={16} className="text-white" />
                 </div>
                 {!collapsed && <span className="text-base font-bold gradient-text">DealZone</span>}
@@ -45,16 +45,16 @@ export default function AdminSidebar() {
                             key={href}
                             href={href}
                             onClick={() => setMobileOpen(false)}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group relative
                 ${active
-                                    ? "bg-orange-500/15 text-orange-400 shadow-sm"
+                                    ? "bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_55%)] shadow-sm"
                                     : "text-gray-400 hover:text-gray-100 hover:bg-gray-800/70"
                                 }`}
                         >
-                            {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full" />}
-                            <Icon size={17} className={`flex-shrink-0 ${active ? "text-orange-400" : "text-gray-500 group-hover:text-gray-300"}`} />
+                            {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[hsl(214_89%_52%)] rounded-r-full" />}
+                            <Icon size={17} className={`flex-shrink-0 ${active ? "text-[hsl(214_89%_55%)]" : "text-gray-500 group-hover:text-gray-300"}`} />
                             {!collapsed && <span>{label}</span>}
-                            {!collapsed && active && <ChevronRight size={14} className="ml-auto text-orange-400/60" />}
+                            {!collapsed && active && <ChevronRight size={14} className="ml-auto text-[hsl(214_89%_55%)]/60" />}
                         </Link>
                     );
                 })}
@@ -65,20 +65,20 @@ export default function AdminSidebar() {
                 <a
                     href="/"
                     target="_blank"
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all"
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all"
                 >
                     <ExternalLink size={17} className="text-gray-500 flex-shrink-0" />
                     {!collapsed && <span>View Site</span>}
                 </a>
                 
-                <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all">
+                <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all">
                     <GlobalThemeToggle />
                     {!collapsed && <span>Global Default Theme</span>}
                 </div>
 
                 <button
                     onClick={() => signOut({ callbackUrl: "/admin/login" })}
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
                 >
                     <LogOut size={17} className="text-gray-500 flex-shrink-0" />
                     {!collapsed && <span>Sign Out</span>}

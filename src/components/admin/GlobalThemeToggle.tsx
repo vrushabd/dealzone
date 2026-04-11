@@ -35,11 +35,11 @@ export function GlobalThemeToggle() {
     return (
         <button
             onClick={toggleTheme}
-            className="flex items-center justify-center w-9 h-9 rounded-xl bg-[var(--bg-card-hover)] hover:bg-[var(--brand-glow)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-white transition-all duration-300"
+            className="flex items-center justify-center w-9 h-9 rounded-md bg-[var(--bg-card-hover)] hover:bg-[var(--brand-glow)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-white transition-all duration-300"
             title={`Global Default Theme is ${theme}. Click to change.`}
         >
             {theme === "light" ? (
-                <Sun size={17} className="text-orange-400" />
+                <Sun size={17} className="text-[hsl(214_89%_55%)]" />
             ) : (
                 <Moon size={17} className="text-gray-400" />
             )}

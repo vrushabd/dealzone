@@ -79,7 +79,7 @@ export default function AddViaUrlPage() {
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Zap size={22} className="text-orange-500" fill="currentColor" />
+                    <Zap size={22} className="text-[hsl(214_89%_52%)]" fill="currentColor" />
                     Add Product via URL
                 </h1>
                 <p className="text-[hsl(215_15%_52%)] text-sm mt-1">
@@ -88,7 +88,7 @@ export default function AddViaUrlPage() {
             </div>
 
             {/* URL Input Card */}
-            <div className="glass rounded-2xl p-6 mb-6 flex flex-col gap-4">
+            <div className="glass rounded-md p-6 mb-6 flex flex-col gap-4">
                 <div>
                     <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-3">
                         Amazon URL (Optional)
@@ -137,7 +137,7 @@ export default function AddViaUrlPage() {
 
             {/* Error */}
             {error && (
-                <div className="flex items-start gap-3 bg-[hsl(0_84%_60%/0.08)] border border-[hsl(0_84%_60%/0.25)] rounded-xl px-4 py-3 mb-6 animate-scale-in">
+                <div className="flex items-start gap-3 bg-[hsl(0_84%_60%/0.08)] border border-[hsl(0_84%_60%/0.25)] rounded-md px-4 py-3 mb-6 animate-scale-in">
                     <AlertCircle size={16} className="text-[hsl(0_84%_60%)] flex-shrink-0 mt-0.5" />
                     <div>
                         <p className="text-[hsl(0_84%_70%)] text-sm font-medium">{error}</p>
@@ -148,22 +148,22 @@ export default function AddViaUrlPage() {
 
             {/* Loading skeleton */}
             {loading && (
-                <div className="glass rounded-2xl p-6 space-y-4">
+                <div className="glass rounded-md p-6 space-y-4">
                     <div className="flex gap-4">
-                        <div className="skeleton w-24 h-24 rounded-xl flex-shrink-0" />
+                        <div className="skeleton w-24 h-24 rounded-md flex-shrink-0" />
                         <div className="flex-1 space-y-2.5">
                             <div className="skeleton h-4 rounded-lg w-3/4" />
                             <div className="skeleton h-4 rounded-lg w-1/2" />
                             <div className="skeleton h-6 rounded-lg w-1/3" />
                         </div>
                     </div>
-                    <div className="skeleton h-10 rounded-xl" />
+                    <div className="skeleton h-10 rounded-md" />
                 </div>
             )}
 
             {/* Result Card */}
             {result && !loading && (
-                <div className="glass-brand rounded-2xl overflow-hidden animate-scale-in">
+                <div className="glass-brand rounded-md overflow-hidden animate-scale-in">
                     {/* Success banner */}
                     <div className="flex items-center gap-2 px-5 py-3 bg-[hsl(142_72%_50%/0.08)] border-b border-[hsl(142_72%_50%/0.15)]">
                         <div className="w-5 h-5 rounded-full bg-[hsl(142_72%_50%/0.2)] flex items-center justify-center">
@@ -185,14 +185,14 @@ export default function AddViaUrlPage() {
                                 <img
                                     src={result.image}
                                     alt={result.title}
-                                    className="w-20 h-20 object-contain bg-[hsl(224_25%_11%)] rounded-xl p-2 flex-shrink-0 border border-[hsl(224_20%_16%)]"
+                                    className="w-20 h-20 object-contain bg-[hsl(224_25%_11%)] rounded-md p-2 flex-shrink-0 border border-[hsl(224_20%_16%)]"
                                 />
                             )}
                             <div className="min-w-0">
                                 <h3 className="text-white font-semibold text-sm leading-snug line-clamp-2 mb-2">{result.title}</h3>
                                 <div className="flex items-baseline gap-2">
                                     {result.price > 0 && (
-                                        <span className="text-lg font-extrabold text-orange-400">
+                                        <span className="text-lg font-extrabold text-[hsl(214_89%_55%)]">
                                             ₹{result.price.toLocaleString("en-IN")}
                                         </span>
                                     )}
@@ -214,8 +214,8 @@ export default function AddViaUrlPage() {
                                 Generated Affiliate Link
                             </div>
                             {result.affiliateUrl ? (
-                                <div className="flex items-center gap-2 bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_16%)] rounded-xl px-3 py-2.5">
-                                    <span className="text-xs text-orange-400 font-mono flex-1 truncate">{result.affiliateUrl}</span>
+                                <div className="flex items-center gap-2 bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_16%)] rounded-md px-3 py-2.5">
+                                    <span className="text-xs text-[hsl(214_89%_55%)] font-mono flex-1 truncate">{result.affiliateUrl}</span>
                                     <button
                                         onClick={() => copy(result.affiliateUrl!)}
                                         className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] transition-colors text-[hsl(215_12%_42%)] hover:text-white"
@@ -233,7 +233,7 @@ export default function AddViaUrlPage() {
                                     </a>
                                 </div>
                             ) : (
-                                <div className="text-xs text-[hsl(215_12%_40%)] italic px-3 py-2.5 border border-dashed border-[hsl(224_20%_16%)] rounded-xl">
+                                <div className="text-xs text-[hsl(215_12%_40%)] italic px-3 py-2.5 border border-dashed border-[hsl(224_20%_16%)] rounded-md">
                                     No affiliate link generated — check your AMAZON_AFFILIATE_TAG / FLIPKART_AFFILIATE_ID in .env
                                 </div>
                             )}
@@ -244,7 +244,7 @@ export default function AddViaUrlPage() {
                             <a
                                 href={result.slug ? `/products/${result.slug}` : "/products"}
                                 target="_blank"
-                                className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(224_25%_12%)] hover:bg-[hsl(224_22%_15%)] border border-[hsl(224_20%_16%)] text-[hsl(210_30%_88%)] text-xs font-semibold py-2.5 rounded-xl transition-all"
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(224_25%_12%)] hover:bg-[hsl(224_22%_15%)] border border-[hsl(224_20%_16%)] text-[hsl(210_30%_88%)] text-xs font-semibold py-2.5 rounded-md transition-all"
                             >
                                 <Package size={13} />
                                 View Product
@@ -263,7 +263,7 @@ export default function AddViaUrlPage() {
 
             {/* How it works */}
             {!result && !loading && !error && (
-                <div className="glass rounded-2xl p-5">
+                <div className="glass rounded-md p-5">
                     <h3 className="text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-4">How it works</h3>
                     <div className="space-y-3">
                         {[
@@ -273,7 +273,7 @@ export default function AddViaUrlPage() {
                             { step: "4", text: "Product is saved to your database and goes live instantly" },
                         ].map((item) => (
                             <div key={item.step} className="flex items-start gap-3">
-                                <div className="w-5 h-5 rounded-full bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-[10px] font-bold text-orange-400 flex-shrink-0 mt-0.5">
+                                <div className="w-5 h-5 rounded-full bg-[hsl(214_89%_52%/0.12)] border border-[hsl(214_89%_52%/0.25)] flex items-center justify-center text-[10px] font-bold text-[hsl(214_89%_55%)] flex-shrink-0 mt-0.5">
                                     {item.step}
                                 </div>
                                 <p className="text-[hsl(215_15%_55%)] text-xs leading-relaxed">{item.text}</p>

@@ -53,10 +53,10 @@ function LinkGenerator() {
     };
 
     return (
-        <div className="glass rounded-2xl p-6 mb-10 border border-[hsl(224_20%_16%)]">
+        <div className="glass rounded-md p-6 mb-10 border border-[hsl(224_20%_16%)]">
             <div className="flex items-center gap-2 mb-5">
-                <div className="w-8 h-8 rounded-xl bg-orange-500/15 flex items-center justify-center">
-                    <Zap size={16} className="text-orange-400" fill="currentColor" />
+                <div className="w-8 h-8 rounded-md bg-[hsl(214_89%_52%/0.12)] flex items-center justify-center">
+                    <Zap size={16} className="text-[hsl(214_89%_55%)]" fill="currentColor" />
                 </div>
                 <div>
                     <h2 className="text-base font-bold text-white">Affiliate Link Generator</h2>
@@ -92,12 +92,12 @@ function LinkGenerator() {
                 <span className="text-[10px] text-[hsl(215_10%_35%)]">Supports:</span>
                 <span className="text-[10px] font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">amazon.in</span>
                 <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">flipkart.com</span>
-                <span className="text-[10px] text-[hsl(215_10%_35%)] ml-2">Tag: <code className="text-orange-400">dealzone-21</code></span>
+                <span className="text-[10px] text-[hsl(215_10%_35%)] ml-2">Tag: <code className="text-[hsl(214_89%_55%)]">dealzone-21</code></span>
             </div>
 
             {/* Error */}
             {error && (
-                <div className="flex items-start gap-2 bg-red-500/8 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-400">
+                <div className="flex items-start gap-2 bg-red-500/8 border border-red-500/20 rounded-md px-4 py-3 text-sm text-red-400">
                     <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
                     {error}
                 </div>
@@ -105,7 +105,7 @@ function LinkGenerator() {
 
             {/* Result */}
             {result && (
-                <div className="bg-[hsl(142_72%_50%/0.06)] border border-[hsl(142_72%_50%/0.2)] rounded-xl p-4">
+                <div className="bg-[hsl(142_72%_50%/0.06)] border border-[hsl(142_72%_50%/0.2)] rounded-md p-4">
                     <div className="flex items-center gap-2 mb-2">
                         <Check size={13} className="text-[hsl(142_72%_50%)]" />
                         <span className="text-xs font-semibold text-[hsl(142_72%_55%)]">
@@ -113,7 +113,7 @@ function LinkGenerator() {
                         </span>
                     </div>
                     <div className="flex items-center gap-2 bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_14%)] rounded-lg px-3 py-2.5">
-                        <span className="text-xs font-mono text-orange-400 flex-1 truncate">{result.affiliateUrl}</span>
+                        <span className="text-xs font-mono text-[hsl(214_89%_55%)] flex-1 truncate">{result.affiliateUrl}</span>
                         <button onClick={copy} className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] text-[hsl(215_12%_42%)] hover:text-white transition-colors" title="Copy">
                             {copied ? <Check size={13} className="text-[hsl(142_72%_50%)]" /> : <Copy size={13} />}
                         </button>
@@ -122,7 +122,7 @@ function LinkGenerator() {
                         </a>
                     </div>
                     <p className="text-[10px] text-[hsl(215_10%_35%)] mt-2">
-                        Update <code className="text-orange-400">AMAZON_AFFILIATE_TAG</code> in <code className="text-orange-400">.env</code> with your real Associates tag to start earning commissions.
+                        Update <code className="text-[hsl(214_89%_55%)]">AMAZON_AFFILIATE_TAG</code> in <code className="text-[hsl(214_89%_55%)]">.env</code> with your real Associates tag to start earning commissions.
                     </p>
                 </div>
             )}
@@ -150,7 +150,7 @@ export default function AffiliateDashboard() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <div className="flex items-center gap-2 text-orange-500 font-bold text-xs uppercase tracking-widest mb-1">
+                    <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-1">
                         <Sparkles size={13} />
                         Admin Panel
                     </div>
@@ -162,14 +162,14 @@ export default function AffiliateDashboard() {
 
                 {/* Stats */}
                 <div className="flex gap-3">
-                    <div className="glass px-5 py-3 rounded-2xl flex items-center gap-3">
-                        <MousePointer2 size={18} className="text-orange-400" />
+                    <div className="glass px-5 py-3 rounded-md flex items-center gap-3">
+                        <MousePointer2 size={18} className="text-[hsl(214_89%_55%)]" />
                         <div>
                             <div className="text-[10px] text-[hsl(215_10%_40%)] uppercase font-bold">Total Clicks</div>
                             <div className="text-xl font-extrabold text-white">{totalClicks.toLocaleString()}</div>
                         </div>
                     </div>
-                    <div className="glass px-5 py-3 rounded-2xl flex items-center gap-3">
+                    <div className="glass px-5 py-3 rounded-md flex items-center gap-3">
                         <Package size={18} className="text-green-400" />
                         <div>
                             <div className="text-[10px] text-[hsl(215_10%_40%)] uppercase font-bold">Products w/ Links</div>
@@ -184,14 +184,14 @@ export default function AffiliateDashboard() {
 
             {/* Products Table */}
             {loading ? (
-                <div className="glass rounded-2xl p-12 flex items-center justify-center gap-3">
-                    <Loader2 className="animate-spin text-orange-500" size={24} />
+                <div className="glass rounded-md p-12 flex items-center justify-center gap-3">
+                    <Loader2 className="animate-spin text-[hsl(214_89%_52%)]" size={24} />
                     <span className="text-[hsl(215_15%_45%)] text-sm">Loading products...</span>
                 </div>
             ) : (
-                <div className="glass rounded-2xl overflow-hidden">
+                <div className="glass rounded-md overflow-hidden">
                     <div className="px-6 py-4 border-b border-[hsl(224_20%_13%)] flex items-center gap-2">
-                        <BarChart3 size={15} className="text-orange-400" />
+                        <BarChart3 size={15} className="text-[hsl(214_89%_55%)]" />
                         <h3 className="text-sm font-bold text-white">Products with Affiliate Links</h3>
                         <span className="ml-auto text-[10px] text-[hsl(215_10%_38%)]">{products.length} total</span>
                     </div>
@@ -210,11 +210,11 @@ export default function AffiliateDashboard() {
                                     <tr key={product.id} className="hover:bg-[hsl(224_25%_8%)] transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-[hsl(224_25%_11%)] overflow-hidden flex-shrink-0 border border-[hsl(224_20%_14%)]">
+                                                <div className="w-10 h-10 rounded-md bg-[hsl(224_25%_11%)] overflow-hidden flex-shrink-0 border border-[hsl(224_20%_14%)]">
                                                     {product.image && <img src={product.image} className="w-full h-full object-contain p-1" alt="" />}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-semibold text-[hsl(210_30%_88%)] group-hover:text-orange-400 transition-colors truncate max-w-xs text-xs">
+                                                    <div className="font-semibold text-[hsl(210_30%_88%)] group-hover:text-[hsl(214_89%_55%)] transition-colors truncate max-w-xs text-xs">
                                                         {product.title}
                                                     </div>
                                                     <div className="text-[10px] text-[hsl(215_10%_38%)] mt-0.5">
@@ -224,7 +224,7 @@ export default function AffiliateDashboard() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className="text-orange-400 font-bold text-sm">{product.clickCount || 0}</span>
+                                            <span className="text-[hsl(214_89%_55%)] font-bold text-sm">{product.clickCount || 0}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
@@ -258,7 +258,7 @@ export default function AffiliateDashboard() {
                         {products.length === 0 && (
                             <div className="py-16 text-center text-[hsl(215_12%_40%)] text-sm">
                                 No products yet. Add some via{' '}
-                                <a href="/admin/add-product" className="text-orange-400 hover:underline">Add via URL</a>.
+                                <a href="/admin/add-product" className="text-[hsl(214_89%_55%)] hover:underline">Add via URL</a>.
                             </div>
                         )}
                     </div>

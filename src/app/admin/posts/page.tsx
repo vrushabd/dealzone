@@ -12,7 +12,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-2xl shadow-2xl animate-fade-in-up">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-md shadow-2xl animate-fade-in-up">
                 {children}
             </div>
         </div>
@@ -56,7 +56,7 @@ function PostForm({ initial, onSave, onClose }: { initial?: Post | null; onSave:
             </div>
 
             <div className="p-6 space-y-4">
-                {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">{error}</div>}
+                {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-md px-4 py-3 text-sm">{error}</div>}
 
                 <div>
                     <label className="block text-xs font-medium text-gray-400 mb-1.5">Title *</label>
@@ -85,7 +85,7 @@ function PostForm({ initial, onSave, onClose }: { initial?: Post | null; onSave:
 
                 <label className="flex items-center gap-3 cursor-pointer group">
                     <div onClick={() => set("published", !form.published)}
-                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.published ? "bg-orange-500" : "bg-gray-700"}`}>
+                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.published ? "bg-[hsl(214_89%_52%)]" : "bg-gray-700"}`}>
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${form.published ? "left-5" : "left-0.5"}`} />
                     </div>
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
@@ -95,9 +95,9 @@ function PostForm({ initial, onSave, onClose }: { initial?: Post | null; onSave:
             </div>
 
             <div className="flex gap-3 px-6 py-4 border-t border-gray-800">
-                <button type="button" onClick={onClose} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+                <button type="button" onClick={onClose} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-md text-sm font-medium transition-colors">Cancel</button>
                 <button type="submit" disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                    className="flex-1 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white py-2.5 rounded-md text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     {loading ? <><Loader2 size={15} className="animate-spin" />Saving...</> : (initial ? "Save Changes" : "Publish Post")}
                 </button>
             </div>
@@ -138,7 +138,7 @@ export default function AdminPostsPage() {
                     <p className="text-gray-400 text-sm mt-1">{posts.length} posts total</p>
                 </div>
                 <button onClick={() => { setEditing(null); setModalOpen(true); }}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-all btn-glow text-sm">
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
                     <Plus size={16} /> New Post
                 </button>
             </div>
@@ -150,14 +150,14 @@ export default function AdminPostsPage() {
             </div>
 
             {loading ? (
-                <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="skeleton h-16 rounded-xl" />)}</div>
+                <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="skeleton h-16 rounded-md" />)}</div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-gray-500">
                     <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
-                    <p>No posts yet. <button onClick={() => setModalOpen(true)} className="text-orange-400 hover:underline">Write your first post →</button></p>
+                    <p>No posts yet. <button onClick={() => setModalOpen(true)} className="text-[hsl(214_89%_55%)] hover:underline">Write your first post →</button></p>
                 </div>
             ) : (
-                <div className="glass rounded-2xl overflow-hidden">
+                <div className="glass rounded-md overflow-hidden">
                     <div className="divide-y divide-gray-800">
                         {filtered.map((post) => (
                             <div key={post.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-800/30 transition-colors group">
@@ -177,7 +177,7 @@ export default function AdminPostsPage() {
                                     <a href={`/blog/${post.slug}`} target="_blank" className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
                                         <Eye size={15} />
                                     </a>
-                                    <button onClick={() => { setEditing(post); setModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-all">
+                                    <button onClick={() => { setEditing(post); setModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </button>
                                     <button onClick={() => handleDelete(post.id)} disabled={deleting === post.id}

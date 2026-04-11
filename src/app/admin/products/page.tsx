@@ -15,7 +15,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-2xl shadow-2xl animate-fade-in-up">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-md shadow-2xl animate-fade-in-up">
                 {children}
             </div>
         </div>
@@ -117,8 +117,8 @@ function ProductForm({
             <div className="p-6 space-y-4">
                 {/* URL Scraper — only shown for new products */}
                 {!initial && (
-                    <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4">
-                        <label className="block text-xs font-bold text-orange-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <div className="bg-[hsl(214_89%_52%/0.05)] border border-[hsl(214_89%_52%/0.20)] rounded-md p-4">
+                        <label className="block text-xs font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                             <Zap size={11} fill="currentColor" />
                             Auto-fill from Amazon / Flipkart URL
                         </label>
@@ -135,7 +135,7 @@ function ProductForm({
                                 type="button"
                                 onClick={handleScrape}
                                 disabled={scraping || !urlInput.trim()}
-                                className="flex-shrink-0 flex items-center gap-1.5 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+                                className="flex-shrink-0 flex items-center gap-1.5 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_55%)] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-md transition-all"
                             >
                                 {scraping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
                                 {scraping ? "Fetching..." : "Fetch Details"}
@@ -146,7 +146,7 @@ function ProductForm({
                     </div>
                 )}
 
-                {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">{error}</div>}
+                {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-md px-4 py-3 text-sm">{error}</div>}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {fields.slice(0, 1).map(({ key, label, placeholder, type }) => (
@@ -181,7 +181,7 @@ function ProductForm({
 
                 <label className="flex items-center gap-3 cursor-pointer group">
                     <div onClick={() => set("featured", !form.featured)}
-                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-orange-500" : "bg-gray-700"}`}>
+                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-[hsl(214_89%_52%)]" : "bg-gray-700"}`}>
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${form.featured ? "left-5" : "left-0.5"}`} />
                     </div>
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Mark as Featured Deal</span>
@@ -189,9 +189,9 @@ function ProductForm({
             </div>
 
             <div className="flex gap-3 px-6 py-4 border-t border-gray-800">
-                <button type="button" onClick={onClose} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+                <button type="button" onClick={onClose} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-md text-sm font-medium transition-colors">Cancel</button>
                 <button type="submit" disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                    className="flex-1 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white py-2.5 rounded-md text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     {loading ? <><Loader2 size={15} className="animate-spin" />Saving...</> : (initial ? "Save Changes" : "Add Product")}
                 </button>
             </div>
@@ -239,7 +239,7 @@ export default function AdminProductsPage() {
                     <p className="text-gray-400 text-sm mt-1">{products.length} total deals</p>
                 </div>
                 <button onClick={openAdd}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-all btn-glow text-sm">
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
                     <Plus size={16} /> Add Product
                 </button>
             </div>
@@ -253,19 +253,19 @@ export default function AdminProductsPage() {
 
             {loading ? (
                 <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => <div key={i} className="skeleton h-16 rounded-xl" />)}
+                    {[...Array(5)].map((_, i) => <div key={i} className="skeleton h-16 rounded-md" />)}
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-gray-500">
                     <ShoppingBag size={40} className="mx-auto mb-3 opacity-30" />
-                    <p>No products found. <button onClick={openAdd} className="text-orange-400 hover:underline">Add your first deal →</button></p>
+                    <p>No products found. <button onClick={openAdd} className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</button></p>
                 </div>
             ) : (
-                <div className="glass rounded-2xl overflow-hidden">
+                <div className="glass rounded-md overflow-hidden">
                     <div className="divide-y divide-gray-800">
                         {filtered.map((p) => (
                             <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-800/30 transition-colors group">
-                                <div className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                <div className="w-12 h-12 bg-gray-800 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                                     {p.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
@@ -285,14 +285,14 @@ export default function AdminProductsPage() {
                                     </div>
                                 </div>
                                 <div className="text-right flex-shrink-0">
-                                    {p.price && <div className="text-orange-400 text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
+                                    {p.price && <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
                                     {p.originalPrice && <div className="text-gray-600 text-xs line-through">₹{p.originalPrice.toLocaleString("en-IN")}</div>}
                                 </div>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
                                         <ExternalLink size={15} />
                                     </a>
-                                    <button onClick={() => openEdit(p)} className="p-1.5 text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-all">
+                                    <button onClick={() => openEdit(p)} className="p-1.5 text-gray-400 hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </button>
                                     <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}

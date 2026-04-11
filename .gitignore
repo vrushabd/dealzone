@@ -43,3 +43,13 @@ next-env.d.ts
 /src/generated/prisma
 *.db
 .env.local
+
+# Scratch/temp test scripts
+test.ts
+test2.ts
+test3.ts
+test*.js
+fix-*.ts
+fix-*.js
+scratch*.ts
+scratch*.js

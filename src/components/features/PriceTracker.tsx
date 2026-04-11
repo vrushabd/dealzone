@@ -37,7 +37,7 @@ export function PriceTracker() {
             {/* Search Box */}
             <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-10 shadow-2xl mb-8">
                 <div className="text-center mb-8">
-                    <History className="w-12 h-12 text-orange-500 mx-auto mb-4 bg-orange-500/10 p-2.5 rounded-2xl" />
+                    <History className="w-12 h-12 text-[hsl(214_89%_52%)] mx-auto mb-4 bg-[hsl(214_89%_52%/0.08)] p-2.5 rounded-lg" />
                     <h2 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-2">Price History Tracker</h2>
                     <p className="text-[var(--text-secondary)] text-sm max-w-md mx-auto">
                         Paste any Amazon or Flipkart product URL to see its historical price trends and find the absolute best time to buy.
@@ -57,7 +57,7 @@ export function PriceTracker() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-2.5 px-6 rounded-xl transition-all flex items-center gap-2 disabled:opacity-50 text-sm"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white font-bold py-2.5 px-6 rounded-md transition-all flex items-center gap-2 disabled:opacity-50 text-sm"
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Analyze"}
                     </button>
@@ -100,7 +100,7 @@ export function PriceTracker() {
                             <div className="flex items-center gap-6">
                                 <div>
                                     <p className="text-[var(--text-muted)] text-[0.65rem] uppercase tracking-widest font-bold mb-1">Current Price</p>
-                                    <p className="text-2xl font-black text-orange-500">₹{data.product.price.toLocaleString("en-IN")}</p>
+                                    <p className="text-2xl font-black text-[hsl(214_89%_52%)]">₹{data.product.price.toLocaleString("en-IN")}</p>
                                 </div>
                                 {data.history.length > 0 && (
                                     <>
@@ -124,8 +124,8 @@ export function PriceTracker() {
                     <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 shadow-xl">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-orange-500/10 rounded-lg">
-                                    <TrendingDown size={18} className="text-orange-500" />
+                                <div className="p-2 bg-[hsl(214_89%_52%/0.08)] rounded-md">
+                                    <TrendingDown size={18} className="text-[hsl(214_89%_52%)]" />
                                 </div>
                                 <h4 className="font-bold text-[var(--text-primary)]">Price Trend Analysis</h4>
                             </div>
@@ -140,8 +140,8 @@ export function PriceTracker() {
                                     <AreaChart data={data.history}>
                                         <defs>
                                             <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="hsl(214, 89%, 52%)" stopOpacity={0.25} />
+                                                <stop offset="95%" stopColor="hsl(214, 89%, 52%)" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -169,7 +169,7 @@ export function PriceTracker() {
                                                 fontSize: '11px',
                                                 color: 'var(--text-primary)'
                                             }}
-                                            itemStyle={{ color: '#f97316', fontWeight: 'bold' }}
+                                            itemStyle={{ color: 'hsl(214, 89%, 52%)', fontWeight: 'bold' }}
                                             formatter={(value: any) => [`₹${(value || 0).toLocaleString('en-IN')}`, 'Price']}
                                             labelFormatter={(label) => new Date(label).toLocaleDateString('en-IN', {
                                                 weekday: 'short',
@@ -181,8 +181,8 @@ export function PriceTracker() {
                                         <Area
                                             type="monotone"
                                             dataKey="price"
-                                            stroke="#f97316"
-                                            strokeWidth={3}
+                                            stroke="hsl(214, 89%, 52%)"
+                                            strokeWidth={2.5}
                                             fillOpacity={1}
                                             fill="url(#colorPrice)"
                                             animationDuration={1500}

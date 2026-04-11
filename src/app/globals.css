@@ -1,89 +1,95 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════
-   DEALZONE DESIGN SYSTEM — HSL Token Layer
+   DEALZONE DESIGN SYSTEM — BuyHatke Theme
    ═══════════════════════════════════════════════════════ */
 :root {
-  /* Brand — Orange */
-  --brand-h: 24;
-  --brand-s: 95%;
-  --brand: hsl(24 95% 53%);
-  --brand-dim: hsl(24 95% 44%);
-  --brand-bright: hsl(24 100% 62%);
-  --brand-glow: hsl(24 95% 53% / 0.22);
-  --brand-glow-strong: hsl(24 95% 53% / 0.40);
+  /* Brand — BuyHatke Blue */
+  --brand-h: 214;
+  --brand-s: 89%;
+  --brand: hsl(214 89% 52%);
+  --brand-dim: hsl(214 89% 45%);
+  --brand-bright: hsl(214 100% 60%);
+  --brand-glow: hsl(214 89% 52% / 0.15);
+  --brand-glow-strong: hsl(214 89% 52% / 0.25);
 
-  /* Surfaces — Blue-Black depth */
-  --bg-base: hsl(224 44% 4%);
-  --bg-surface: hsl(224 32% 7%);
-  --bg-card: hsl(224 28% 9%);
-  --bg-card-hover: hsl(224 25% 12%);
-  --bg-elevated: hsl(224 22% 13%);
+  /* Secondary Brand - BuyHatke Green */
+  --brand-secondary: hsl(149 100% 33%);
+
+  /* Surfaces — Dark Mode (Flat Dark) */
+  --bg-base: hsl(220 10% 10%);
+  --bg-surface: hsl(220 10% 14%);
+  --bg-card: hsl(220 10% 16%);
+  --bg-card-hover: hsl(220 10% 20%);
+  --bg-elevated: hsl(220 10% 22%);
 
   /* Borders */
-  --border: hsl(224 20% 15%);
-  --border-subtle: hsl(224 18% 11%);
-  --border-brand: hsl(24 75% 53% / 0.35);
+  --border: hsl(220 15% 24%);
+  --border-subtle: hsl(220 15% 20%);
+  --border-brand: hsl(214 89% 52% / 0.35);
 
   /* Typography */
-  --text-primary: hsl(210 30% 96%);
-  --text-secondary: hsl(215 18% 65%);
-  --text-muted: hsl(215 12% 42%);
-  --text-placeholder: hsl(215 10% 35%);
+  --text-primary: hsl(0 0% 95%);
+  --text-secondary: hsl(0 0% 70%);
+  --text-muted: hsl(0 0% 50%);
+  --text-placeholder: hsl(0 0% 40%);
 
   /* Semantic */
-  --success: hsl(142 72% 50%);
-  --success-dim: hsl(142 72% 50% / 0.12);
+  --success: hsl(149 100% 33%);
+  --success-dim: hsl(149 100% 33% / 0.12);
   --danger: hsl(0 84% 60%);
   --danger-dim: hsl(0 84% 60% / 0.12);
   --warning: hsl(38 92% 50%);
 
   /* Gradients */
-  --gradient-brand: linear-gradient(135deg, hsl(24 95% 53%), hsl(14 95% 55%));
-  --gradient-dark: linear-gradient(135deg, hsl(224 32% 7%), hsl(224 28% 10%));
-  --gradient-hero: linear-gradient(135deg, hsl(224 44% 4%) 0%, hsl(240 30% 6%) 50%, hsl(224 44% 4%) 100%);
+  --gradient-brand: linear-gradient(135deg, hsl(214 89% 52%), hsl(210 100% 45%));
+  --gradient-dark: linear-gradient(135deg, hsl(220 10% 14%), hsl(220 10% 12%));
+  --gradient-hero: linear-gradient(135deg, hsl(220 10% 10%) 0%, hsl(220 10% 14%) 100%);
 
-  /* Shadows */
-  --shadow-brand: 0 4px 24px hsl(24 95% 53% / 0.25);
-  --shadow-card: 0 4px 20px hsl(224 44% 0% / 0.5);
-  --shadow-elevated: 0 8px 40px hsl(224 44% 0% / 0.6);
+  /* Shadows (Flat standard shadows) */
+  --shadow-brand: 0 4px 14px hsl(214 89% 52% / 0.25);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.5);
 
   /* Font */
   --font-inter: 'Inter', sans-serif;
 
-  /* Radii */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
+  /* Radii (BuyHatke is sqaurish/flat) */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
 }
 
 /* ═══════════════════════════════════════════════════════
    LIGHT MODE OVERRIDES
    ═══════════════════════════════════════════════════════ */
 .light {
-  --bg-base:       hsl(220 25% 96%);
-  --bg-surface:    hsl(220 20% 92%);
+  /* Surfaces — Crisp White e-commerce style */
+  --bg-base:       hsl(220 20% 98%);
+  --bg-surface:    hsl(0 0% 100%);
   --bg-card:       hsl(0 0% 100%);
-  --bg-card-hover: hsl(220 20% 97%);
-  --bg-elevated:   hsl(220 15% 93%);
+  --bg-card-hover: hsl(220 15% 97%);
+  --bg-elevated:   hsl(0 0% 100%);
 
-  --border:        hsl(220 15% 84%);
-  --border-subtle: hsl(220 15% 91%);
-  --border-brand:  hsl(24 75% 53% / 0.28);
+  --border:        hsl(220 15% 90%);
+  --border-subtle: hsl(220 15% 95%);
+  --border-brand:  hsl(214 89% 52% / 0.28);
 
-  --text-primary:     hsl(224 44% 8%);
-  --text-secondary:   hsl(215 20% 32%);
-  --text-muted:       hsl(215 12% 48%);
-  --text-placeholder: hsl(215 10% 58%);
+  /* High contrast typography */
+  --text-primary:     hsl(224 44% 15%);
+  --text-secondary:   hsl(215 15% 40%);
+  --text-muted:       hsl(215 15% 55%);
+  --text-placeholder: hsl(215 10% 70%);
 
-  --shadow-brand:   0 4px 24px hsl(24 95% 53% / 0.18);
-  --shadow-card:    0 2px 12px hsl(220 20% 0% / 0.07);
-  --shadow-elevated: 0 8px 32px hsl(220 20% 0% / 0.10);
+  /* Standard eCommerce Drop Shadows */
+  --shadow-brand:   0 4px 14px hsl(214 89% 52% / 0.18);
+  --shadow-card:    0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-  --gradient-dark: linear-gradient(135deg, hsl(220 20% 94%), hsl(220 15% 96%));
-  --gradient-hero: linear-gradient(135deg, hsl(220 25% 96%) 0%, hsl(220 20% 92%) 50%, hsl(220 25% 96%) 100%);
+  --gradient-dark: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 20% 98%));
+  --gradient-hero: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(0 0% 100%) 100%);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -127,14 +133,14 @@ body {
    TYPOGRAPHY UTILITIES
    ═══════════════════════════════════════════════════════ */
 .gradient-text {
-  background: linear-gradient(135deg, hsl(24 95% 62%) 0%, hsl(24 95% 53%) 45%, hsl(38 95% 58%) 100%);
+  background: linear-gradient(135deg, hsl(214 89% 60%) 0%, hsl(214 89% 52%) 50%, hsl(149 100% 36%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-cool {
-  background: linear-gradient(135deg, #e879f9, #818cf8, #38bdf8);
+  background: linear-gradient(135deg, hsl(214 89% 52%), hsl(149 100% 33%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -145,24 +151,17 @@ body {
    ═══════════════════════════════════════════════════════ */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
 }
 
 .glass-strong {
-  background: var(--bg-surface);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
 }
 
 .glass-brand {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-brand);
-  box-shadow: inset 0 1px 0 hsl(24 95% 53% / 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -173,8 +172,8 @@ body {
 }
 
 .card-glow:hover {
-  box-shadow: 0 0 0 1px var(--border-brand), 0 8px 40px hsl(224 44% 0% / 0.5), 0 0 32px var(--brand-glow);
-  border-color: hsl(24 75% 53% / 0.3) !important;
+  box-shadow: 0 0 0 1px var(--border-brand), var(--shadow-elevated);
+  border-color: hsl(214 89% 52% / 0.35) !important;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -248,8 +247,8 @@ body {
    PULSE GLOW BUTTON
    ═══════════════════════════════════════════════════════ */
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(24 95% 53% / 0.4); }
-  50%       { box-shadow: 0 0 0 10px hsl(24 95% 53% / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(214 89% 52% / 0.4); }
+  50%       { box-shadow: 0 0 0 10px hsl(214 89% 52% / 0); }
 }
 
 .btn-glow:hover {
@@ -362,14 +361,14 @@ body {
    BADGE
    ═══════════════════════════════════════════════════════ */
 .badge-discount {
-  background: linear-gradient(135deg, hsl(24 95% 53%), hsl(14 95% 50%));
+  background: hsl(149 100% 33%);
   color: white;
   font-size: 0.65rem;
   font-weight: 800;
   padding: 0.2rem 0.5rem;
-  border-radius: 99px;
+  border-radius: 4px;
   letter-spacing: 0.02em;
-  box-shadow: 0 2px 10px hsl(24 95% 53% / 0.35);
+  box-shadow: 0 2px 6px hsl(149 100% 33% / 0.3);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -385,7 +384,7 @@ body {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, hsl(24 95% 53% / 0.6), transparent 50%, hsl(14 95% 55% / 0.4));
+  background: linear-gradient(135deg, hsl(214 89% 52% / 0.6), transparent 50%, hsl(149 100% 33% / 0.4));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -441,7 +440,7 @@ body {
    ═══════════════════════════════════════════════════════ */
 .mesh-bg {
   background-image:
-    radial-gradient(circle at 20% 20%, hsl(24 95% 53% / 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, hsl(240 80% 60% / 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, hsl(24 95% 53% / 0.02) 0%, transparent 70%);
+    radial-gradient(circle at 20% 20%, hsl(214 89% 52% / 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, hsl(149 100% 33% / 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, hsl(214 89% 52% / 0.02) 0%, transparent 70%);
 }

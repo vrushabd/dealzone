@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingBag, Search, Menu, X, Zap, Flame } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, Zap } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
@@ -39,9 +39,9 @@ export default function Navbar() {
         <header
             className={`sticky top-0 z-50 transition-all duration-300 ${
                 scrolled
-                    ? "bg-[var(--bg-base)]/95 shadow-[var(--shadow-elevated)] border-b border-[var(--border)]"
-                    : "bg-[var(--bg-base)]/90 border-b border-[var(--border)]"
-            } backdrop-blur-xl`}
+                    ? "bg-[var(--bg-base)] shadow-[var(--shadow-card)] border-b border-[var(--border)]"
+                    : "bg-[var(--bg-base)] border-b border-[var(--border)]"
+            }`}
         >
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-14" : "h-16"}`}>
@@ -49,15 +49,15 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
                         <div className="relative w-8 h-8 flex-shrink-0">
-                            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-[0_0_16px_hsl(24_95%_53%/0.4)] group-hover:shadow-[0_0_24px_hsl(24_95%_53%/0.6)] transition-shadow duration-300">
+                            <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-md flex items-center justify-center shadow-[var(--shadow-brand)] group-hover:brightness-110 transition-all duration-200">
                                 <Zap size={17} className="text-white" fill="currentColor" />
                             </div>
                         </div>
                         <span className="text-xl font-extrabold gradient-text tracking-tight">DealZone</span>
 
-                        {/* Hot deals live badge */}
-                        <div className="hidden sm:flex items-center gap-1 bg-orange-500/10 border border-orange-500/25 rounded-full px-2 py-0.5 text-[10px] font-bold text-orange-400 uppercase tracking-wider">
-                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-[pulseDot_1.5s_ease-in-out_infinite]" />
+                        {/* Live badge */}
+                        <div className="hidden sm:flex items-center gap-1 bg-[hsl(214_89%_52%/0.10)] border border-[hsl(214_89%_52%/0.25)] rounded-full px-2 py-0.5 text-[10px] font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[hsl(214_89%_55%)] animate-[pulseDot_1.5s_ease-in-out_infinite]" />
                             Live
                         </div>
                     </Link>
@@ -70,15 +70,15 @@ export default function Navbar() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`relative text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                                    className={`relative text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-200 ${
                                         isActive
-                                            ? "text-orange-400 bg-orange-500/10"
+                                            ? "text-[hsl(214_89%_55%)] bg-[hsl(214_89%_52%/0.08)]"
                                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                                     }`}
                                 >
                                     {link.label}
                                     {isActive && (
-                                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-0.5 bg-orange-500 rounded-full" />
+                                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[hsl(214_89%_52%)] rounded-full" />
                                     )}
                                 </Link>
                             );
@@ -93,11 +93,11 @@ export default function Navbar() {
                                 placeholder="Search deals..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-4 pr-10 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-orange-500 focus:shadow-[0_0_0_3px_hsl(24_95%_53%/0.15)] w-44 transition-all duration-300 focus:w-56"
+                                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md pl-4 pr-10 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.12)] w-44 transition-all duration-300 focus:w-56"
                             />
                             <button
                                 type="submit"
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[hsl(215_12%_42%)] hover:text-orange-400 transition-colors"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[var(--text-muted)] hover:text-[hsl(214_89%_52%)] transition-colors"
                                 aria-label="Search"
                             >
                                 <Search size={14} />
@@ -107,13 +107,10 @@ export default function Navbar() {
 
                     {/* Mobile menu button and Theme toggle group */}
                     <div className="flex items-center gap-2">
-                        {/* Theme toggle */}
                         <ThemeToggle />
-
-                        {/* Mobile menu button */}
                         <button
                             onClick={() => setMenuOpen(!menuOpen)}
-                            className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] rounded-lg transition-all"
+                            className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] rounded-md transition-all"
                             aria-label="Toggle menu"
                         >
                             {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -126,18 +123,18 @@ export default function Navbar() {
                     <div className="md:hidden pb-4 border-t border-[var(--border)] mt-2 pt-4 space-y-1 animate-slide-down">
                         <form onSubmit={handleSearch} className="flex gap-2 mb-4">
                             <div className="relative flex-1">
-                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(215_12%_42%)]" />
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                 <input
                                     type="text"
                                     placeholder="Search deals..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-8 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-orange-500"
+                                    className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-md pl-8 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[hsl(214_89%_52%)]"
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all hover:shadow-[0_4px_16px_hsl(24_95%_53%/0.35)]"
+                                className="bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white px-4 py-2 rounded-md text-sm font-bold transition-all"
                             >
                                 Go
                             </button>
@@ -149,9 +146,9 @@ export default function Navbar() {
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setMenuOpen(false)}
-                                    className={`flex items-center py-2.5 px-3 rounded-xl text-sm font-medium transition-all ${
+                                    className={`flex items-center py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                                         isActive
-                                            ? "bg-orange-500/10 text-orange-400"
+                                            ? "bg-[hsl(214_89%_52%/0.08)] text-[hsl(214_89%_55%)]"
                                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                                     }`}
                                 >

@@ -75,7 +75,7 @@ export default function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <article className="group/card relative flex flex-col bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden transition-all duration-350 hover:-translate-y-1.5 hover:border-orange-500/30 hover:shadow-[var(--shadow-brand)]">
+        <article className="group/card relative flex flex-col bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(214_89%_52%/0.30)] hover:shadow-[var(--shadow-elevated)]">
 
             {/* Image — portrait on mobile, landscape on desktop */}
             <div className="relative aspect-[3/4] sm:aspect-[4/3] bg-[var(--bg-card-hover)] overflow-hidden">
@@ -94,7 +94,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         </div>
                     )}
                     {/* Bottom gradient on image */}
-                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[var(--bg-card)]/80 to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[var(--bg-card)]/60 to-transparent pointer-events-none" />
                 </Link>
 
                 {/* Discount badge */}
@@ -107,7 +107,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 {/* Bell */}
                 <button
                     onClick={() => setIsAlertOpen(true)}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[var(--bg-base)]/90 backdrop-blur border border-[var(--border)] text-[var(--text-secondary)] hover:text-orange-400 hover:border-orange-500/40 hover:bg-orange-500/10 flex items-center justify-center transition-all duration-200 shadow-lg opacity-0 group-hover/card:opacity-100 z-20"
+                    className="absolute top-3 right-3 w-8 h-8 rounded-md bg-[var(--bg-base)]/90 border border-[var(--border)] text-[var(--text-secondary)] hover:text-[hsl(214_89%_52%)] hover:border-[hsl(214_89%_52%/0.40)] hover:bg-[hsl(214_89%_52%/0.08)] flex items-center justify-center transition-all duration-200 shadow-[var(--shadow-card)] opacity-0 group-hover/card:opacity-100 z-20"
                     title="Set Price Alert"
                 >
                     <Bell size={13} />
@@ -192,7 +192,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 <div className="flex flex-col gap-1 mb-3 min-h-[3.5rem]">
                     <div className="flex items-baseline gap-2">
                         {product.price && (
-                            <span className="text-xl font-extrabold text-orange-400 leading-none">
+                            <span className="text-xl font-extrabold text-[hsl(214_89%_52%)] leading-none">
                                 ₹{product.price.toLocaleString("en-IN")}
                             </span>
                         )}
@@ -226,7 +226,7 @@ export default function ProductCard({ product }: { product: Product }) {
                             {/* Buy Now trigger — now navigates to product page */}
                             <Link
                                 href={`/products/${product.slug}`}
-                                className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white text-sm font-bold py-2 px-4 rounded-xl transition-all duration-200 shine-on-hover shadow-[0_4px_14px_hsl(24_95%_53%/0.25)]"
+                                className="flex items-center justify-center gap-2 w-full bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white text-sm font-bold py-2 px-4 rounded-md transition-all duration-200 shine-on-hover"
                             >
                                 <ShoppingCart size={13} />
                                 Buy Now

@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ExternalLink, Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown } from "lucide-react";
+import { ExternalLink, Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ChevronDown } from "lucide-react";
 
 interface Product {
     id: string;
@@ -24,10 +24,14 @@ interface Product {
 
 export default function ProductCard({ product }: { product: Product }) {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [isBuyOpen, setIsBuyOpen] = useState(false);
     const [alertEmail, setAlertEmail] = useState("");
     const [targetPrice, setTargetPrice] = useState(product.price ? Math.floor(product.price * 0.9) : 0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
+    const hasBuyLinks = !!(product.amazonLink || product.flipkartLink);
+    const platformCount = [product.amazonLink, product.flipkartLink].filter(Boolean).length;
 
     const discountPct =
         product.discount ||
@@ -214,34 +218,52 @@ export default function ProductCard({ product }: { product: Product }) {
                     )}
                 </div>
 
-                {/* CTA Buttons */}
-                <div className="mt-auto flex flex-col gap-2">
-                    {product.amazonLink && (
-                        <a
-                            href={product.amazonLink}
-                            target="_blank"
-                            rel="noopener noreferrer sponsored"
-                            className="flex items-center justify-center gap-2 bg-[hsl(43_95%_53%)] hover:bg-[hsl(43_95%_60%)] text-gray-950 text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200 shine-on-hover hover:shadow-[0_4px_16px_hsl(43_95%_53%/0.35)]"
-                        >
-                            <ExternalLink size={13} />
-                            Buy on Amazon
-                        </a>
-                    )}
-                    {product.flipkartLink && (
-                        <a
-                            href={product.flipkartLink}
-                            target="_blank"
-                            rel="noopener noreferrer sponsored"
-                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200 shine-on-hover hover:shadow-[0_4px_16px_hsl(221_83%_53%/0.35)]"
-                        >
-                            <ExternalLink size={13} />
-                            Buy on Flipkart
-                        </a>
-                    )}
-                    {!product.amazonLink && !product.flipkartLink && (
+                {/* CTA — Buy Now expands to platform options */}
+                <div className="mt-auto">
+                    {hasBuyLinks ? (
+                        <div className="flex flex-col gap-2">
+                            {/* Buy Now trigger */}
+                            <button
+                                onClick={() => setIsBuyOpen(!isBuyOpen)}
+                                className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200 shine-on-hover shadow-[0_4px_16px_hsl(24_95%_53%/0.25)]"
+                            >
+                                <ShoppingCart size={13} />
+                                Buy Now
+                                <ChevronDown size={13} className={`ml-auto transition-transform duration-200 ${isBuyOpen ? "rotate-180" : ""}`} />
+                            </button>
+
+                            {/* Platform options — slide down */}
+                            {isBuyOpen && (
+                                <div className="flex flex-col gap-1.5 animate-scale-in">
+                                    {product.amazonLink && (
+                                        <a
+                                            href={product.amazonLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer sponsored"
+                                            className="flex items-center justify-center gap-2 bg-[hsl(43_95%_53%)] hover:bg-[hsl(43_95%_60%)] text-gray-950 text-xs font-bold py-2 px-4 rounded-xl transition-all shine-on-hover"
+                                        >
+                                            <ExternalLink size={11} />
+                                            Amazon
+                                        </a>
+                                    )}
+                                    {product.flipkartLink && (
+                                        <a
+                                            href={product.flipkartLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer sponsored"
+                                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all shine-on-hover"
+                                        >
+                                            <ExternalLink size={11} />
+                                            Flipkart
+                                        </a>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
                         <Link
                             href={`/products/${product.slug}`}
-                            className="flex items-center justify-center gap-2 bg-[hsl(224_25%_14%)] hover:bg-[hsl(224_25%_18%)] border border-[hsl(224_20%_20%)] text-[hsl(210_30%_92%)] text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200"
+                            className="flex items-center justify-center gap-2 w-full bg-[hsl(224_25%_14%)] hover:bg-[hsl(224_25%_18%)] border border-[hsl(224_20%_20%)] text-[hsl(210_30%_92%)] text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200"
                         >
                             View Details
                         </Link>

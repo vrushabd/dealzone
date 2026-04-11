@@ -111,7 +111,7 @@ export default async function HomePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
 
                         {/* Main Feed — full width on mobile, 3 cols on desktop */}
-                        <div className="lg:col-span-3 space-y-10 order-2 lg:order-1">
+                        <div className="lg:col-span-3 space-y-10 order-1 lg:order-1">
 
                             {/* Featured */}
                             {(featuredProducts as any[]).length > 0 && (
@@ -175,8 +175,8 @@ export default async function HomePage() {
                             </section>
                         </div>
 
-                        {/* Sidebar — shown above on mobile, right on desktop */}
-                        <aside className="space-y-4 order-1 lg:order-2">
+                        {/* Sidebar — below feed on mobile, right on desktop */}
+                        <aside className="space-y-4 order-2 lg:order-2">
 
                             {/* Blog / Shopping Tips */}
                             <div className="glass rounded-2xl p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">

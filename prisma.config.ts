@@ -1,7 +1,7 @@
 import { defineConfig } from "prisma/config";
-import "dotenv/config";
 
-// Supabase: DIRECT_URL for Prisma CLI/migrations; app runtime uses DATABASE_URL (pooler) in src/lib/prisma.ts.
+// On Render/production: env vars are injected by the platform — no dotenv needed.
+// Locally: env vars come from .env via Next.js dev server.
 const datasourceUrl =
   process.env.DIRECT_URL ||
   process.env.DATABASE_URL ||
@@ -17,3 +17,4 @@ export default defineConfig({
     url: datasourceUrl,
   },
 });
+

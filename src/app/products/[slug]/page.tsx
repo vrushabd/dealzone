@@ -125,9 +125,9 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         {/* Price */}
                         <div className="flex items-baseline gap-3 mb-6">
-                            {product.price > 0 ? (
+                            {(product.price ?? 0) > 0 ? (
                                 <span className="text-4xl font-extrabold text-orange-400">
-                                    ₹{product.price.toLocaleString("en-IN")}
+                                    ₹{product.price!.toLocaleString("en-IN")}
                                 </span>
                             ) : (
                                 <span className="text-xl font-bold text-[var(--text-muted)]">
@@ -171,7 +171,7 @@ export default async function ProductDetailPage({ params }: Params) {
                         </div>
 
                         {/* AI Buy Advisor */}
-                        <BuyAdvice productId={product.id} currentPrice={product.price} />
+                        <BuyAdvice productId={product.id} currentPrice={product.price ?? 0} />
 
                         {/* Description */}
                         {product.description && (
@@ -189,7 +189,7 @@ export default async function ProductDetailPage({ params }: Params) {
 
                 {/* Price History Chart */}
                 <section className="mb-12">
-                    <PriceHistoryChart productId={product.id} currentPrice={product.price} />
+                    <PriceHistoryChart productId={product.id} currentPrice={product.price ?? 0} />
                 </section>
 
                 {/* Related Products */}

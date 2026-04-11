@@ -3,10 +3,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import CategoryIcon from "@/components/ui/CategoryIcon";
+import { Tag } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Categories – DealZone",
-    description: "Browse deals by category. Find electronics, fashion, home, beauty and more.",
+    title: "All Categories – DealZone",
+    description: "Browse deals by category. Find electronics, fashion, home & kitchen, beauty, gaming, books and more.",
 };
 
 export const revalidate = 60;
@@ -20,23 +22,34 @@ export default async function CategoriesPage() {
     return (
         <>
             <Navbar />
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <h1 className="text-3xl font-bold text-white mb-2">All Categories</h1>
-                <p className="text-gray-400 mb-8">Browse deals by category</p>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-16">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-2 text-orange-500 font-bold text-xs uppercase tracking-widest mb-2">
+                        <Tag size={13} />
+                        Browse
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-white">All Categories</h1>
+                    <p className="text-[hsl(215_12%_45%)] text-sm mt-1">Find deals across every category</p>
+                </div>
 
                 {categories.length === 0 ? (
-                    <div className="text-center py-24 text-gray-500">No categories yet.</div>
+                    <div className="text-center py-24 text-[hsl(215_12%_40%)]">No categories yet.</div>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {categories.map((cat) => (
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
-                                className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-orange-500/30 rounded-2xl p-6 text-center transition-all group card-glow"
+                                className="group glass border border-[hsl(224_20%_14%)] hover:border-orange-500/30 rounded-2xl p-5 text-center transition-all duration-200 card-glow flex flex-col items-center"
                             >
-                                <div className="text-5xl mb-4">{cat.icon || "📦"}</div>
-                                <h2 className="font-semibold text-gray-200 group-hover:text-orange-400 transition-colors mb-1">{cat.name}</h2>
-                                <p className="text-xs text-gray-500">{cat._count.products} deals</p>
+                                <CategoryIcon slug={cat.slug} variant="page" />
+                                <h2 className="font-bold text-[hsl(210_30%_88%)] group-hover:text-orange-400 transition-colors mt-3 text-sm">
+                                    {cat.name}
+                                </h2>
+                                <p className="text-[10px] text-[hsl(215_10%_40%)] mt-1">
+                                    {cat._count.products} deals
+                                </p>
                             </Link>
                         ))}
                     </div>

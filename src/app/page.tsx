@@ -8,6 +8,7 @@ import {
     ArrowRight, Zap, TrendingUp, Star, Tag,
     ShoppingBag, Sparkles, Clock
 } from "lucide-react";
+import CategoryIcon from "@/components/ui/CategoryIcon";
 
 export const metadata: Metadata = {
     title: "DealZone – Best Amazon & Flipkart Deals",
@@ -94,7 +95,7 @@ export default async function HomePage() {
                                 href={`/categories/${cat.slug}`}
                                 className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[hsl(215_15%_52%)] hover:text-white transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(24_95%_53%/0.1)] border border-transparent hover:border-[hsl(24_75%_53%/0.25)] flex-shrink-0"
                             >
-                                <span>{cat.icon}</span>
+                                <CategoryIcon slug={cat.slug} variant="bar" />
                                 <span>{cat.name}</span>
                                 {cat._count?.products > 0 && (
                                     <span className="text-[9px] text-[hsl(215_10%_35%)]">
@@ -221,7 +222,7 @@ export default async function HomePage() {
                                             href={`/categories/${cat.slug}`}
                                             className="group bg-[hsl(224_28%_11%)] hover:bg-[hsl(24_95%_53%/0.08)] border border-[hsl(224_20%_14%)] hover:border-[hsl(24_75%_53%/0.3)] rounded-xl p-3 text-center transition-all duration-200"
                                         >
-                                            <div className="text-2xl mb-1.5">{cat.icon}</div>
+                                            <CategoryIcon slug={cat.slug} variant="card" />
                                             <div className="text-[10px] font-bold text-[hsl(215_15%_45%)] group-hover:text-white uppercase tracking-tight transition-colors">
                                                 {cat.name}
                                             </div>

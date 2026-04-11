@@ -7,7 +7,7 @@ import {
     Zap, LayoutDashboard, ShoppingBag, BookOpen, Tag,
     LogOut, ExternalLink, Menu, X, ChevronRight, Link2, BarChart3,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -72,8 +72,8 @@ export default function AdminSidebar() {
                 </a>
                 
                 <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all">
-                    <ThemeToggle />
-                    {!collapsed && <span>Appearance</span>}
+                    <GlobalThemeToggle />
+                    {!collapsed && <span>Global Default Theme</span>}
                 </div>
 
                 <button

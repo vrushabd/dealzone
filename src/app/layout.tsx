@@ -33,11 +33,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import { prisma } from "@/lib/prisma";
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Query global DB config for default theme; if missing, fallback to dark
+  let defaultTheme = "dark";
+  try {
+    const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
+    if (settings) {
+      defaultTheme = settings.defaultTheme;
+    }
+  } catch (error) {
+    console.error("Failed to load site settings:", error);
+  }
+
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="bg-[var(--bg-base)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-300">
-        <Providers>{children}</Providers>
+        <Providers forcedDefaultTheme={defaultTheme}>{children}</Providers>
       </body>
     </html>
   );

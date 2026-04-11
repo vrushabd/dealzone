@@ -119,3 +119,9 @@ model AffiliateClick {
   timestamp DateTime @default(now())
   product   Product  @relation(fields: [productId], references: [id])
 }
+
+model SiteSettings {
+  id           String   @id @default("default")
+  defaultTheme String   @default("dark")
+  updatedAt    DateTime @updatedAt
+}

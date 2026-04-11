@@ -77,8 +77,8 @@ export default function ProductCard({ product }: { product: Product }) {
     return (
         <article className="group/card relative flex flex-col bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_14%)] rounded-2xl overflow-hidden transition-all duration-350 hover:-translate-y-1.5 hover:border-[hsl(24_75%_53%/0.3)] hover:shadow-[0_0_0_1px_hsl(24_75%_53%/0.15),0_12px_48px_hsl(224_44%_0%/0.55),0_0_32px_hsl(24_95%_53%/0.08)]">
 
-            {/* Image — portrait ratio so it dominates the card */}
-            <div className="relative aspect-[3/4] bg-[hsl(224_25%_11%)] overflow-hidden">
+            {/* Image — portrait on mobile, landscape on desktop */}
+            <div className="relative aspect-[3/4] sm:aspect-[4/3] bg-[hsl(224_25%_11%)] overflow-hidden">
                 <Link href={`/products/${product.slug}`} className="block w-full h-full">
                     {product.image ? (
                         <Image

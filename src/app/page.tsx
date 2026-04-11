@@ -129,7 +129,7 @@ export default async function HomePage() {
                                             See all <ArrowRight size={12} />
                                         </Link>
                                     </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 stagger-children">
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-children">
                                         {(featuredProducts as any[]).map((product) => (
                                             <div key={product.id} className="animate-fade-in-up">
                                                 <ProductCard product={product} />
@@ -153,7 +153,7 @@ export default async function HomePage() {
                                         All deals <ArrowRight size={12} />
                                     </Link>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 stagger-children">
+                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-children">
                                     {(latestProducts as any[]).map((product) => (
                                         <div key={product.id} className="animate-fade-in-up">
                                             <ProductCard product={product} />

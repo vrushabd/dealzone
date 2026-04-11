@@ -54,7 +54,7 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                 {/* Header */}
                 <div className="p-10 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                     <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-[1.5rem] bg-orange-600/10 flex items-center justify-center text-orange-500 border border-orange-500/20 shadow-inner">
+                        <div className="w-16 h-16 rounded-[1.5rem] bg-[hsl(214_89%_52%/0.08)] flex items-center justify-center text-[hsl(214_89%_52%)] border border-[hsl(214_89%_52%/0.20)] shadow-inner">
                             <History size={32} />
                         </div>
                         <div>
@@ -84,8 +84,8 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                     {loading ? (
                         <div className="h-96 flex flex-col items-center justify-center gap-6">
                             <div className="relative">
-                                <Loader2 className="animate-spin text-orange-500" size={48} />
-                                <div className="absolute inset-0 blur-xl bg-orange-500/20 animate-pulse" />
+                                <Loader2 className="animate-spin text-[hsl(214_89%_52%)]" size={48} />
+                                <div className="absolute inset-0 blur-xl bg-[hsl(214_89%_52%)]/20 animate-pulse" />
                             </div>
                             <p className="text-gray-400 font-bold tracking-wide">Querying history logs...</p>
                         </div>
@@ -102,7 +102,7 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                             <a
                                 href={product.originalUrl}
                                 target="_blank"
-                                className="px-8 py-3 bg-white text-black font-black rounded-xl hover:bg-gray-100 transition-all"
+                                className="px-8 py-3 bg-white text-black font-black rounded-md hover:bg-gray-100 transition-all"
                             >
                                 PASS SECURITY CHECK
                             </a>
@@ -112,7 +112,7 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                             <section className="animate-fade-in-up">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-2">
-                                        <BarChart2 size={18} className="text-orange-500" />
+                                        <BarChart2 size={18} className="text-[hsl(214_89%_52%)]" />
                                         <h3 className="text-xs font-black text-white uppercase tracking-[0.2em]">Price Momentum (30D)</h3>
                                     </div>
                                 </div>
@@ -136,8 +136,8 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                                 {prediction && !prediction.error && prediction.predictedPrice > 0 ? (
                                     <PredictionCard prediction={prediction} />
                                 ) : (
-                                    <div className="p-8 bg-orange-500/5 border border-orange-500/20 rounded-[2rem] text-orange-400 font-bold flex items-center gap-4">
-                                        <div className="bg-orange-500/10 p-3 rounded-xl uppercase text-[10px] tracking-widest">Awaiting Logs</div>
+                                    <div className="p-8 bg-[hsl(214_89%_52%)]/5 border border-[hsl(214_89%_52%/0.20)] rounded-[2rem] text-[hsl(214_89%_55%)] font-bold flex items-center gap-4">
+                                        <div className="bg-[hsl(214_89%_52%/0.08)] p-3 rounded-md uppercase text-[10px] tracking-widest">Awaiting Logs</div>
                                         Predictive engine requires at least 3 historical snapshots to triangulate a forecast.
                                     </div>
                                 )}
@@ -150,7 +150,7 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                 <div className="p-8 border-t border-white/5 bg-white/[0.02] flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-10 py-4 bg-white text-black font-black rounded-2xl hover:bg-gray-200 transition-all active:scale-95 shadow-xl"
+                        className="px-10 py-4 bg-white text-black font-black rounded-md hover:bg-gray-200 transition-all active:scale-95 shadow-xl"
                     >
                         DISMISS
                     </button>

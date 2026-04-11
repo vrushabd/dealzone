@@ -11,12 +11,12 @@ export default function Footer() {
     return (
         <footer className="relative mt-20 overflow-hidden">
             {/* Gradient top border */}
-            <div className="h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
+            <div className="h-px bg-gradient-to-r from-transparent via-[hsl(214_89%_52%/0.4)] to-transparent" />
 
             {/* Background */}
             <div className="relative bg-[var(--bg-surface)] mesh-bg">
                 {/* Ambient glow orbs */}
-                <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-orange-500/4 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-[hsl(214_89%_52%)]/4 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-0 right-1/4 w-48 h-48 bg-indigo-500/4 rounded-full blur-3xl pointer-events-none" />
 
                 {/* Stats Strip */}
@@ -25,7 +25,7 @@ export default function Footer() {
                         <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16">
                             {stats.map((s) => (
                                 <div key={s.label} className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-lg bg-[hsl(214_89%_52%/0.08)] border border-[hsl(214_89%_52%/0.20)] flex items-center justify-center text-[hsl(214_89%_55%)] flex-shrink-0">
                                         {s.icon}
                                     </div>
                                     <div>
@@ -44,7 +44,7 @@ export default function Footer() {
                         {/* Brand */}
                         <div className="md:col-span-2">
                             <div className="flex items-center gap-2.5 mb-4">
-                                <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-[0_0_16px_hsl(24_95%_53%/0.35)]">
+                                <div className="w-9 h-9 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-md flex items-center justify-center shadow-[0_0_16px_hsl(24_95%_53%/0.35)]">
                                     <Zap size={18} className="text-white" fill="currentColor" />
                                 </div>
                                 <span className="text-xl font-extrabold gradient-text">DealZone</span>
@@ -71,7 +71,7 @@ export default function Footer() {
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-[var(--text-muted)] hover:text-orange-400 text-sm transition-colors duration-200 hover:translate-x-0.5 inline-block"
+                                            className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-sm transition-colors duration-200 hover:translate-x-0.5 inline-block"
                                         >
                                             {link.label}
                                         </Link>
@@ -111,15 +111,15 @@ export default function Footer() {
                             © {new Date().getFullYear()} DealZone. All rights reserved.
                         </p>
                         <div className="flex items-center gap-4">
-                            <Link href="/privacy" className="text-[var(--text-muted)] hover:text-orange-400 text-xs transition-colors">
+                            <Link href="/privacy" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
                                 Privacy Policy
                             </Link>
                             <span className="text-[var(--border)]">·</span>
-                            <Link href="/terms" className="text-[var(--text-muted)] hover:text-orange-400 text-xs transition-colors">
+                            <Link href="/terms" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
                                 Terms
                             </Link>
                             <span className="text-[var(--border)]">·</span>
-                            <Link href="/affiliate-disclosure" className="text-[var(--text-muted)] hover:text-orange-400 text-xs transition-colors">
+                            <Link href="/affiliate-disclosure" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
                                 Disclosure
                             </Link>
                         </div>

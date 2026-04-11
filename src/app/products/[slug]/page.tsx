@@ -73,13 +73,13 @@ export default async function ProductDetailPage({ params }: Params) {
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <nav className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-8">
-                    <Link href="/" className="hover:text-orange-400 transition-colors">Home</Link>
+                    <Link href="/" className="hover:text-[hsl(214_89%_55%)] transition-colors">Home</Link>
                     <span>/</span>
-                    <Link href="/products" className="hover:text-orange-400 transition-colors">Deals</Link>
+                    <Link href="/products" className="hover:text-[hsl(214_89%_55%)] transition-colors">Deals</Link>
                     {product.category && (
                         <>
                             <span>/</span>
-                            <Link href={`/categories/${product.category.slug}`} className="hover:text-orange-400 transition-colors">
+                            <Link href={`/categories/${product.category.slug}`} className="hover:text-[hsl(214_89%_55%)] transition-colors">
                                 {product.category.name}
                             </Link>
                         </>
@@ -91,7 +91,7 @@ export default async function ProductDetailPage({ params }: Params) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
                     {/* Image */}
                     <div className="relative">
-                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl aspect-square sm:aspect-auto sm:h-[500px] flex items-center justify-center overflow-hidden">
+                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md aspect-square sm:aspect-auto sm:h-[500px] flex items-center justify-center overflow-hidden">
                             {product.image ? (
                                 <Image
                                     src={product.image}
@@ -106,7 +106,7 @@ export default async function ProductDetailPage({ params }: Params) {
                             )}
                         </div>
                         {discountPct && discountPct > 0 && (
-                            <div className="absolute top-4 left-4 bg-orange-500 text-white text-sm font-bold px-3 py-1.5 rounded-full">
+                            <div className="absolute top-4 left-4 bg-[hsl(214_89%_52%)] text-white text-sm font-bold px-3 py-1.5 rounded-full">
                                 -{discountPct}% OFF
                             </div>
                         )}
@@ -115,7 +115,7 @@ export default async function ProductDetailPage({ params }: Params) {
                     {/* Details */}
                     <div className="flex flex-col">
                         {product.category && (
-                            <Link href={`/categories/${product.category.slug}`} className="inline-flex items-center gap-1.5 bg-orange-500/10 text-orange-400 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit hover:bg-orange-500/20 transition-colors">
+                            <Link href={`/categories/${product.category.slug}`} className="inline-flex items-center gap-1.5 bg-[hsl(214_89%_52%/0.08)] text-[hsl(214_89%_55%)] text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit hover:bg-[hsl(214_89%_45%)]/20 transition-colors">
                                 <Tag size={12} />
                                 {product.category.name}
                             </Link>
@@ -126,7 +126,7 @@ export default async function ProductDetailPage({ params }: Params) {
                         {/* Price */}
                         <div className="flex items-baseline gap-3 mb-6">
                             {(product.price ?? 0) > 0 ? (
-                                <span className="text-4xl font-extrabold text-orange-400">
+                                <span className="text-4xl font-extrabold text-[hsl(214_89%_55%)]">
                                     ₹{product.price!.toLocaleString("en-IN")}
                                 </span>
                             ) : (
@@ -151,7 +151,7 @@ export default async function ProductDetailPage({ params }: Params) {
                                     href={product.amazonLink}
                                     target="_blank"
                                     rel="noopener noreferrer sponsored"
-                                    className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-xl transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
+                                    className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
                                 >
                                     <ExternalLink size={18} />
                                     Buy on Amazon
@@ -162,7 +162,7 @@ export default async function ProductDetailPage({ params }: Params) {
                                     href={product.flipkartLink}
                                     target="_blank"
                                     rel="noopener noreferrer sponsored"
-                                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
+                                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
                                 >
                                     <ExternalLink size={18} />
                                     Buy on Flipkart
@@ -175,7 +175,7 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         {/* Description */}
                         {product.description && (
-                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl p-5">
+                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-md p-5">
                                 <h2 className="font-semibold text-[var(--text-secondary)] mb-3">About this product</h2>
                                 <p className="text-[var(--text-secondary)]/80 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
                             </div>

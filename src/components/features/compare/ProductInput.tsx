@@ -41,7 +41,7 @@ export default function ProductInput({ onCompare, loading }: ProductInputProps) 
                 {urls.map((url, index) => (
                     <div key={index} className="flex gap-2 group items-center">
                         <div className="relative flex-1">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-orange-500 transition-colors">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[hsl(214_89%_52%)] transition-colors">
                                 <Link size={18} />
                             </div>
                             <input
@@ -56,7 +56,7 @@ export default function ProductInput({ onCompare, loading }: ProductInputProps) 
                             <button
                                 type="button"
                                 onClick={() => removeField(index)}
-                                className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-all"
                                 title="Remove link"
                             >
                                 <Trash2 size={20} />
@@ -71,7 +71,7 @@ export default function ProductInput({ onCompare, loading }: ProductInputProps) 
                     type="button"
                     onClick={addField}
                     disabled={urls.length >= 5}
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gray-800/30 hover:bg-gray-800/50 text-gray-400 font-bold rounded-2xl border border-gray-700/50 hover:border-gray-600 transition-all active:scale-[0.98] disabled:opacity-30"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gray-800/30 hover:bg-gray-800/50 text-gray-400 font-bold rounded-md border border-gray-700/50 hover:border-gray-600 transition-all active:scale-[0.98] disabled:opacity-30"
                 >
                     <Plus size={20} />
                     Add Platform Link
@@ -80,7 +80,7 @@ export default function ProductInput({ onCompare, loading }: ProductInputProps) 
                     type="button"
                     onClick={handleCompareClick}
                     disabled={loading || urls.every(u => !u.trim())}
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl shadow-lg shadow-orange-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] btn-glow"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white font-black rounded-md shadow-lg shadow-[hsl(214_89%_45%/0.20)] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] btn-glow"
                 >
                     {loading ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

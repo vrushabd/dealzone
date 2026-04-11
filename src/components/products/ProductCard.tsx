@@ -142,8 +142,8 @@ export default function ProductCard({ product }: { product: Product }) {
                         ) : (
                             <form onSubmit={handleAlertSubmit} className="space-y-2.5">
                                 <div className="text-center mb-1">
-                                    <div className="w-8 h-8 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                                        <TrendingDown size={16} className="text-orange-400" />
+                                    <div className="w-8 h-8 bg-[hsl(214_89%_52%/0.08)] rounded-md flex items-center justify-center mx-auto mb-2">
+                                        <TrendingDown size={16} className="text-[hsl(214_89%_52%)]" />
                                     </div>
                                     <h4 className="text-[var(--text-primary)] font-bold text-sm">Price Drop Alert</h4>
                                     <p className="text-[var(--text-muted)] text-[10px] mt-0.5">Notify me when price falls to:</p>
@@ -169,7 +169,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 disabled:opacity-50 text-white font-bold py-2 rounded-xl text-xs transition-all shine-on-hover"
+                                    className="w-full bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] disabled:opacity-50 text-white font-bold py-2 rounded-md text-xs transition-all shine-on-hover"
                                 >
                                     {isSubmitting ? "Setting..." : "Notify Me"}
                                 </button>
@@ -183,7 +183,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <div className="p-2 sm:p-3 flex flex-col flex-1">
                 <Link href={`/products/${product.slug}`}>
                     {/* Fixed 2-line height — keeps all cards uniform */}
-                    <h2 className="font-semibold text-[var(--text-primary)] line-clamp-2 hover:text-orange-400 transition-colors text-xs sm:text-sm leading-snug mb-3 h-[2.6em] overflow-hidden">
+                    <h2 className="font-semibold text-[var(--text-primary)] line-clamp-2 hover:text-[hsl(214_89%_52%)] transition-colors text-xs sm:text-sm leading-snug mb-3 h-[2.6em] overflow-hidden">
                         {product.title}
                     </h2>
                 </Link>
@@ -241,7 +241,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                             href={product.amazonLink}
                                             target="_blank"
                                             rel="noopener noreferrer sponsored"
-                                            className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold py-2 px-4 rounded-xl transition-all shine-on-hover"
+                                            className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold py-2 px-4 rounded-md transition-all shine-on-hover"
                                         >
                                             <ExternalLink size={11} />
                                             Amazon
@@ -252,7 +252,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                             href={product.flipkartLink}
                                             target="_blank"
                                             rel="noopener noreferrer sponsored"
-                                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all shine-on-hover"
+                                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded-md transition-all shine-on-hover"
                                         >
                                             <ExternalLink size={11} />
                                             Flipkart
@@ -264,7 +264,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     ) : (
                         <Link
                             href={`/products/${product.slug}`}
-                            className="flex items-center justify-center gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200"
+                            className="flex items-center justify-center gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold py-2.5 px-4 rounded-md transition-all duration-200"
                         >
                             View Details
                         </Link>

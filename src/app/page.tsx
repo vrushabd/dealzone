@@ -56,12 +56,12 @@ export default async function HomePage() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                             <h1 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-                                <Zap size={18} className="text-orange-500" fill="currentColor" />
+                                <Zap size={18} className="text-[hsl(214_89%_52%)]" fill="currentColor" />
                                 Today&apos;s Top Deals
                             </h1>
-                            <div className="inline-flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full px-2.5 py-0.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-[pulseDot_1.5s_ease-in-out_infinite]" />
-                                <span className="text-[10px] font-semibold text-orange-400 uppercase tracking-wider">Updated Daily</span>
+                            <div className="inline-flex items-center gap-1.5 bg-[hsl(214_89%_52%/0.08)] border border-[hsl(214_89%_52%/0.20)] rounded-full px-2.5 py-0.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[hsl(214_89%_52%)] animate-[pulseDot_1.5s_ease-in-out_infinite]" />
+                                <span className="text-[10px] font-semibold text-[hsl(214_89%_55%)] uppercase tracking-wider">Updated Daily</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -74,9 +74,9 @@ export default async function HomePage() {
                             </Link>
                             <Link
                                 href="/coupons"
-                                className="inline-flex items-center gap-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-xs font-semibold px-4 py-2 rounded-xl transition-all duration-200"
+                                className="inline-flex items-center gap-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-xs font-semibold px-4 py-2 rounded-md transition-all duration-200"
                             >
-                                <Tag size={12} className="text-orange-400" />
+                                <Tag size={12} className="text-[hsl(214_89%_55%)]" />
                                 Coupons
                             </Link>
                         </div>
@@ -93,7 +93,7 @@ export default async function HomePage() {
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
-                                className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(24_95%_53%/0.1)] border border-transparent hover:border-orange-500/20 flex-shrink-0"
+                                className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(24_95%_53%/0.1)] border border-transparent hover:border-[hsl(214_89%_52%/0.20)] flex-shrink-0"
                             >
                                 <CategoryIcon slug={cat.slug} variant="bar" />
                                 <span>{cat.name}</span>
@@ -124,7 +124,7 @@ export default async function HomePage() {
                                         </h2>
                                         <Link
                                             href="/products?featured=true"
-                                            className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 font-medium transition-colors"
+                                            className="flex items-center gap-1 text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] font-medium transition-colors"
                                         >
                                             See all <ArrowRight size={12} />
                                         </Link>
@@ -143,12 +143,12 @@ export default async function HomePage() {
                             <section>
                                 <div className="flex items-center justify-between mb-5">
                                     <h2 className="section-title">
-                                        <TrendingUp size={16} className="text-orange-500 ml-2" />
+                                        <TrendingUp size={16} className="text-[hsl(214_89%_52%)] ml-2" />
                                         Just Added
                                     </h2>
                                     <Link
                                         href="/products"
-                                        className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 font-medium transition-colors"
+                                        className="flex items-center gap-1 text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] font-medium transition-colors"
                                     >
                                         All deals <ArrowRight size={12} />
                                     </Link>
@@ -160,15 +160,15 @@ export default async function HomePage() {
                                         </div>
                                     ))}
                                     {latestProducts.length === 0 && featuredProducts.length === 0 && (
-                                        <div className="col-span-full py-24 text-center border-2 border-dashed border-[var(--border)] rounded-3xl">
-                                            <div className="w-16 h-16 bg-[var(--bg-elevated)] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <div className="col-span-full py-24 text-center border-2 border-dashed border-[var(--border)] rounded-lg">
+                                            <div className="w-16 h-16 bg-[var(--bg-elevated)] rounded-md flex items-center justify-center mx-auto mb-4">
                                                 <Zap size={32} className="text-[hsl(224_20%_22%)]" />
                                             </div>
                                             <h3 className="text-[var(--text-muted)] font-semibold text-sm">
                                                 New deals incoming...
                                             </h3>
                                             <p className="text-[var(--text-muted)] text-xs mt-1">
-                                                Run <code className="bg-[var(--bg-elevated)] px-1 rounded text-orange-400">npm run seed</code> to populate
+                                                Run <code className="bg-[var(--bg-elevated)] px-1 rounded text-[hsl(214_89%_55%)]">npm run seed</code> to populate
                                             </p>
                                         </div>
                                     )}
@@ -180,15 +180,15 @@ export default async function HomePage() {
                         <aside className="space-y-4 order-2 lg:order-2">
 
                             {/* Blog / Shopping Tips */}
-                            <div className="glass rounded-2xl p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
+                            <div className="glass rounded-md p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
                                 <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)] mb-4">
-                                    <Sparkles size={14} className="text-orange-400" />
+                                    <Sparkles size={14} className="text-[hsl(214_89%_55%)]" />
                                     Shopping Tips
                                 </h3>
                                 <div className="space-y-4">
                                     {(recentPosts as any[]).map((post) => (
                                         <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
-                                            <h4 className="text-xs font-medium text-[var(--text-secondary)] group-hover:text-orange-400 line-clamp-2 transition-colors leading-snug">
+                                            <h4 className="text-xs font-medium text-[var(--text-secondary)] group-hover:text-[hsl(214_89%_55%)] line-clamp-2 transition-colors leading-snug">
                                                 {post.title}
                                             </h4>
                                             <div className="flex items-center gap-1 text-[9px] text-[var(--text-muted)] mt-1.5">
@@ -203,16 +203,16 @@ export default async function HomePage() {
                                 </div>
                                 <Link
                                     href="/blog"
-                                    className="flex items-center justify-center gap-1 text-xs text-orange-500 font-bold mt-5 hover:text-orange-400 transition-colors"
+                                    className="flex items-center justify-center gap-1 text-xs text-[hsl(214_89%_52%)] font-bold mt-5 hover:text-[hsl(214_89%_55%)] transition-colors"
                                 >
                                     Visit Blog <ArrowRight size={11} />
                                 </Link>
                             </div>
 
                             {/* Top Categories */}
-                            <div className="glass rounded-2xl p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
+                            <div className="glass rounded-md p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
                                 <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)] mb-4">
-                                    <Tag size={14} className="text-orange-400" />
+                                    <Tag size={14} className="text-[hsl(214_89%_55%)]" />
                                     Top Categories
                                 </h3>
                                 <div className="grid grid-cols-2 gap-2.5">
@@ -220,7 +220,7 @@ export default async function HomePage() {
                                         <Link
                                             key={cat.id}
                                             href={`/categories/${cat.slug}`}
-                                            className="group bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border)] hover:border-orange-500/30 rounded-xl p-3 text-center transition-all duration-200"
+                                            className="group bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.30)] rounded-md p-3 text-center transition-all duration-200"
                                         >
                                             <CategoryIcon slug={cat.slug} variant="card" />
                                             <div className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase tracking-tight transition-colors">
@@ -237,11 +237,11 @@ export default async function HomePage() {
                             </div>
 
                             {/* CTA Banner */}
-                            <div className="glass-brand rounded-2xl p-5 text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent pointer-events-none" />
+                            <div className="glass-brand rounded-md p-5 text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(214_89%_52%)]/5 to-transparent pointer-events-none" />
                                 <div className="relative">
-                                    <div className="w-10 h-10 bg-orange-500/15 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                        <Zap size={20} className="text-orange-400" fill="currentColor" />
+                                    <div className="w-10 h-10 bg-[hsl(214_89%_52%)]/15 rounded-md flex items-center justify-center mx-auto mb-3">
+                                        <Zap size={20} className="text-[hsl(214_89%_55%)]" fill="currentColor" />
                                     </div>
                                     <h4 className="text-[var(--text-primary)] font-bold text-sm mb-1">Never Miss a Deal</h4>
                                     <p className="text-[var(--text-muted)] text-xs leading-relaxed mb-4">

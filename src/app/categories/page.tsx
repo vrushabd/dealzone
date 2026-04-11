@@ -25,7 +25,7 @@ export default async function CategoriesPage() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-16">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-2 text-orange-500 font-bold text-xs uppercase tracking-widest mb-2">
+                    <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-2">
                         <Tag size={13} />
                         Browse
                     </div>
@@ -41,10 +41,10 @@ export default async function CategoriesPage() {
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
-                                className="group glass border border-[hsl(224_20%_14%)] hover:border-orange-500/30 rounded-2xl p-5 text-center transition-all duration-200 card-glow flex flex-col items-center"
+                                className="group glass border border-[hsl(224_20%_14%)] hover:border-[hsl(214_89%_52%/0.30)] rounded-md p-5 text-center transition-all duration-200 card-glow flex flex-col items-center"
                             >
                                 <CategoryIcon slug={cat.slug} variant="page" />
-                                <h2 className="font-bold text-[hsl(210_30%_88%)] group-hover:text-orange-400 transition-colors mt-3 text-sm">
+                                <h2 className="font-bold text-[hsl(210_30%_88%)] group-hover:text-[hsl(214_89%_55%)] transition-colors mt-3 text-sm">
                                     {cat.name}
                                 </h2>
                                 <p className="text-[10px] text-[hsl(215_10%_40%)] mt-1">

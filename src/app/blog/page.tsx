@@ -34,7 +34,7 @@ export default async function BlogPage() {
             <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-16">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-2 text-orange-500 font-bold text-xs uppercase tracking-widest mb-2">
+                    <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-2">
                         <BookOpen size={13} />
                         DealZone Blog
                     </div>
@@ -54,7 +54,7 @@ export default async function BlogPage() {
                             <Link
                                 key={post.id}
                                 href={`/blog/${post.slug}`}
-                                className="group glass border border-[hsl(224_20%_14%)] hover:border-orange-500/30 rounded-2xl overflow-hidden transition-all card-glow flex flex-col"
+                                className="group glass border border-[hsl(224_20%_14%)] hover:border-[hsl(214_89%_52%/0.30)] rounded-md overflow-hidden transition-all card-glow flex flex-col"
                             >
                                 {/* Image or placeholder */}
                                 <div className="relative aspect-video bg-[hsl(224_28%_11%)] flex-shrink-0">
@@ -71,7 +71,7 @@ export default async function BlogPage() {
 
                                 {/* Content */}
                                 <div className="p-3 sm:p-5 flex flex-col flex-1">
-                                    <h2 className="text-xs sm:text-sm font-bold text-[hsl(210_30%_88%)] group-hover:text-orange-400 transition-colors line-clamp-2 leading-snug mb-2">
+                                    <h2 className="text-xs sm:text-sm font-bold text-[hsl(210_30%_88%)] group-hover:text-[hsl(214_89%_55%)] transition-colors line-clamp-2 leading-snug mb-2">
                                         {post.title}
                                     </h2>
                                     {post.excerpt && (

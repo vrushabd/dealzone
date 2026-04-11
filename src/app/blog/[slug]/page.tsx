@@ -48,12 +48,12 @@ export default async function BlogPostPage({ params }: Params) {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
             <Navbar />
             <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <Link href="/blog" className="inline-flex items-center gap-2 text-gray-400 hover:text-orange-400 text-sm mb-8 transition-colors">
+                <Link href="/blog" className="inline-flex items-center gap-2 text-gray-400 hover:text-[hsl(214_89%_55%)] text-sm mb-8 transition-colors">
                     <ArrowLeft size={16} /> All Posts
                 </Link>
 
                 {post.image && (
-                    <div className="relative aspect-video rounded-2xl overflow-hidden mb-8 bg-gray-900">
+                    <div className="relative aspect-video rounded-md overflow-hidden mb-8 bg-gray-900">
                         <Image src={post.image} alt={post.title} fill className="object-cover" priority />
                     </div>
                 )}
@@ -66,7 +66,7 @@ export default async function BlogPostPage({ params }: Params) {
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-6">{post.title}</h1>
 
                 {post.excerpt && (
-                    <p className="text-gray-400 text-lg leading-relaxed border-l-4 border-orange-500 pl-4 mb-8">{post.excerpt}</p>
+                    <p className="text-gray-400 text-lg leading-relaxed border-l-4 border-[hsl(214_89%_52%)] pl-4 mb-8">{post.excerpt}</p>
                 )}
 
                 <div className="prose prose-invert prose-orange max-w-none text-gray-300 leading-relaxed">

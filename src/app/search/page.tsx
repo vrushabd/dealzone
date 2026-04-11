@@ -43,7 +43,7 @@ function SearchResults() {
     if (loading) return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-gray-900 rounded-2xl aspect-square skeleton" />
+                <div key={i} className="bg-gray-900 rounded-md aspect-square skeleton" />
             ))}
         </div>
     );
@@ -51,7 +51,7 @@ function SearchResults() {
     return (
         <>
             <p className="text-gray-400 mb-8">
-                Found <span className="text-white font-semibold">{products.length}</span> products and <span className="text-white font-semibold">{posts.length}</span> posts for &quot;<span className="text-orange-400">{query}</span>&quot;
+                Found <span className="text-white font-semibold">{products.length}</span> products and <span className="text-white font-semibold">{posts.length}</span> posts for &quot;<span className="text-[hsl(214_89%_55%)]">{query}</span>&quot;
             </p>
 
             {products.length > 0 && (
@@ -68,11 +68,11 @@ function SearchResults() {
                     <h2 className="text-xl font-bold text-white mb-6">Blog Posts</h2>
                     <div className="space-y-4">
                         {posts.map((post) => (
-                            <Link key={post.id} href={`/blog/${post.slug}`} className="block bg-gray-900 border border-gray-800 hover:border-orange-500/30 rounded-xl p-4 transition-all">
+                            <Link key={post.id} href={`/blog/${post.slug}`} className="block bg-gray-900 border border-gray-800 hover:border-[hsl(214_89%_52%/0.30)] rounded-md p-4 transition-all">
                                 <div className="flex items-start gap-3">
-                                    <BookOpen size={18} className="text-orange-400 mt-0.5 flex-shrink-0" />
+                                    <BookOpen size={18} className="text-[hsl(214_89%_55%)] mt-0.5 flex-shrink-0" />
                                     <div>
-                                        <h3 className="font-semibold text-gray-100 hover:text-orange-400 transition-colors">{post.title}</h3>
+                                        <h3 className="font-semibold text-gray-100 hover:text-[hsl(214_89%_55%)] transition-colors">{post.title}</h3>
                                         {post.excerpt && <p className="text-gray-500 text-sm mt-1">{post.excerpt}</p>}
                                     </div>
                                 </div>

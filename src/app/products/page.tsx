@@ -46,23 +46,23 @@ export default async function ProductsPage({
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar Filters */}
                     <aside className="lg:w-56 flex-shrink-0">
-                        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sticky top-24">
+                        <div className="bg-gray-900 border border-gray-800 rounded-md p-5 sticky top-24">
                             <div className="flex items-center gap-2 mb-4">
-                                <Filter size={16} className="text-orange-400" />
+                                <Filter size={16} className="text-[hsl(214_89%_55%)]" />
                                 <h2 className="font-semibold text-gray-200">Filters</h2>
                             </div>
 
                             <div className="mb-6">
                                 <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-3">Category</h3>
                                 <div className="space-y-1">
-                                    <Link href="/products" className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${!category ? "bg-orange-500 text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}>
+                                    <Link href="/products" className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${!category ? "bg-[hsl(214_89%_52%)] text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}>
                                         All
                                     </Link>
                                     {categories.map((cat) => (
                                         <Link
                                             key={cat.id}
                                             href={`/products?category=${cat.slug}`}
-                                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${category === cat.slug ? "bg-orange-500 text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}
+                                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${category === cat.slug ? "bg-[hsl(214_89%_52%)] text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}
                                         >
                                             {cat.name}
                                         </Link>
@@ -81,7 +81,7 @@ export default async function ProductsPage({
                                         <Link
                                             key={s.value}
                                             href={`/products?${category ? `category=${category}&` : ""}sort=${s.value}`}
-                                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${(sort || "") === s.value ? "bg-orange-500 text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}
+                                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${(sort || "") === s.value ? "bg-[hsl(214_89%_52%)] text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}
                                         >
                                             {s.label}
                                         </Link>
@@ -96,7 +96,7 @@ export default async function ProductsPage({
                         {products.length === 0 ? (
                             <div className="text-center py-24 text-gray-500">
                                 <p className="text-lg">No deals found in this category.</p>
-                                <Link href="/products" className="text-orange-400 hover:text-orange-300 mt-4 inline-block">
+                                <Link href="/products" className="text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] mt-4 inline-block">
                                     Browse all deals →
                                 </Link>
                             </div>

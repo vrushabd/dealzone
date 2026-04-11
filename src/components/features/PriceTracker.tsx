@@ -50,10 +50,10 @@ export function PriceTracker() {
                         placeholder="https://www.amazon.in/dp/B08L5TNJHG"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        className="w-full bg-[var(--bg-surface)] border border-[var(--border)] focus:border-orange-500/50 rounded-2xl pl-12 pr-32 py-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none transition-all focus:ring-4 focus:ring-orange-500/10"
+                        className="w-full bg-[var(--bg-surface)] border border-[var(--border)] focus:border-[hsl(214_89%_52%/0.50)] rounded-md pl-12 pr-32 py-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none transition-all focus:ring-4 focus:ring-[hsl(214_89%_52%/0.10)]"
                         required
                     />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-placeholder)] w-5 h-5 group-focus-within:text-orange-500 transition-colors" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-placeholder)] w-5 h-5 group-focus-within:text-[hsl(214_89%_52%)] transition-colors" />
                     <button
                         type="submit"
                         disabled={loading}
@@ -64,7 +64,7 @@ export function PriceTracker() {
                 </form>
 
                 {error && (
-                    <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm text-center justify-center">
+                    <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-md flex items-center gap-3 text-red-400 text-sm text-center justify-center">
                         <AlertCircle className="w-4 h-4 flex-shrink-0" />
                         {error}
                     </div>
@@ -89,7 +89,7 @@ export function PriceTracker() {
                                     <ShoppingCart size={44} className="text-[var(--text-muted)]" />
                                 </div>
                             )}
-                            <div className="absolute top-2 left-2 bg-[var(--bg-card)] border border-[var(--border)] text-[0.65rem] font-bold px-2 py-0.5 rounded uppercase tracking-wider text-orange-500">
+                            <div className="absolute top-2 left-2 bg-[var(--bg-card)] border border-[var(--border)] text-[0.65rem] font-bold px-2 py-0.5 rounded uppercase tracking-wider text-[hsl(214_89%_52%)]">
                                 {data.product.platform}
                             </div>
                         </div>
@@ -135,7 +135,7 @@ export function PriceTracker() {
                         </div>
 
                         {data.history.length > 1 ? (
-                            <div className="h-[300px] w-full mt-4 bg-[var(--bg-card-hover)]/30 p-2 sm:p-4 rounded-2xl border border-[var(--border)]/50">
+                            <div className="h-[300px] w-full mt-4 bg-[var(--bg-card-hover)]/30 p-2 sm:p-4 rounded-md border border-[var(--border)]/50">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={data.history}>
                                         <defs>
@@ -191,7 +191,7 @@ export function PriceTracker() {
                                 </ResponsiveContainer>
                             </div>
                         ) : (
-                            <div className="h-[200px] flex flex-col items-center justify-center text-center p-10 bg-[var(--bg-card-hover)]/50 rounded-2xl border border-dashed border-[var(--border)]">
+                            <div className="h-[200px] flex flex-col items-center justify-center text-center p-10 bg-[var(--bg-card-hover)]/50 rounded-md border border-dashed border-[var(--border)]">
                                 <AlertCircle size={32} className="text-[var(--text-placeholder)] mb-4" />
                                 <p className="text-[var(--text-secondary)] font-medium mb-1">Tracking initialized!</p>
                                 <p className="text-[var(--text-muted)] text-xs max-w-xs">
@@ -201,14 +201,14 @@ export function PriceTracker() {
                         )}
                         
                         <div className="grid grid-cols-2 gap-4 mt-6">
-                            <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl">
+                            <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-md">
                                 <div className="flex items-center gap-2 mb-1 text-[var(--text-muted)]">
                                     <TrendingDown size={14} className="text-green-500" />
                                     <span className="text-[0.65rem] font-bold uppercase tracking-wider">All-time Low</span>
                                 </div>
                                 <p className="text-xl font-bold text-[var(--text-primary)]">₹{data.lowestPrice.toLocaleString("en-IN")}</p>
                             </div>
-                            <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl">
+                            <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-md">
                                 <div className="flex items-center gap-2 mb-1 text-[var(--text-muted)]">
                                     <TrendingUp size={14} className="text-red-500" />
                                     <span className="text-[0.65rem] font-bold uppercase tracking-wider">All-time High</span>
@@ -222,7 +222,7 @@ export function PriceTracker() {
                                 href={data.product.url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex-1 flex items-center justify-center gap-2 bg-[var(--bg-elevated)] hover:bg-orange-500 hover:text-white text-[var(--text-primary)] font-bold py-3 px-6 rounded-xl transition-all border border-[var(--border)]"
+                                className="flex-1 flex items-center justify-center gap-2 bg-[var(--bg-elevated)] hover:bg-[hsl(214_89%_52%)] hover:text-white text-[var(--text-primary)] font-bold py-3 px-6 rounded-md transition-all border border-[var(--border)]"
                             >
                                 <ExternalLink size={16} />
                                 View on Store

@@ -37,7 +37,7 @@ export default function ComparePage() {
             <div className="max-w-7xl mx-auto px-6">
                 {/* Hero Section */}
                 <div className="text-center mb-16 animate-fade-in-up">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-500/10 text-orange-500 rounded-full text-xs font-black uppercase tracking-[0.3em] mb-6 border border-orange-500/20">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[hsl(214_89%_52%/0.08)] text-[hsl(214_89%_52%)] rounded-full text-xs font-black uppercase tracking-[0.3em] mb-6 border border-[hsl(214_89%_52%/0.20)]">
                         <Sparkles size={14} className="fill-current" />
                         Next-Gen Price Engine
                     </div>
@@ -68,7 +68,7 @@ export default function ComparePage() {
                     ) : comparisonData ? (
                         <div className="animate-fade-in-up">
                             <div className="flex items-center gap-3 mb-8">
-                                < Zap size={18} className="text-orange-500 fill-current" />
+                                < Zap size={18} className="text-[hsl(214_89%_52%)] fill-current" />
                                 <h2 className="text-xl font-black uppercase tracking-widest">Live Comparison</h2>
                             </div>
                             <ComparisonTable
@@ -79,12 +79,12 @@ export default function ComparePage() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 stagger-children">
                             {[
-                                { icon: <ArrowLeftRight className="text-orange-500" />, title: "Precision Compare", desc: "Deep-dive analysis across multi-vendor inventories." },
+                                { icon: <ArrowLeftRight className="text-[hsl(214_89%_52%)]" />, title: "Precision Compare", desc: "Deep-dive analysis across multi-vendor inventories." },
                                 { icon: <TrendingDown className="text-green-400" />, title: "Price Vectoring", desc: "Track historical volatility and wait for the optimal buy signal." },
                                 { icon: <ShieldCheck className="text-purple-400" />, title: "Verified Sourcing", desc: "Only authorized sellers and stock status are extracted." }
                             ].map((feature, i) => (
                                 <div key={i} className="p-10 glass rounded-[2.5rem] border border-white/5 card-glow h-full flex flex-col items-center text-center">
-                                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-6 border border-white/5">
+                                    <div className="w-16 h-16 bg-white/5 rounded-md flex items-center justify-center mb-6 border border-white/5">
                                         {feature.icon}
                                     </div>
                                     <h3 className="text-2xl font-black text-white mb-4 tracking-tight">{feature.title}</h3>

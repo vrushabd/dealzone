@@ -34,7 +34,7 @@ const colorMap: Record<string, string> = {
     books:         "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
     tv:            "text-cyan-400   bg-cyan-500/10   border-cyan-500/20",
     audio:         "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-    cameras:       "text-orange-400 bg-orange-500/10 border-orange-500/20",
+    cameras:       "text-[hsl(214_89%_55%)] bg-[hsl(214_89%_52%/0.08)] border-[hsl(214_89%_52%/0.20)]",
     sports:        "text-lime-400   bg-lime-500/10   border-lime-500/20",
     watches:       "text-amber-400  bg-amber-500/10  border-amber-500/20",
 };
@@ -48,7 +48,7 @@ interface Props {
 
 export default function CategoryIcon({ slug, name, variant = "card" }: Props) {
     const Icon = iconMap[slug] ?? Tag;
-    const color = colorMap[slug] ?? "text-orange-400 bg-orange-500/10 border-orange-500/20";
+    const color = colorMap[slug] ?? "text-[hsl(214_89%_55%)] bg-[hsl(214_89%_52%/0.08)] border-[hsl(214_89%_52%/0.20)]";
 
     if (variant === "bar") {
         return <Icon size={13} className={color.split(" ")[0]} />;
@@ -56,7 +56,7 @@ export default function CategoryIcon({ slug, name, variant = "card" }: Props) {
 
     if (variant === "page") {
         return (
-            <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center ${color}`}>
+            <div className={`w-14 h-14 rounded-md border flex items-center justify-center ${color}`}>
                 <Icon size={28} />
             </div>
         );
@@ -64,7 +64,7 @@ export default function CategoryIcon({ slug, name, variant = "card" }: Props) {
 
     // "card" variant — for sidebar grid
     return (
-        <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mx-auto mb-2 ${color}`}>
+        <div className={`w-10 h-10 rounded-md border flex items-center justify-center mx-auto mb-2 ${color}`}>
             <Icon size={20} />
         </div>
     );

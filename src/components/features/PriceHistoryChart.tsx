@@ -31,9 +31,9 @@ function formatPrice(p: number) {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-3 py-2.5 shadow-xl">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md px-3 py-2.5 shadow-xl">
                 <p className="text-[10px] text-[var(--text-muted)] mb-1">{label}</p>
-                <p className="text-orange-400 font-bold text-sm">
+                <p className="text-[hsl(214_89%_55%)] font-bold text-sm">
                     {formatPrice(payload[0].value)}
                 </p>
             </div>
@@ -60,16 +60,16 @@ export default function PriceHistoryChart({ productId, currentPrice }: Props) {
 
     if (loading) {
         return (
-            <div className="glass rounded-2xl p-6">
+            <div className="glass rounded-md p-6">
                 <div className="skeleton h-5 w-40 rounded-lg mb-6" />
-                <div className="skeleton h-48 rounded-xl" />
+                <div className="skeleton h-48 rounded-md" />
             </div>
         );
     }
 
     if (error || history.length === 0) {
         return (
-            <div className="glass rounded-2xl p-6 flex items-center gap-3 text-[var(--text-muted)]">
+            <div className="glass rounded-md p-6 flex items-center gap-3 text-[var(--text-muted)]">
                 <Clock size={18} className="flex-shrink-0" />
                 <p className="text-sm">No price history recorded yet. History will appear as prices are tracked over time.</p>
             </div>
@@ -105,12 +105,12 @@ export default function PriceHistoryChart({ productId, currentPrice }: Props) {
     const yMax = Math.ceil(allTimeHigh * 1.04);
 
     return (
-        <div className="glass border border-[var(--border)] rounded-2xl p-6">
+        <div className="glass border border-[var(--border)] rounded-md p-6">
             {/* Header */}
             <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                 <div>
                     <h2 className="text-[var(--text-primary)] font-bold text-base flex items-center gap-2">
-                        <Clock size={16} className="text-orange-400" />
+                        <Clock size={16} className="text-[hsl(214_89%_55%)]" />
                         Price History
                     </h2>
                     <p className="text-[var(--text-muted)] text-xs mt-0.5">{history.length} data points tracked across platforms</p>
@@ -133,10 +133,10 @@ export default function PriceHistoryChart({ productId, currentPrice }: Props) {
             <div className="grid grid-cols-3 gap-3 mb-6">
                 {[
                     { label: "All-Time Low",  value: formatPrice(allTimeLow),  color: "text-green-500" },
-                    { label: "Current Price", value: currentPrice ? formatPrice(currentPrice) : formatPrice(lastPrice), color: "text-orange-400" },
+                    { label: "Current Price", value: currentPrice ? formatPrice(currentPrice) : formatPrice(lastPrice), color: "text-[hsl(214_89%_55%)]" },
                     { label: "All-Time High", value: formatPrice(allTimeHigh), color: "text-red-500" },
                 ].map((s) => (
-                    <div key={s.label} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-3 text-center">
+                    <div key={s.label} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-3 text-center">
                         <div className={`font-extrabold text-sm ${s.color}`}>{s.value}</div>
                         <div className="text-[var(--text-muted)] text-[10px] mt-0.5">{s.label}</div>
                     </div>

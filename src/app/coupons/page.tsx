@@ -28,9 +28,9 @@ export default async function CouponsPage() {
                 {/* Header */}
                 <section className="bg-gray-900 border-b border-gray-800 py-12 md:py-16">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 rounded-full px-4 py-1.5 mb-6">
-                            <Ticket size={16} className="text-orange-400" />
-                            <span className="text-orange-400 text-sm font-medium">Verified Promo Codes</span>
+                        <div className="inline-flex items-center gap-2 bg-[hsl(214_89%_52%/0.08)] border border-[hsl(214_89%_52%/0.20)] rounded-full px-4 py-1.5 mb-6">
+                            <Ticket size={16} className="text-[hsl(214_89%_55%)]" />
+                            <span className="text-[hsl(214_89%_55%)] text-sm font-medium">Verified Promo Codes</span>
                         </div>
                         <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
                             Save More with <span className="gradient-text">Exclusive Coupons</span>
@@ -46,7 +46,7 @@ export default async function CouponsPage() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full md:w-auto">
-                                <button className="bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">All Stores</button>
+                                <button className="bg-[hsl(214_89%_52%)] text-white px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">All Stores</button>
                                 {stores.map(store => (
                                     <button key={store} className="bg-gray-800 text-gray-300 hover:bg-gray-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border border-gray-700">
                                         {store}
@@ -58,7 +58,7 @@ export default async function CouponsPage() {
                                 <input
                                     type="text"
                                     placeholder="Search coupons..."
-                                    className="w-full bg-gray-900 border border-gray-800 rounded-xl py-2 pl-10 pr-4 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                    className="w-full bg-gray-900 border border-gray-800 rounded-md py-2 pl-10 pr-4 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-[hsl(214_89%_52%/0.3)] transition-all"
                                 />
                             </div>
                         </div>
@@ -69,11 +69,11 @@ export default async function CouponsPage() {
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {coupons.map((coupon) => (
-                            <div key={coupon.id} className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-orange-500/30 transition-all group flex flex-col">
+                            <div key={coupon.id} className="bg-gray-900 border border-gray-800 rounded-md overflow-hidden hover:border-[hsl(214_89%_52%/0.30)] transition-all group flex flex-col">
                                 <div className="p-6 flex-1">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2">
-                                            <div className="bg-gray-800 px-3 py-1 rounded-lg text-xs font-bold text-orange-400 uppercase tracking-wider border border-gray-700">
+                                            <div className="bg-gray-800 px-3 py-1 rounded-lg text-xs font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider border border-gray-700">
                                                 {coupon.store}
                                             </div>
                                             {coupon.isSecret && (
@@ -88,7 +88,7 @@ export default async function CouponsPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">
+                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[hsl(214_89%_55%)] transition-colors">
                                         {coupon.title}
                                     </h3>
                                     {coupon.description && (
@@ -96,20 +96,20 @@ export default async function CouponsPage() {
                                             {coupon.description}
                                         </p>
                                     )}
-                                    <div className="bg-orange-500/5 border border-dashed border-orange-500/30 rounded-xl p-4 mb-4 text-center">
+                                    <div className="bg-[hsl(214_89%_52%)]/5 border border-dashed border-[hsl(214_89%_52%/0.30)] rounded-md p-4 mb-4 text-center">
                                         <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Coupon Code</div>
                                         <div className="text-2xl font-mono font-black text-white tracking-widest">{coupon.code}</div>
                                     </div>
                                 </div>
                                 <div className="p-6 pt-0 mt-auto flex gap-3">
-                                    <button className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-gray-700">
+                                    <button className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 rounded-md transition-all flex items-center justify-center gap-2 text-sm border border-gray-700">
                                         <Copy size={16} /> Copy Code
                                     </button>
                                     {coupon.link && (
                                         <Link
                                             href={coupon.link}
                                             target="_blank"
-                                            className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-xl transition-all flex items-center justify-center"
+                                            className="bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white p-2.5 rounded-md transition-all flex items-center justify-center"
                                         >
                                             <ExternalLink size={18} />
                                         </Link>

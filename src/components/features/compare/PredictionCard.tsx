@@ -87,14 +87,14 @@ export default function PredictionCard({ prediction }: PredictionCardProps) {
                 </div>
 
                 <div className="mt-8 flex gap-3">
-                    <div className="flex-1 bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <div className="flex-1 bg-white/5 p-4 rounded-md border border-white/5">
                         <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Buy Strategy</div>
-                        <div className={`text-sm font-black ${prediction.trend === 'down' ? 'text-green-400' : 'text-orange-400'}`}>
+                        <div className={`text-sm font-black ${prediction.trend === 'down' ? 'text-green-400' : 'text-[hsl(214_89%_55%)]'}`}>
                             {prediction.trend === 'down' ? 'HOLD FOR DROP' : 'BUY IMMEDIATELY'}
                         </div>
                     </div>
                     {prediction.daysUntilNextDrop && (
-                        <div className="flex-1 bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
+                        <div className="flex-1 bg-white/5 p-4 rounded-md border border-white/5 text-center">
                             <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Eta Drop</div>
                             <div className="text-sm font-black text-white">{prediction.daysUntilNextDrop} Days</div>
                         </div>

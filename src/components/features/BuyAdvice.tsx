@@ -36,8 +36,8 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
 
     if (loading) {
         return (
-            <div className="glass rounded-2xl p-5 flex items-center gap-3">
-                <Loader2 size={18} className="animate-spin text-orange-400 flex-shrink-0" />
+            <div className="glass rounded-md p-5 flex items-center gap-3">
+                <Loader2 size={18} className="animate-spin text-[hsl(214_89%_55%)] flex-shrink-0" />
                 <span className="text-sm text-[var(--text-muted)]">Analysing price history with AI...</span>
             </div>
         );
@@ -45,7 +45,7 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
 
     if (error || !prediction) {
         return (
-            <div className="glass rounded-2xl p-5 flex items-center gap-3 text-[var(--text-muted)]">
+            <div className="glass rounded-md p-5 flex items-center gap-3 text-[var(--text-muted)]">
                 <AlertCircle size={16} className="flex-shrink-0" />
                 <span className="text-sm">Could not generate AI insights for this product.</span>
             </div>
@@ -71,7 +71,7 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
         : null;
 
     return (
-        <div className="glass rounded-2xl overflow-hidden">
+        <div className="glass rounded-md overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-2 px-5 py-4 border-b border-[var(--border)]">
                 <div className="w-7 h-7 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
@@ -92,8 +92,8 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
 
             <div className="p-5 space-y-4">
                 {/* Verdict card */}
-                <div className={`flex items-center gap-4 rounded-xl border p-4 ${verdict.bg} ${verdict.border}`}>
-                    <div className={`w-10 h-10 rounded-xl ${verdict.bg} border ${verdict.border} flex items-center justify-center ${verdict.text} flex-shrink-0`}>
+                <div className={`flex items-center gap-4 rounded-md border p-4 ${verdict.bg} ${verdict.border}`}>
+                    <div className={`w-10 h-10 rounded-md ${verdict.bg} border ${verdict.border} flex items-center justify-center ${verdict.text} flex-shrink-0`}>
                         {verdict.icon}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -104,7 +104,7 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
                 </div>
 
                 {/* AI Reason */}
-                <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-4">
+                <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md p-4">
                     <div className="flex items-start gap-2.5">
                         <Brain size={13} className="text-purple-400 flex-shrink-0 mt-0.5" />
                         <p className="text-[var(--text-secondary)] text-xs leading-relaxed">{prediction.reason}</p>
@@ -114,7 +114,7 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
                 {/* Metrics row */}
                 <div className="grid grid-cols-3 gap-2.5">
                     {/* Trend */}
-                    <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                    <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md p-3 text-center">
                         <TrendIcon size={16} className={`${trendColor} mx-auto mb-1`} />
                         <div className={`text-xs font-bold ${trendColor} capitalize`}>{prediction.trend}</div>
                         <div className="text-[9px] text-[var(--text-muted)] mt-0.5">Trend</div>
@@ -122,7 +122,7 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
 
                     {/* Predicted price */}
                     {prediction.predictedPrice > 0 && (
-                        <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                        <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md p-3 text-center">
                             <div className="text-xs font-extrabold text-[var(--text-primary)]">
                                 ₹{prediction.predictedPrice.toLocaleString("en-IN")}
                             </div>
@@ -136,7 +136,7 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
                     )}
 
                     {/* Days until drop */}
-                    <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                    <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md p-3 text-center">
                         {prediction.daysUntilNextDrop ? (
                             <>
                                 <div className="text-xs font-extrabold text-[hsl(45_95%_53%)]">

@@ -37,7 +37,7 @@ export default async function CategoryPage({ params }: Params) {
         <>
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <Link href="/categories" className="inline-flex items-center gap-2 text-gray-400 hover:text-orange-400 text-sm mb-6 transition-colors">
+                <Link href="/categories" className="inline-flex items-center gap-2 text-gray-400 hover:text-[hsl(214_89%_55%)] text-sm mb-6 transition-colors">
                     <ArrowLeft size={16} /> All Categories
                 </Link>
 

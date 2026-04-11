@@ -24,13 +24,13 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
                 return (
                     <div
                         key={index}
-                        className={`flex flex-col glass rounded-[2.5rem] border overflow-hidden transition-all duration-500 card-glow animate-fade-in-up ${isBestDeal ? 'border-orange-500/50 ring-1 ring-orange-500/20 shadow-[0_0_50px_rgba(249,115,22,0.15)] scale-[1.02]' : 'border-white/5'
+                        className={`flex flex-col glass rounded-lg border overflow-hidden transition-all duration-500 card-glow animate-fade-in-up ${isBestDeal ? 'border-[hsl(214_89%_52%/0.5)] ring-1 ring-[hsl(214_89%_52%/0.2)] shadow-[0_0_50px_hsl(214_89%_52%/0.12)] scale-[1.02]' : 'border-white/5'
                             }`}
                     >
                         {/* Image Section */}
                         <div className="relative h-72 p-10 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center group overflow-hidden">
                             {isBlocked ? (
-                                <div className="flex flex-col items-center justify-center text-orange-500/40 gap-4">
+                                <div className="flex flex-col items-center justify-center text-[hsl(214_89%_52%)]/40 gap-4">
                                     <ShieldAlert size={64} className="animate-pulse" />
                                     <span className="text-[10px] font-black uppercase tracking-[0.4em]">Shield Active</span>
                                 </div>
@@ -43,14 +43,14 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
                             )}
 
                             {isBestDeal && !isBlocked && (
-                                <div className="absolute top-6 right-6 bg-orange-600 text-white px-5 py-2 rounded-2xl text-[10px] font-black tracking-[0.2em] shadow-xl animate-bounce flex items-center gap-2">
+                                <div className="absolute top-6 right-6 bg-[hsl(214_89%_52%)] text-white px-5 py-2 rounded-md text-[10px] font-black tracking-[0.2em] shadow-xl animate-bounce flex items-center gap-2">
                                     <Sparkles size={14} className="fill-current" />
                                     ALPHA DEAL
                                 </div>
                             )}
 
                             <div className="absolute top-6 left-6">
-                                <span className="px-4 py-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-orange-500 flex items-center gap-2 shadow-lg">
+                                <span className="px-4 py-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-md text-[10px] font-black uppercase tracking-[0.2em] text-[hsl(214_89%_52%)] flex items-center gap-2 shadow-lg">
                                     <Cpu size={12} />
                                     {product.platform}
                                 </span>
@@ -58,7 +58,7 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
 
                             {isBlocked && (
                                 <div className="absolute inset-0 bg-red-500/10 backdrop-blur-[2px] flex items-center justify-center p-8 text-center">
-                                    <div className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl">
+                                    <div className="bg-red-500 text-white px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest shadow-2xl">
                                         Access Denied by Vendor
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
 
                         {/* Content Section */}
                         <div className="p-10 flex-1 flex flex-col">
-                            <h3 className="text-2xl font-black text-white mb-6 line-clamp-2 leading-[1.2] tracking-tight min-h-[4rem] group-hover:text-orange-400 transition-colors">
+                            <h3 className="text-2xl font-black text-white mb-6 line-clamp-2 leading-[1.2] tracking-tight min-h-[4rem] group-hover:text-[hsl(214_89%_55%)] transition-colors">
                                 {isBlocked ? (
                                     <span className="text-red-400">Security Check Intercepted</span>
                                 ) : (
@@ -96,7 +96,7 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
                                     </div>
                                 </div>
                                 {product.discount && !hasNoPrice && (
-                                    <div className="bg-green-500/10 text-green-400 px-4 py-1.5 rounded-2xl text-xs font-black ring-1 ring-green-500/30">
+                                    <div className="bg-green-500/10 text-green-400 px-4 py-1.5 rounded-md text-xs font-black ring-1 ring-green-500/30">
                                         -{product.discount}%
                                     </div>
                                 )}
@@ -109,7 +109,7 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Supply Vector</span>
-                                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest ${product.availability?.toLowerCase().includes('out') || isBlocked ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'
+                                    <span className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${product.availability?.toLowerCase().includes('out') || isBlocked ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'
                                         }`}>
                                         {isBlocked ? 'Inaccessible' : product.availability ?? 'Unknown'}
                                     </span>
@@ -123,7 +123,7 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
                                     rel="noopener noreferrer"
                                     className={`flex items-center justify-center gap-3 px-8 py-5 rounded-[1.5rem] font-black transition-all active:scale-[0.96] btn-glow shadow-xl ${hasNoPrice || isBlocked
                                             ? 'bg-white text-black hover:bg-gray-100'
-                                            : 'bg-orange-600 text-white hover:bg-orange-500 shadow-orange-600/30'
+                                            : 'bg-[hsl(214_89%_52%)] text-white hover:bg-[hsl(214_89%_45%)] shadow-[hsl(214_89%_52%/0.25)]'
                                         }`}
                                 >
                                     {isBlocked ? 'Unlock Store' : hasNoPrice ? 'Check Live' : 'Acquire Now'}

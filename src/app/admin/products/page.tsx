@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, ShoppingBag, Search, X, Loader2, Star, StarOff, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, ShoppingBag, Search, X, Loader2, Star, ExternalLink, Zap, Download, CheckCircle } from "lucide-react";
 
 interface Category { id: string; name: string; }
 interface Product {
@@ -27,6 +27,11 @@ function ProductForm({
 }: {
     initial?: Product | null; categories: Category[]; onSave: () => void; onClose: () => void;
 }) {
+    const [urlInput, setUrlInput] = useState("");
+    const [scraping, setScraping] = useState(false);
+    const [scrapeError, setScrapeError] = useState("");
+    const [scraped, setScraped] = useState(false);
+
     const [form, setForm] = useState<{
         title: string; image: string; price: string; originalPrice: string;
         discount: string; amazonLink: string; flipkartLink: string;
@@ -48,6 +53,33 @@ function ProductForm({
     const [error, setError] = useState("");
 
     const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
+
+    const handleScrape = async () => {
+        if (!urlInput.trim()) return;
+        setScraping(true); setScrapeError(""); setScraped(false);
+        try {
+            const res = await fetch("/api/scrape", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: urlInput.trim() }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to fetch");
+            setForm((f) => ({
+                ...f,
+                title: data.title || f.title,
+                image: data.image || f.image,
+                price: data.price > 0 ? data.price.toString() : f.price,
+                originalPrice: data.originalPrice ? data.originalPrice.toString() : f.originalPrice,
+                discount: data.discount ? data.discount.toString() : f.discount,
+                amazonLink: data.platform === "amazon" ? urlInput.trim() : f.amazonLink,
+                flipkartLink: data.platform === "flipkart" ? urlInput.trim() : f.flipkartLink,
+            }));
+            setScraped(true);
+        } catch (e: unknown) {
+            setScrapeError(e instanceof Error ? e.message : "Could not fetch product");
+        } finally { setScraping(false); }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,6 +115,37 @@ function ProductForm({
             </div>
 
             <div className="p-6 space-y-4">
+                {/* URL Scraper — only shown for new products */}
+                {!initial && (
+                    <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4">
+                        <label className="block text-xs font-bold text-orange-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <Zap size={11} fill="currentColor" />
+                            Auto-fill from Amazon / Flipkart URL
+                        </label>
+                        <div className="flex gap-2">
+                            <input
+                                type="url"
+                                value={urlInput}
+                                onChange={(e) => { setUrlInput(e.target.value); setScraped(false); setScrapeError(""); }}
+                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleScrape())}
+                                placeholder="Paste product URL here..."
+                                className="input-base flex-1 text-sm"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleScrape}
+                                disabled={scraping || !urlInput.trim()}
+                                className="flex-shrink-0 flex items-center gap-1.5 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+                            >
+                                {scraping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+                                {scraping ? "Fetching..." : "Fetch Details"}
+                            </button>
+                        </div>
+                        {scrapeError && <p className="text-red-400 text-xs mt-2">{scrapeError}</p>}
+                        {scraped && <p className="text-green-400 text-xs mt-2 flex items-center gap-1"><CheckCircle size={11} /> Details fetched! Review below before saving.</p>}
+                    </div>
+                )}
+
                 {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">{error}</div>}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -93,7 +156,6 @@ function ProductForm({
                                 placeholder={placeholder} required={key === "title"} className="input-base" />
                         </div>
                     ))}
-
                     {fields.slice(1).map(({ key, label, placeholder, type }) => (
                         <div key={key}>
                             <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
@@ -118,10 +180,8 @@ function ProductForm({
                 </div>
 
                 <label className="flex items-center gap-3 cursor-pointer group">
-                    <div
-                        onClick={() => set("featured", !form.featured)}
-                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-orange-500" : "bg-gray-700"}`}
-                    >
+                    <div onClick={() => set("featured", !form.featured)}
+                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-orange-500" : "bg-gray-700"}`}>
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${form.featured ? "left-5" : "left-0.5"}`} />
                     </div>
                     <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Mark as Featured Deal</span>

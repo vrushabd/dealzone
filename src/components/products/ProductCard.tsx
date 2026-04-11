@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ExternalLink, Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ChevronDown } from "lucide-react";
+import { ExternalLink, Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ChevronDown, ArrowRight } from "lucide-react";
 
 interface Product {
     id: string;
@@ -223,15 +223,15 @@ export default function ProductCard({ product }: { product: Product }) {
                 <div className="mt-auto">
                     {hasBuyLinks ? (
                         <div className="flex flex-col gap-2">
-                            {/* Buy Now trigger */}
-                            <button
-                                onClick={() => setIsBuyOpen(!isBuyOpen)}
+                            {/* Buy Now trigger — now navigates to product page */}
+                            <Link
+                                href={`/products/${product.slug}`}
                                 className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white text-sm font-bold py-2 px-4 rounded-xl transition-all duration-200 shine-on-hover shadow-[0_4px_14px_hsl(24_95%_53%/0.25)]"
                             >
                                 <ShoppingCart size={13} />
                                 Buy Now
-                                <ChevronDown size={13} className={`ml-auto transition-transform duration-200 ${isBuyOpen ? "rotate-180" : ""}`} />
-                            </button>
+                                <ArrowRight size={13} className="ml-auto" />
+                            </Link>
 
                             {/* Platform options — slide down */}
                             {isBuyOpen && (

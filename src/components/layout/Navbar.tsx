@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Search, Menu, X, Zap, Flame } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function Navbar() {
     const navLinks = [
         { href: "/products", label: "All Deals" },
         { href: "/categories", label: "Categories" },
+        { href: "/price-tracker", label: "Price Tracker" },
         { href: "/coupons", label: "Coupons" },
         { href: "/blog", label: "Blog" },
     ];
@@ -102,6 +104,9 @@ export default function Navbar() {
                             </button>
                         </div>
                     </form>
+
+                    {/* Theme toggle */}
+                    <ThemeToggle />
 
                     {/* Mobile menu button */}
                     <button

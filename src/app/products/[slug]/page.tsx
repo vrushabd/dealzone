@@ -72,8 +72,7 @@ export default async function ProductDetailPage({ params }: Params) {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                {/* Breadcrumb */}
-                <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
+                <nav className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-8">
                     <Link href="/" className="hover:text-orange-400 transition-colors">Home</Link>
                     <span>/</span>
                     <Link href="/products" className="hover:text-orange-400 transition-colors">Deals</Link>
@@ -86,24 +85,24 @@ export default async function ProductDetailPage({ params }: Params) {
                         </>
                     )}
                     <span>/</span>
-                    <span className="text-gray-300 line-clamp-1">{product.title}</span>
+                    <span className="text-[var(--text-secondary)] line-clamp-1">{product.title}</span>
                 </nav>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
                     {/* Image */}
                     <div className="relative">
-                        <div className="bg-gray-900 border border-gray-800 rounded-2xl aspect-square flex items-center justify-center overflow-hidden">
+                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl aspect-square sm:aspect-auto sm:h-[500px] flex items-center justify-center overflow-hidden">
                             {product.image ? (
                                 <Image
                                     src={product.image}
                                     alt={product.title}
                                     fill
-                                    className="object-contain p-8"
+                                    className="object-contain p-4 sm:p-8"
                                     priority
                                     sizes="(max-width: 1024px) 100vw, 50vw"
                                 />
                             ) : (
-                                <ShoppingCart size={80} className="text-gray-700" />
+                                <ShoppingCart size={80} className="text-[var(--text-placeholder)]" />
                             )}
                         </div>
                         {discountPct && discountPct > 0 && (
@@ -122,7 +121,7 @@ export default async function ProductDetailPage({ params }: Params) {
                             </Link>
                         )}
 
-                        <h1 className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-6">{product.title}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug mb-6">{product.title}</h1>
 
                         {/* Price */}
                         <div className="flex items-baseline gap-3 mb-6">
@@ -132,12 +131,12 @@ export default async function ProductDetailPage({ params }: Params) {
                                 </span>
                             )}
                             {product.originalPrice && product.originalPrice !== product.price && (
-                                <span className="text-xl text-gray-500 line-through">
+                                <span className="text-xl text-[var(--text-muted)] line-through">
                                     ₹{product.originalPrice.toLocaleString("en-IN")}
                                 </span>
                             )}
                             {discountPct && discountPct > 0 && (
-                                <span className="text-green-400 font-semibold text-sm">{discountPct}% off</span>
+                                <span className="text-green-500 font-semibold text-sm">{discountPct}% off</span>
                             )}
                         </div>
 
@@ -172,13 +171,13 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         {/* Description */}
                         {product.description && (
-                            <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-                                <h2 className="font-semibold text-gray-200 mb-3">About this product</h2>
-                                <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
+                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl p-5">
+                                <h2 className="font-semibold text-[var(--text-secondary)] mb-3">About this product</h2>
+                                <p className="text-[var(--text-secondary)]/80 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
                             </div>
                         )}
 
-                        <p className="text-xs text-gray-600 mt-6">
+                        <p className="text-xs text-[var(--text-muted)] mt-6">
                             * As an affiliate partner, we may earn a commission from purchases made through these links at no extra cost to you.
                         </p>
                     </div>
@@ -192,7 +191,7 @@ export default async function ProductDetailPage({ params }: Params) {
                 {/* Related Products */}
                 {related.length > 0 && (
                     <section>
-                        <h2 className="text-2xl font-bold text-white mb-6">Related Deals</h2>
+                        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6">Related Deals</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {related.map((p) => (
                                 <ProductCard key={p.id} product={p} />

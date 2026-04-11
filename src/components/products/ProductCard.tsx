@@ -226,11 +226,11 @@ export default function ProductCard({ product }: { product: Product }) {
                             {/* Buy Now trigger */}
                             <button
                                 onClick={() => setIsBuyOpen(!isBuyOpen)}
-                                className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200 shine-on-hover shadow-[0_4px_16px_hsl(24_95%_53%/0.25)]"
+                                className="flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white text-xs font-bold py-1.5 px-3 rounded-xl transition-all duration-200 shine-on-hover shadow-[0_3px_12px_hsl(24_95%_53%/0.2)]"
                             >
-                                <ShoppingCart size={13} />
+                                <ShoppingCart size={12} />
                                 Buy Now
-                                <ChevronDown size={13} className={`ml-auto transition-transform duration-200 ${isBuyOpen ? "rotate-180" : ""}`} />
+                                <ChevronDown size={12} className={`ml-auto transition-transform duration-200 ${isBuyOpen ? "rotate-180" : ""}`} />
                             </button>
 
                             {/* Platform options — slide down */}

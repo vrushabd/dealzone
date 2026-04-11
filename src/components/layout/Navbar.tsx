@@ -39,8 +39,8 @@ export default function Navbar() {
         <header
             className={`sticky top-0 z-50 transition-all duration-300 ${
                 scrolled
-                    ? "bg-[hsl(224_44%_4%/0.97)] shadow-[0_2px_32px_hsl(224_44%_0%/0.6)] border-b border-[hsl(224_20%_13%/0.8)]"
-                    : "bg-[hsl(224_44%_4%/0.90)] border-b border-[hsl(224_20%_13%/0.5)]"
+                    ? "bg-[var(--bg-base)]/95 shadow-[var(--shadow-elevated)] border-b border-[var(--border)]"
+                    : "bg-[var(--bg-base)]/90 border-b border-[var(--border)]"
             } backdrop-blur-xl`}
         >
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,7 +73,7 @@ export default function Navbar() {
                                     className={`relative text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 ${
                                         isActive
                                             ? "text-orange-400 bg-orange-500/10"
-                                            : "text-[hsl(215_18%_65%)] hover:text-white hover:bg-[hsl(224_25%_12%)]"
+                                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                                     }`}
                                 >
                                     {link.label}
@@ -93,7 +93,7 @@ export default function Navbar() {
                                 placeholder="Search deals..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_15%)] rounded-xl pl-4 pr-10 py-2 text-sm text-[hsl(210_30%_96%)] placeholder-[hsl(215_10%_35%)] focus:outline-none focus:border-orange-500 focus:shadow-[0_0_0_3px_hsl(24_95%_53%/0.15)] w-44 transition-all duration-300 focus:w-56"
+                                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-4 pr-10 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-orange-500 focus:shadow-[0_0_0_3px_hsl(24_95%_53%/0.15)] w-44 transition-all duration-300 focus:w-56"
                             />
                             <button
                                 type="submit"
@@ -105,22 +105,25 @@ export default function Navbar() {
                         </div>
                     </form>
 
-                    {/* Theme toggle */}
-                    <ThemeToggle />
+                    {/* Mobile menu button and Theme toggle group */}
+                    <div className="flex items-center gap-2">
+                        {/* Theme toggle */}
+                        <ThemeToggle />
 
-                    {/* Mobile menu button */}
-                    <button
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        className="md:hidden p-2 text-[hsl(215_18%_65%)] hover:text-white hover:bg-[hsl(224_25%_12%)] rounded-lg transition-all"
-                        aria-label="Toggle menu"
-                    >
-                        {menuOpen ? <X size={20} /> : <Menu size={20} />}
-                    </button>
+                        {/* Mobile menu button */}
+                        <button
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] rounded-lg transition-all"
+                            aria-label="Toggle menu"
+                        >
+                            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Menu */}
                 {menuOpen && (
-                    <div className="md:hidden pb-4 border-t border-[hsl(224_20%_13%)] mt-2 pt-4 space-y-1 animate-slide-down">
+                    <div className="md:hidden pb-4 border-t border-[var(--border)] mt-2 pt-4 space-y-1 animate-slide-down">
                         <form onSubmit={handleSearch} className="flex gap-2 mb-4">
                             <div className="relative flex-1">
                                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(215_12%_42%)]" />
@@ -129,7 +132,7 @@ export default function Navbar() {
                                     placeholder="Search deals..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_15%)] rounded-xl pl-8 pr-4 py-2 text-sm text-[hsl(210_30%_96%)] placeholder-[hsl(215_10%_35%)] focus:outline-none focus:border-orange-500"
+                                    className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-8 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-orange-500"
                                 />
                             </div>
                             <button
@@ -149,7 +152,7 @@ export default function Navbar() {
                                     className={`flex items-center py-2.5 px-3 rounded-xl text-sm font-medium transition-all ${
                                         isActive
                                             ? "bg-orange-500/10 text-orange-400"
-                                            : "text-[hsl(215_18%_65%)] hover:text-white hover:bg-[hsl(224_25%_12%)]"
+                                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                                     }`}
                                 >
                                     {link.label}

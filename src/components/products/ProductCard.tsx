@@ -75,10 +75,10 @@ export default function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <article className="group/card relative flex flex-col bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_14%)] rounded-2xl overflow-hidden transition-all duration-350 hover:-translate-y-1.5 hover:border-[hsl(24_75%_53%/0.3)] hover:shadow-[0_0_0_1px_hsl(24_75%_53%/0.15),0_12px_48px_hsl(224_44%_0%/0.55),0_0_32px_hsl(24_95%_53%/0.08)]">
+        <article className="group/card relative flex flex-col bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden transition-all duration-350 hover:-translate-y-1.5 hover:border-orange-500/30 hover:shadow-[var(--shadow-brand)]">
 
             {/* Image — portrait on mobile, landscape on desktop */}
-            <div className="relative aspect-[3/4] sm:aspect-[4/3] bg-[hsl(224_25%_11%)] overflow-hidden">
+            <div className="relative aspect-[3/4] sm:aspect-[4/3] bg-[var(--bg-card-hover)] overflow-hidden">
                 <Link href={`/products/${product.slug}`} className="block w-full h-full">
                     {product.image ? (
                         <Image
@@ -94,7 +94,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         </div>
                     )}
                     {/* Bottom gradient on image */}
-                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[hsl(224_28%_9%/0.6)] to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[var(--bg-card)]/80 to-transparent pointer-events-none" />
                 </Link>
 
                 {/* Discount badge */}
@@ -107,7 +107,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 {/* Bell */}
                 <button
                     onClick={() => setIsAlertOpen(true)}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[hsl(224_28%_9%/0.9)] backdrop-blur border border-[hsl(224_20%_20%)] text-[hsl(215_18%_65%)] hover:text-orange-400 hover:border-orange-500/40 hover:bg-orange-500/10 flex items-center justify-center transition-all duration-200 shadow-lg opacity-0 group-hover/card:opacity-100"
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[var(--bg-base)]/90 backdrop-blur border border-[var(--border)] text-[var(--text-secondary)] hover:text-orange-400 hover:border-orange-500/40 hover:bg-orange-500/10 flex items-center justify-center transition-all duration-200 shadow-lg opacity-0 group-hover/card:opacity-100 z-20"
                     title="Set Price Alert"
                 >
                     <Bell size={13} />
@@ -115,7 +115,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
                 {/* Category chip */}
                 {product.category && (
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[hsl(224_28%_9%/0.85)] backdrop-blur text-[hsl(215_15%_55%)] text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-[hsl(224_20%_18%)] pointer-events-none">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[var(--bg-base)]/85 backdrop-blur text-[var(--text-secondary)] text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-[var(--border)] pointer-events-none z-20">
                         <Tag size={7} />
                         {product.category.name}
                     </div>
@@ -126,7 +126,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     <div className="absolute inset-0 glass-strong z-20 p-4 flex flex-col justify-center animate-scale-in rounded-none">
                         <button
                             onClick={() => setIsAlertOpen(false)}
-                            className="absolute top-3 right-3 text-[hsl(215_12%_42%)] hover:text-white transition-colors"
+                            className="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                         >
                             <X size={18} />
                         </button>
@@ -145,11 +145,11 @@ export default function ProductCard({ product }: { product: Product }) {
                                     <div className="w-8 h-8 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-2">
                                         <TrendingDown size={16} className="text-orange-400" />
                                     </div>
-                                    <h4 className="text-white font-bold text-sm">Price Drop Alert</h4>
-                                    <p className="text-[hsl(215_12%_42%)] text-[10px] mt-0.5">Notify me when price falls to:</p>
+                                    <h4 className="text-[var(--text-primary)] font-bold text-sm">Price Drop Alert</h4>
+                                    <p className="text-[var(--text-muted)] text-[10px] mt-0.5">Notify me when price falls to:</p>
                                 </div>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(215_12%_42%)] text-xs font-bold">₹</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-xs font-bold">₹</span>
                                     <input
                                         type="number"
                                         value={targetPrice}
@@ -183,7 +183,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <div className="p-2 sm:p-3 flex flex-col flex-1">
                 <Link href={`/products/${product.slug}`}>
                     {/* Fixed 2-line height — keeps all cards uniform */}
-                    <h2 className="font-semibold text-[hsl(210_30%_92%)] line-clamp-2 hover:text-orange-400 transition-colors text-xs sm:text-sm leading-snug mb-3 h-[2.6em] overflow-hidden">
+                    <h2 className="font-semibold text-[var(--text-primary)] line-clamp-2 hover:text-orange-400 transition-colors text-xs sm:text-sm leading-snug mb-3 h-[2.6em] overflow-hidden">
                         {product.title}
                     </h2>
                 </Link>
@@ -197,7 +197,7 @@ export default function ProductCard({ product }: { product: Product }) {
                             </span>
                         )}
                         {product.originalPrice && product.originalPrice !== product.price && (
-                            <span className="text-xs text-[hsl(215_12%_42%)] line-through">
+                            <span className="text-xs text-[var(--text-muted)] line-through">
                                 ₹{product.originalPrice.toLocaleString("en-IN")}
                             </span>
                         )}
@@ -205,14 +205,14 @@ export default function ProductCard({ product }: { product: Product }) {
 
                     {savings && savings > 0 && (
                         <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-semibold text-[hsl(142_72%_50%)] bg-[hsl(142_72%_50%/0.1)] border border-[hsl(142_72%_50%/0.2)] px-1.5 py-0.5 rounded-md">
+                            <span className="text-[10px] font-semibold text-green-500 bg-green-500/10 border border-green-500/20 px-1.5 py-0.5 rounded-md">
                                 Save ₹{savings.toLocaleString("en-IN")}
                             </span>
                         </div>
                     )}
 
                     {highestCashback && (
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-[hsl(142_72%_50%)] uppercase tracking-tight bg-[hsl(142_72%_50%/0.08)] w-fit px-2 py-0.5 rounded-md border border-[hsl(142_72%_50%/0.18)]">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-green-500 uppercase tracking-tight bg-green-500/10 w-fit px-2 py-0.5 rounded-md border border-green-500/20">
                             <Zap size={9} fill="currentColor" />
                             +₹{highestCashback.value} cashback via {highestCashback.name}
                         </div>
@@ -241,7 +241,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                             href={product.amazonLink}
                                             target="_blank"
                                             rel="noopener noreferrer sponsored"
-                                            className="flex items-center justify-center gap-2 bg-[hsl(43_95%_53%)] hover:bg-[hsl(43_95%_60%)] text-gray-950 text-xs font-bold py-2 px-4 rounded-xl transition-all shine-on-hover"
+                                            className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold py-2 px-4 rounded-xl transition-all shine-on-hover"
                                         >
                                             <ExternalLink size={11} />
                                             Amazon
@@ -264,7 +264,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     ) : (
                         <Link
                             href={`/products/${product.slug}`}
-                            className="flex items-center justify-center gap-2 w-full bg-[hsl(224_25%_14%)] hover:bg-[hsl(224_25%_18%)] border border-[hsl(224_20%_20%)] text-[hsl(210_30%_92%)] text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200"
+                            className="flex items-center justify-center gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200"
                         >
                             View Details
                         </Link>

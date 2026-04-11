@@ -125,12 +125,16 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         {/* Price */}
                         <div className="flex items-baseline gap-3 mb-6">
-                            {product.price && (
+                            {product.price > 0 ? (
                                 <span className="text-4xl font-extrabold text-orange-400">
                                     ₹{product.price.toLocaleString("en-IN")}
                                 </span>
+                            ) : (
+                                <span className="text-xl font-bold text-[var(--text-muted)]">
+                                    Check Store for Price
+                                </span>
                             )}
-                            {product.originalPrice && product.originalPrice !== product.price && (
+                            {product.originalPrice && product.originalPrice !== product.price && product.originalPrice > 0 && (
                                 <span className="text-xl text-[var(--text-muted)] line-through">
                                     ₹{product.originalPrice.toLocaleString("en-IN")}
                                 </span>

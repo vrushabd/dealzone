@@ -6,56 +6,82 @@ import slugify from 'slugify';
 
 export async function POST(req: NextRequest) {
     try {
-        const { url } = await req.json();
+        const { amazonUrl, flipkartUrl, url } = await req.json();
 
-        if (!url) {
-            return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+        const aUrl = amazonUrl || (url?.includes('amazon') ? url : null);
+        const fUrl = flipkartUrl || (url?.includes('flipkart') ? url : null);
+
+        if (!aUrl && !fUrl) {
+            return NextResponse.json({ error: 'At least one Amazon or Flipkart URL is required' }, { status: 400 });
         }
 
-        const scraped = await scrapeProduct(url);
-        if (!scraped) {
+        // Concurrently process both
+        const [amazonScraped, flipkartScraped] = await Promise.all([
+            aUrl ? scrapeProduct(aUrl) : null,
+            fUrl ? scrapeProduct(fUrl) : null
+        ]);
+
+        let amazonAffiliate = null;
+        let flipkartAffiliate = null;
+
+        if (aUrl) {
+            amazonAffiliate = await AffiliateService.processProductUrl(aUrl).catch(() => null);
+        }
+        if (fUrl) {
+            flipkartAffiliate = await AffiliateService.processProductUrl(fUrl).catch(() => null);
+        }
+
+        const primary = amazonScraped || flipkartScraped;
+        if (!primary) {
             return NextResponse.json({ error: 'Failed to scrape product data' }, { status: 400 });
         }
 
-        // Generate affiliate link
-        let affiliateUrl = undefined;
-        try {
-            const aff = await AffiliateService.processProductUrl(url);
-            if (aff) affiliateUrl = aff.affiliateUrl;
-        } catch (e) {
-            console.error('Affiliate generation failed:', e);
-        }
+        const prices = [amazonScraped?.price, flipkartScraped?.price].filter(p => p !== undefined && p > 0) as number[];
+        const bestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+        const originalPrices = [amazonScraped?.originalPrice, flipkartScraped?.originalPrice].filter(p => p !== undefined && p > 0) as number[];
+        const bestOriginalPrice = originalPrices.length > 0 ? Math.max(...originalPrices) : undefined;
 
-        const slug = slugify(scraped.title, { lower: true, strict: true });
+        const slug = slugify(primary.title, { lower: true, strict: true });
 
         const product = await prisma.product.upsert({
             where: { slug },
             update: {
-                price: scraped.price,
-                originalPrice: scraped.originalPrice,
-                discount: scraped.discount,
-                image: scraped.image,
-                affiliateUrl: affiliateUrl || undefined,
-                originalUrl: url,
+                price: bestPrice,
+                originalPrice: bestOriginalPrice,
+                image: primary.image,
+                amazonLink: amazonAffiliate?.affiliateUrl || aUrl || undefined,
+                flipkartLink: flipkartAffiliate?.affiliateUrl || fUrl || undefined,
             },
             create: {
-                title: scraped.title,
+                title: primary.title,
                 slug,
-                description: `Best price for ${scraped.title} on ${scraped.platform}`,
-                price: scraped.price,
-                originalPrice: scraped.originalPrice,
-                discount: scraped.discount,
-                image: scraped.image,
+                description: `Best price for ${primary.title}`,
+                price: bestPrice,
+                originalPrice: bestOriginalPrice,
+                discount: primary.discount,
+                image: primary.image,
                 category: {
                     connectOrCreate: {
                         where: { slug: "uncategorized" },
                         create: { name: "Uncategorized", slug: "uncategorized" },
                     },
                 },
-                affiliateUrl: affiliateUrl || undefined,
-                originalUrl: url,
+                amazonLink: amazonAffiliate?.affiliateUrl || aUrl || undefined,
+                flipkartLink: flipkartAffiliate?.affiliateUrl || fUrl || undefined,
             },
         });
+
+        // Record history for graph
+        if (amazonScraped && amazonScraped.price > 0) {
+            await prisma.productPriceHistory.create({
+                data: { productId: product.id, price: amazonScraped.price, platform: 'amazon' }
+            });
+        }
+        if (flipkartScraped && flipkartScraped.price > 0) {
+            await prisma.productPriceHistory.create({
+                data: { productId: product.id, price: flipkartScraped.price, platform: 'flipkart' }
+            });
+        }
 
         return NextResponse.json({ success: true, product });
     } catch (error) {

@@ -95,6 +95,7 @@ model ProductPriceHistory {
   id        String   @id @default(cuid())
   productId String
   price     Float
+  platform  String?  @default("unknown")
   timestamp DateTime @default(now())
   product   Product  @relation(fields: [productId], references: [id])
 }

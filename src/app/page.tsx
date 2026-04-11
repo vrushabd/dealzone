@@ -49,13 +49,13 @@ export default async function HomePage() {
     return (
         <>
             <Navbar />
-            <main className="bg-[hsl(224_44%_4%)] pb-20">
+            <main className="bg-[var(--bg-base)] pb-20">
 
                 {/* ── Page Header ─────────────────────────────── */}
-                <section className="border-b border-[hsl(224_20%_11%)] bg-[hsl(224_32%_7%)]">
+                <section className="border-b border-[var(--border)] bg-[var(--bg-surface)]">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                            <h1 className="text-lg font-bold text-white flex items-center gap-2">
+                            <h1 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
                                 <Zap size={18} className="text-orange-500" fill="currentColor" />
                                 Today&apos;s Top Deals
                             </h1>
@@ -74,7 +74,7 @@ export default async function HomePage() {
                             </Link>
                             <Link
                                 href="/coupons"
-                                className="inline-flex items-center gap-1.5 bg-[hsl(224_25%_12%)] hover:bg-[hsl(224_22%_15%)] border border-[hsl(224_20%_18%)] text-[hsl(210_30%_88%)] text-xs font-semibold px-4 py-2 rounded-xl transition-all duration-200"
+                                className="inline-flex items-center gap-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-xs font-semibold px-4 py-2 rounded-xl transition-all duration-200"
                             >
                                 <Tag size={12} className="text-orange-400" />
                                 Coupons
@@ -84,7 +84,7 @@ export default async function HomePage() {
                 </section>
 
                 {/* ── Category Bar ────────────────────────────── */}
-                <section className="bg-[hsl(224_44%_4%/0.97)] border-b border-[hsl(224_20%_11%)] sticky top-14 z-40 backdrop-blur-xl">
+                <section className="bg-[var(--bg-base)]/95 border-b border-[var(--border)] sticky top-14 z-40 backdrop-blur-xl">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-x-auto no-scrollbar">
                         <span className="text-[10px] font-semibold text-[hsl(215_12%_38%)] uppercase tracking-widest whitespace-nowrap flex-shrink-0">
                             Browse:
@@ -93,7 +93,7 @@ export default async function HomePage() {
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
-                                className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[hsl(215_15%_52%)] hover:text-white transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(24_95%_53%/0.1)] border border-transparent hover:border-[hsl(24_75%_53%/0.25)] flex-shrink-0"
+                                className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(24_95%_53%/0.1)] border border-transparent hover:border-orange-500/20 flex-shrink-0"
                             >
                                 <CategoryIcon slug={cat.slug} variant="bar" />
                                 <span>{cat.name}</span>
@@ -160,8 +160,8 @@ export default async function HomePage() {
                                         </div>
                                     ))}
                                     {latestProducts.length === 0 && featuredProducts.length === 0 && (
-                                        <div className="col-span-full py-24 text-center border-2 border-dashed border-[hsl(224_20%_13%)] rounded-3xl">
-                                            <div className="w-16 h-16 bg-[hsl(224_25%_12%)] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <div className="col-span-full py-24 text-center border-2 border-dashed border-[var(--border)] rounded-3xl">
+                                            <div className="w-16 h-16 bg-[var(--bg-elevated)] rounded-2xl flex items-center justify-center mx-auto mb-4">
                                                 <Zap size={32} className="text-[hsl(224_20%_22%)]" />
                                             </div>
                                             <h3 className="text-[hsl(215_15%_45%)] font-semibold text-sm">
@@ -181,7 +181,7 @@ export default async function HomePage() {
 
                             {/* Blog / Shopping Tips */}
                             <div className="glass rounded-2xl p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
-                                <h3 className="flex items-center gap-2 text-sm font-bold text-white mb-4">
+                                <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)] mb-4">
                                     <Sparkles size={14} className="text-orange-400" />
                                     Shopping Tips
                                 </h3>
@@ -211,7 +211,7 @@ export default async function HomePage() {
 
                             {/* Top Categories */}
                             <div className="glass rounded-2xl p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
-                                <h3 className="flex items-center gap-2 text-sm font-bold text-white mb-4">
+                                <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)] mb-4">
                                     <Tag size={14} className="text-orange-400" />
                                     Top Categories
                                 </h3>
@@ -220,10 +220,10 @@ export default async function HomePage() {
                                         <Link
                                             key={cat.id}
                                             href={`/categories/${cat.slug}`}
-                                            className="group bg-[hsl(224_28%_11%)] hover:bg-[hsl(24_95%_53%/0.08)] border border-[hsl(224_20%_14%)] hover:border-[hsl(24_75%_53%/0.3)] rounded-xl p-3 text-center transition-all duration-200"
+                                            className="group bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border)] hover:border-orange-500/30 rounded-xl p-3 text-center transition-all duration-200"
                                         >
                                             <CategoryIcon slug={cat.slug} variant="card" />
-                                            <div className="text-[10px] font-bold text-[hsl(215_15%_45%)] group-hover:text-white uppercase tracking-tight transition-colors">
+                                            <div className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase tracking-tight transition-colors">
                                                 {cat.name}
                                             </div>
                                             {cat._count?.products > 0 && (
@@ -243,7 +243,7 @@ export default async function HomePage() {
                                     <div className="w-10 h-10 bg-orange-500/15 rounded-xl flex items-center justify-center mx-auto mb-3">
                                         <Zap size={20} className="text-orange-400" fill="currentColor" />
                                     </div>
-                                    <h4 className="text-white font-bold text-sm mb-1">Never Miss a Deal</h4>
+                                    <h4 className="text-[var(--text-primary)] font-bold text-sm mb-1">Never Miss a Deal</h4>
                                     <p className="text-[hsl(215_12%_48%)] text-xs leading-relaxed mb-4">
                                         Set price alerts on any product and we&apos;ll notify you when it drops.
                                     </p>

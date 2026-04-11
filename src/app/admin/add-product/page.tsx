@@ -17,7 +17,8 @@ interface ScrapedResult {
 }
 
 export default function AddViaUrlPage() {
-    const [url, setUrl] = useState("");
+    const [amazonUrl, setAmazonUrl] = useState("");
+    const [flipkartUrl, setFlipkartUrl] = useState("");
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<ScrapedResult | null>(null);
     const [error, setError] = useState("");
@@ -25,7 +26,7 @@ export default function AddViaUrlPage() {
     const [copying, setCopying] = useState(false);
 
     const handleFetch = async () => {
-        if (!url.trim()) return;
+        if (!amazonUrl.trim() && !flipkartUrl.trim()) return;
         setLoading(true);
         setError("");
         setResult(null);
@@ -35,7 +36,10 @@ export default function AddViaUrlPage() {
             const res = await fetch("/api/product/add", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: url.trim() }),
+                body: JSON.stringify({
+                    amazonUrl: amazonUrl.trim(),
+                    flipkartUrl: flipkartUrl.trim()
+                }),
             });
             const data = await res.json();
 
@@ -84,37 +88,50 @@ export default function AddViaUrlPage() {
             </div>
 
             {/* URL Input Card */}
-            <div className="glass rounded-2xl p-6 mb-6">
-                <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-3">
-                    Product URL
-                </label>
-                <div className="flex gap-3">
-                    <div className="relative flex-1">
+            <div className="glass rounded-2xl p-6 mb-6 flex flex-col gap-4">
+                <div>
+                    <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-3">
+                        Amazon URL (Optional)
+                    </label>
+                    <div className="relative">
                         <Link2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)]" />
                         <input
                             type="url"
-                            value={url}
-                            onChange={(e) => { setUrl(e.target.value); setResult(null); setError(""); }}
+                            value={amazonUrl}
+                            onChange={(e) => { setAmazonUrl(e.target.value); setResult(null); setError(""); }}
                             onKeyDown={(e) => e.key === "Enter" && handleFetch()}
-                            placeholder="https://www.amazon.in/dp/... or https://www.flipkart.com/..."
+                            placeholder="https://www.amazon.in/dp/..."
                             className="input-base pl-10"
                         />
                     </div>
-                    <button
-                        onClick={handleFetch}
-                        disabled={loading || !url.trim()}
-                        className="btn-primary shine-on-hover px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 text-sm"
-                    >
-                        {loading ? <Loader2 size={16} className="animate-spin" /> : <Zap size={15} fill="currentColor" />}
-                        {loading ? "Fetching..." : "Fetch"}
-                    </button>
                 </div>
 
-                {/* Platform hints */}
-                <div className="flex items-center gap-3 mt-3">
-                    <span className="text-[10px] text-[hsl(215_10%_35%)]">Supports:</span>
-                    <span className="text-[10px] font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">amazon.in</span>
-                    <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">flipkart.com</span>
+                <div>
+                    <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-3">
+                        Flipkart URL (Optional)
+                    </label>
+                    <div className="relative">
+                        <Link2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)]" />
+                        <input
+                            type="url"
+                            value={flipkartUrl}
+                            onChange={(e) => { setFlipkartUrl(e.target.value); setResult(null); setError(""); }}
+                            onKeyDown={(e) => e.key === "Enter" && handleFetch()}
+                            placeholder="https://www.flipkart.com/..."
+                            className="input-base pl-10"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 mt-2">
+                    <button
+                        onClick={handleFetch}
+                        disabled={loading || (!amazonUrl.trim() && !flipkartUrl.trim())}
+                        className="btn-primary shine-on-hover px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed text-sm w-full"
+                    >
+                        {loading ? <Loader2 size={16} className="animate-spin mr-2 inline" /> : <Zap size={15} fill="currentColor" className="mr-2 inline" />}
+                        {loading ? "Fetching & Tracking Both..." : "Fetch & Track Product"}
+                    </button>
                 </div>
             </div>
 
@@ -233,7 +250,7 @@ export default function AddViaUrlPage() {
                                 View Product
                             </a>
                             <button
-                                onClick={() => { setUrl(""); setResult(null); setSaved(false); }}
+                                onClick={() => { setAmazonUrl(""); setFlipkartUrl(""); setResult(null); setSaved(false); }}
                                 className="flex-1 flex items-center justify-center gap-1.5 btn-primary shine-on-hover text-xs py-2.5"
                             >
                                 <RefreshCw size={13} />

@@ -78,14 +78,14 @@ export default function ProductCard({ product }: { product: Product }) {
         <article className="group/card relative flex flex-col bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_14%)] rounded-2xl overflow-hidden transition-all duration-350 hover:-translate-y-1.5 hover:border-[hsl(24_75%_53%/0.3)] hover:shadow-[0_0_0_1px_hsl(24_75%_53%/0.15),0_12px_48px_hsl(224_44%_0%/0.55),0_0_32px_hsl(24_95%_53%/0.08)]">
 
             {/* Image */}
-            <div className="relative aspect-[4/3] sm:aspect-square bg-[hsl(224_25%_11%)] overflow-hidden">
+            <div className="relative aspect-square bg-[hsl(224_25%_11%)] overflow-hidden">
                 <Link href={`/products/${product.slug}`} className="block w-full h-full">
                     {product.image ? (
                         <Image
                             src={product.image}
                             alt={product.title}
                             fill
-                            className="object-contain p-1.5 sm:p-3 group-hover/card:scale-[1.06] transition-transform duration-400 ease-out"
+                            className="object-contain p-1 sm:p-2 group-hover/card:scale-[1.06] transition-transform duration-400 ease-out"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                     ) : (

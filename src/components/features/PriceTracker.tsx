@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Search, History, TrendingDown, TrendingUp, AlertCircle, Loader2, ArrowRight, ExternalLink } from "lucide-react";
+import { Search, History, TrendingDown, TrendingUp, AlertCircle, Loader2, ArrowRight, ExternalLink, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 
@@ -85,8 +85,8 @@ export function PriceTracker() {
                                     className="object-contain p-4"
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[var(--text-placeholder)]">
-                                    No Image
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <ShoppingCart size={44} className="text-[var(--text-muted)]" />
                                 </div>
                             )}
                             <div className="absolute top-2 left-2 bg-[var(--bg-card)] border border-[var(--border)] text-[0.65rem] font-bold px-2 py-0.5 rounded uppercase tracking-wider text-orange-500">

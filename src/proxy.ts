@@ -1,25 +1,21 @@
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export default withAuth(
-    function proxy(req) {
-        return NextResponse.next();
-    },
-    {
-        callbacks: {
-            authorized: ({ token }) => !!token,
-        },
-        pages: {
-            signIn: "/admin/login",
-        },
+export async function proxy(req: NextRequest) {
+    const token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (!token) {
+        const loginUrl = new URL('/admin/login', req.url);
+        loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+        return NextResponse.redirect(loginUrl);
     }
-);
+
+    return NextResponse.next();
+}
 
 export const config = {
-    matcher: [
-        /*
-         * Protect all /admin routes except /admin/login
-         */
-        "/admin/((?!login).*)",
-    ],
+    matcher: ['/admin/((?!login).*)'],
 };

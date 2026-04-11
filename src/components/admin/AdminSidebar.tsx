@@ -7,6 +7,7 @@ import {
     Zap, LayoutDashboard, ShoppingBag, BookOpen, Tag,
     LogOut, ExternalLink, Menu, X, ChevronRight, Link2, BarChart3,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -64,17 +65,23 @@ export default function AdminSidebar() {
                 <a
                     href="/"
                     target="_blank"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all"
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all"
                 >
-                    <ExternalLink size={17} className="text-gray-500" />
-                    {!collapsed && "View Site"}
+                    <ExternalLink size={17} className="text-gray-500 flex-shrink-0" />
+                    {!collapsed && <span>View Site</span>}
                 </a>
+                
+                <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all">
+                    <ThemeToggle />
+                    {!collapsed && <span>Appearance</span>}
+                </div>
+
                 <button
                     onClick={() => signOut({ callbackUrl: "/admin/login" })}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
                 >
-                    <LogOut size={17} className="text-gray-500" />
-                    {!collapsed && "Sign Out"}
+                    <LogOut size={17} className="text-gray-500 flex-shrink-0" />
+                    {!collapsed && <span>Sign Out</span>}
                 </button>
             </div>
         </div>

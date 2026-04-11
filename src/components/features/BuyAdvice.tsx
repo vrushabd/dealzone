@@ -38,14 +38,14 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
         return (
             <div className="glass rounded-2xl p-5 flex items-center gap-3">
                 <Loader2 size={18} className="animate-spin text-orange-400 flex-shrink-0" />
-                <span className="text-sm text-[hsl(215_15%_52%)]">Analysing price history with AI...</span>
+                <span className="text-sm text-[var(--text-muted)]">Analysing price history with AI...</span>
             </div>
         );
     }
 
     if (error || !prediction) {
         return (
-            <div className="glass rounded-2xl p-5 flex items-center gap-3 text-[hsl(215_12%_42%)]">
+            <div className="glass rounded-2xl p-5 flex items-center gap-3 text-[var(--text-muted)]">
                 <AlertCircle size={16} className="flex-shrink-0" />
                 <span className="text-sm">Could not generate AI insights for this product.</span>
             </div>
@@ -73,13 +73,13 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
     return (
         <div className="glass rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-[hsl(224_20%_14%)]">
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-[var(--border)]">
                 <div className="w-7 h-7 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
                     <Brain size={15} className="text-purple-400" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-bold text-white">AI Buy Advisor</h3>
-                    <p className="text-[10px] text-[hsl(215_10%_38%)]">
+                    <h3 className="text-sm font-bold text-[var(--text-primary)]">AI Buy Advisor</h3>
+                    <p className="text-[10px] text-[var(--text-muted)]">
                         Based on {prediction.confidence}% confidence · 30-day analysis
                     </p>
                 </div>
@@ -104,29 +104,29 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
                 </div>
 
                 {/* AI Reason */}
-                <div className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_13%)] rounded-xl p-4">
+                <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-4">
                     <div className="flex items-start gap-2.5">
                         <Brain size={13} className="text-purple-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-[hsl(215_15%_62%)] text-xs leading-relaxed">{prediction.reason}</p>
+                        <p className="text-[var(--text-secondary)] text-xs leading-relaxed">{prediction.reason}</p>
                     </div>
                 </div>
 
                 {/* Metrics row */}
                 <div className="grid grid-cols-3 gap-2.5">
                     {/* Trend */}
-                    <div className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_13%)] rounded-xl p-3 text-center">
+                    <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
                         <TrendIcon size={16} className={`${trendColor} mx-auto mb-1`} />
                         <div className={`text-xs font-bold ${trendColor} capitalize`}>{prediction.trend}</div>
-                        <div className="text-[9px] text-[hsl(215_10%_38%)] mt-0.5">Trend</div>
+                        <div className="text-[9px] text-[var(--text-muted)] mt-0.5">Trend</div>
                     </div>
 
                     {/* Predicted price */}
                     {prediction.predictedPrice > 0 && (
-                        <div className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_13%)] rounded-xl p-3 text-center">
-                            <div className="text-xs font-extrabold text-white">
+                        <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
+                            <div className="text-xs font-extrabold text-[var(--text-primary)]">
                                 ₹{prediction.predictedPrice.toLocaleString("en-IN")}
                             </div>
-                            <div className="text-[9px] text-[hsl(215_10%_38%)] mt-0.5">Predicted</div>
+                            <div className="text-[9px] text-[var(--text-muted)] mt-0.5">Predicted</div>
                             {priceDiff !== null && (
                                 <div className={`text-[9px] font-bold mt-0.5 ${priceDiff < 0 ? "text-[hsl(142_72%_50%)]" : "text-[hsl(0_84%_60%)]"}`}>
                                     {priceDiff < 0 ? "↓" : "↑"} ₹{Math.abs(priceDiff).toLocaleString("en-IN")}
@@ -136,24 +136,24 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
                     )}
 
                     {/* Days until drop */}
-                    <div className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_13%)] rounded-xl p-3 text-center">
+                    <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-3 text-center">
                         {prediction.daysUntilNextDrop ? (
                             <>
                                 <div className="text-xs font-extrabold text-[hsl(45_95%_53%)]">
                                     ~{prediction.daysUntilNextDrop}d
                                 </div>
-                                <div className="text-[9px] text-[hsl(215_10%_38%)] mt-0.5">Until drop</div>
+                                <div className="text-[9px] text-[var(--text-muted)] mt-0.5">Until drop</div>
                             </>
                         ) : (
                             <>
-                                <div className="text-xs font-extrabold text-[hsl(215_15%_45%)]">—</div>
-                                <div className="text-[9px] text-[hsl(215_10%_38%)] mt-0.5">No drop expected</div>
+                                <div className="text-xs font-extrabold text-[var(--text-muted)]">—</div>
+                                <div className="text-[9px] text-[var(--text-muted)] mt-0.5">No drop expected</div>
                             </>
                         )}
                     </div>
                 </div>
 
-                <p className="text-[hsl(215_10%_30%)] text-[10px] text-center leading-relaxed">
+                <p className="text-[var(--text-muted)] text-[10px] text-center leading-relaxed">
                     AI predictions are based on historical trends and are not financial advice.
                 </p>
             </div>

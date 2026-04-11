@@ -31,8 +31,8 @@ function formatPrice(p: number) {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[hsl(224_32%_9%)] border border-[hsl(224_20%_18%)] rounded-xl px-3 py-2.5 shadow-xl">
-                <p className="text-[10px] text-[hsl(215_12%_45%)] mb-1">{label}</p>
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-3 py-2.5 shadow-xl">
+                <p className="text-[10px] text-[var(--text-muted)] mb-1">{label}</p>
                 <p className="text-orange-400 font-bold text-sm">
                     {formatPrice(payload[0].value)}
                 </p>

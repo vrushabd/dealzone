@@ -85,15 +85,21 @@ export default function Navbar() {
 
                     {/* Search */}
                     <form onSubmit={handleSearch} className="hidden md:flex items-center">
-                        <div className="relative group">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(215_12%_42%)] group-focus-within:text-orange-400 transition-colors" />
+                        <div className="relative group flex items-center">
                             <input
                                 type="text"
                                 placeholder="Search deals..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_15%)] rounded-xl pl-8 pr-4 py-2 text-sm text-[hsl(210_30%_96%)] placeholder-[hsl(215_10%_35%)] focus:outline-none focus:border-orange-500 focus:shadow-[0_0_0_3px_hsl(24_95%_53%/0.15)] w-44 transition-all duration-300 focus:w-56"
+                                className="bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_15%)] rounded-xl pl-4 pr-10 py-2 text-sm text-[hsl(210_30%_96%)] placeholder-[hsl(215_10%_35%)] focus:outline-none focus:border-orange-500 focus:shadow-[0_0_0_3px_hsl(24_95%_53%/0.15)] w-44 transition-all duration-300 focus:w-56"
                             />
+                            <button
+                                type="submit"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[hsl(215_12%_42%)] hover:text-orange-400 transition-colors"
+                                aria-label="Search"
+                            >
+                                <Search size={14} />
+                            </button>
                         </div>
                     </form>
 

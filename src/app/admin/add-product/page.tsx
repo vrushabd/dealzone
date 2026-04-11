@@ -1,0 +1,270 @@
+"use client";
+import { useState } from "react";
+import {
+    Link2, Loader2, Check, Copy, ExternalLink, Zap,
+    ShoppingBag, Package, AlertCircle, ChevronRight, RefreshCw
+} from "lucide-react";
+
+interface ScrapedResult {
+    title: string;
+    price: number;
+    originalPrice?: number;
+    discount?: number;
+    image: string;
+    platform: string;
+    affiliateUrl?: string;
+    slug?: string;
+}
+
+export default function AddViaUrlPage() {
+    const [url, setUrl] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState<ScrapedResult | null>(null);
+    const [error, setError] = useState("");
+    const [saved, setSaved] = useState(false);
+    const [copying, setCopying] = useState(false);
+
+    const handleFetch = async () => {
+        if (!url.trim()) return;
+        setLoading(true);
+        setError("");
+        setResult(null);
+        setSaved(false);
+
+        try {
+            const res = await fetch("/api/product/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: url.trim() }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Failed to fetch product");
+
+            setResult({
+                title: data.product.title,
+                price: data.product.price,
+                originalPrice: data.product.originalPrice,
+                discount: data.product.discount,
+                image: data.product.image,
+                platform: data.product.amazonLink ? "amazon" : data.product.flipkartLink ? "flipkart" : "unknown",
+                affiliateUrl: data.product.affiliateUrl,
+                slug: data.product.slug,
+            });
+            setSaved(true);
+        } catch (e: any) {
+            setError(e.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const copy = async (text: string) => {
+        await navigator.clipboard.writeText(text);
+        setCopying(true);
+        setTimeout(() => setCopying(false), 1500);
+    };
+
+    const platformLabel = result?.platform === "amazon" ? "Amazon" : result?.platform === "flipkart" ? "Flipkart" : "Unknown";
+    const platformColor = result?.platform === "amazon"
+        ? "text-yellow-400 bg-yellow-500/10 border-yellow-500/25"
+        : "text-blue-400 bg-blue-500/10 border-blue-500/25";
+
+    return (
+        <div className="animate-fade-in-up max-w-2xl">
+            {/* Header */}
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <Zap size={22} className="text-orange-500" fill="currentColor" />
+                    Add Product via URL
+                </h1>
+                <p className="text-[hsl(215_15%_52%)] text-sm mt-1">
+                    Paste any Amazon or Flipkart product URL — we&apos;ll auto-fetch the details and generate your affiliate link.
+                </p>
+            </div>
+
+            {/* URL Input Card */}
+            <div className="glass rounded-2xl p-6 mb-6">
+                <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-3">
+                    Product URL
+                </label>
+                <div className="flex gap-3">
+                    <div className="relative flex-1">
+                        <Link2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)]" />
+                        <input
+                            type="url"
+                            value={url}
+                            onChange={(e) => { setUrl(e.target.value); setResult(null); setError(""); }}
+                            onKeyDown={(e) => e.key === "Enter" && handleFetch()}
+                            placeholder="https://www.amazon.in/dp/... or https://www.flipkart.com/..."
+                            className="input-base pl-10"
+                        />
+                    </div>
+                    <button
+                        onClick={handleFetch}
+                        disabled={loading || !url.trim()}
+                        className="btn-primary shine-on-hover px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 text-sm"
+                    >
+                        {loading ? <Loader2 size={16} className="animate-spin" /> : <Zap size={15} fill="currentColor" />}
+                        {loading ? "Fetching..." : "Fetch"}
+                    </button>
+                </div>
+
+                {/* Platform hints */}
+                <div className="flex items-center gap-3 mt-3">
+                    <span className="text-[10px] text-[hsl(215_10%_35%)]">Supports:</span>
+                    <span className="text-[10px] font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">amazon.in</span>
+                    <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">flipkart.com</span>
+                </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+                <div className="flex items-start gap-3 bg-[hsl(0_84%_60%/0.08)] border border-[hsl(0_84%_60%/0.25)] rounded-xl px-4 py-3 mb-6 animate-scale-in">
+                    <AlertCircle size={16} className="text-[hsl(0_84%_60%)] flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-[hsl(0_84%_70%)] text-sm font-medium">{error}</p>
+                        <p className="text-[hsl(0_84%_50%/0.7)] text-xs mt-0.5">Make sure the URL is a valid product page from Amazon India or Flipkart.</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading skeleton */}
+            {loading && (
+                <div className="glass rounded-2xl p-6 space-y-4">
+                    <div className="flex gap-4">
+                        <div className="skeleton w-24 h-24 rounded-xl flex-shrink-0" />
+                        <div className="flex-1 space-y-2.5">
+                            <div className="skeleton h-4 rounded-lg w-3/4" />
+                            <div className="skeleton h-4 rounded-lg w-1/2" />
+                            <div className="skeleton h-6 rounded-lg w-1/3" />
+                        </div>
+                    </div>
+                    <div className="skeleton h-10 rounded-xl" />
+                </div>
+            )}
+
+            {/* Result Card */}
+            {result && !loading && (
+                <div className="glass-brand rounded-2xl overflow-hidden animate-scale-in">
+                    {/* Success banner */}
+                    <div className="flex items-center gap-2 px-5 py-3 bg-[hsl(142_72%_50%/0.08)] border-b border-[hsl(142_72%_50%/0.15)]">
+                        <div className="w-5 h-5 rounded-full bg-[hsl(142_72%_50%/0.2)] flex items-center justify-center">
+                            <Check size={11} className="text-[hsl(142_72%_50%)]" />
+                        </div>
+                        <span className="text-xs font-semibold text-[hsl(142_72%_60%)]">
+                            Product fetched & saved to database
+                        </span>
+                        <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full border ${platformColor}`}>
+                            {platformLabel}
+                        </span>
+                    </div>
+
+                    <div className="p-6">
+                        {/* Product preview */}
+                        <div className="flex gap-4 mb-6">
+                            {result.image && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={result.image}
+                                    alt={result.title}
+                                    className="w-20 h-20 object-contain bg-[hsl(224_25%_11%)] rounded-xl p-2 flex-shrink-0 border border-[hsl(224_20%_16%)]"
+                                />
+                            )}
+                            <div className="min-w-0">
+                                <h3 className="text-white font-semibold text-sm leading-snug line-clamp-2 mb-2">{result.title}</h3>
+                                <div className="flex items-baseline gap-2">
+                                    {result.price > 0 && (
+                                        <span className="text-lg font-extrabold text-orange-400">
+                                            ₹{result.price.toLocaleString("en-IN")}
+                                        </span>
+                                    )}
+                                    {result.originalPrice && result.originalPrice > result.price && (
+                                        <span className="text-xs text-[hsl(215_12%_42%)] line-through">
+                                            ₹{result.originalPrice.toLocaleString("en-IN")}
+                                        </span>
+                                    )}
+                                    {result.discount && result.discount > 0 && (
+                                        <span className="badge-discount">-{result.discount}%</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Affiliate URL */}
+                        <div className="mb-4">
+                            <div className="text-[10px] font-semibold text-[hsl(215_15%_45%)] uppercase tracking-wider mb-2">
+                                Generated Affiliate Link
+                            </div>
+                            {result.affiliateUrl ? (
+                                <div className="flex items-center gap-2 bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_16%)] rounded-xl px-3 py-2.5">
+                                    <span className="text-xs text-orange-400 font-mono flex-1 truncate">{result.affiliateUrl}</span>
+                                    <button
+                                        onClick={() => copy(result.affiliateUrl!)}
+                                        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] transition-colors text-[hsl(215_12%_42%)] hover:text-white"
+                                        title="Copy link"
+                                    >
+                                        {copying ? <Check size={13} className="text-[hsl(142_72%_50%)]" /> : <Copy size={13} />}
+                                    </button>
+                                    <a
+                                        href={result.affiliateUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] transition-colors text-[hsl(215_12%_42%)] hover:text-white"
+                                    >
+                                        <ExternalLink size={13} />
+                                    </a>
+                                </div>
+                            ) : (
+                                <div className="text-xs text-[hsl(215_12%_40%)] italic px-3 py-2.5 border border-dashed border-[hsl(224_20%_16%)] rounded-xl">
+                                    No affiliate link generated — check your AMAZON_AFFILIATE_TAG / FLIPKART_AFFILIATE_ID in .env
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 pt-3 border-t border-[hsl(224_20%_14%)]">
+                            <a
+                                href={result.slug ? `/products/${result.slug}` : "/products"}
+                                target="_blank"
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(224_25%_12%)] hover:bg-[hsl(224_22%_15%)] border border-[hsl(224_20%_16%)] text-[hsl(210_30%_88%)] text-xs font-semibold py-2.5 rounded-xl transition-all"
+                            >
+                                <Package size={13} />
+                                View Product
+                            </a>
+                            <button
+                                onClick={() => { setUrl(""); setResult(null); setSaved(false); }}
+                                className="flex-1 flex items-center justify-center gap-1.5 btn-primary shine-on-hover text-xs py-2.5"
+                            >
+                                <RefreshCw size={13} />
+                                Add Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* How it works */}
+            {!result && !loading && !error && (
+                <div className="glass rounded-2xl p-5">
+                    <h3 className="text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-4">How it works</h3>
+                    <div className="space-y-3">
+                        {[
+                            { step: "1", text: "Paste any Amazon India or Flipkart product URL above" },
+                            { step: "2", text: "We scrape the title, price, discount, and product image" },
+                            { step: "3", text: "Your affiliate tag is automatically appended to the URL" },
+                            { step: "4", text: "Product is saved to your database and goes live instantly" },
+                        ].map((item) => (
+                            <div key={item.step} className="flex items-start gap-3">
+                                <div className="w-5 h-5 rounded-full bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-[10px] font-bold text-orange-400 flex-shrink-0 mt-0.5">
+                                    {item.step}
+                                </div>
+                                <p className="text-[hsl(215_15%_55%)] text-xs leading-relaxed">{item.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

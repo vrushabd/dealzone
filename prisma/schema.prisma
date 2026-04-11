@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id               String                @id @default(cuid())
+  title            String
+  slug             String                @unique
+  description      String?
+  image            String?
+  price            Float?
+  originalPrice    Float?
+  discount         Float?
+  amazonLink       String?
+  flipkartLink     String?
+  featured         Boolean               @default(false)
+  categoryId       String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  cashbackAmazon   Float?                @default(0)
+  cashbackFlipkart Float?                @default(0)
+  cashbackPaytm    Float?                @default(0)
+  cashbackPhonePe  Float?                @default(0)
+  availability     String?
+  myntraLink       String?
+  rating           Float?
+  seller           String?
+  affiliateUrl     String?
+  originalUrl      String?
+  affiliateClicks  AffiliateClick[]
+  priceAlerts      PriceAlert[]
+  category         Category?             @relation(fields: [categoryId], references: [id])
+  priceHistory     ProductPriceHistory[]
+  trackedBy        TrackedProduct[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  icon     String?
+  products Product[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String
+  excerpt   String?
+  image     String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  title       String
+  code        String
+  description String?
+  discount    String?
+  store       String
+  link        String?
+  expiry      DateTime?
+  isVerified  Boolean   @default(true)
+  isSecret    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model PriceAlert {
+  id          String   @id @default(cuid())
+  email       String?
+  phone       String?
+  targetPrice Float
+  productId   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  product     Product  @relation(fields: [productId], references: [id])
+}
+
+model ProductPriceHistory {
+  id        String   @id @default(cuid())
+  productId String
+  price     Float
+  timestamp DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model TrackedProduct {
+  id          String   @id @default(cuid())
+  userId      String?
+  email       String?
+  productId   String
+  targetPrice Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  product     Product  @relation(fields: [productId], references: [id])
+}
+
+model AffiliateClick {
+  id        String   @id @default(cuid())
+  productId String
+  ip        String?
+  userAgent String?
+  timestamp DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+}

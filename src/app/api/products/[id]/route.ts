@@ -61,9 +61,19 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
     try {
         const { id } = await params;
-        await prisma.product.delete({ where: { id } });
+
+        // Delete ALL related records first (FK constraints)
+        await prisma.$transaction([
+            prisma.affiliateClick.deleteMany({ where: { productId: id } }),
+            prisma.productPriceHistory.deleteMany({ where: { productId: id } }),
+            prisma.trackedProduct.deleteMany({ where: { productId: id } }),
+            prisma.priceAlert.deleteMany({ where: { productId: id } }),
+            prisma.product.delete({ where: { id } }),
+        ]);
+
         return NextResponse.json({ success: true });
-    } catch {
+    } catch (error) {
+        console.error("Delete product error:", error);
         return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
     }
 }

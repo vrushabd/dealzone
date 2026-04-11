@@ -108,10 +108,10 @@ export default async function HomePage() {
 
                 {/* ── Main Content ─────────────────────────────── */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
 
-                        {/* Main Feed */}
-                        <div className="lg:col-span-3 space-y-12">
+                        {/* Main Feed — full width on mobile, 3 cols on desktop */}
+                        <div className="lg:col-span-3 space-y-10 order-2 lg:order-1">
 
                             {/* Featured */}
                             {(featuredProducts as any[]).length > 0 && (
@@ -128,7 +128,7 @@ export default async function HomePage() {
                                             See all <ArrowRight size={12} />
                                         </Link>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 stagger-children">
                                         {(featuredProducts as any[]).map((product) => (
                                             <div key={product.id} className="animate-fade-in-up">
                                                 <ProductCard product={product} />
@@ -152,7 +152,7 @@ export default async function HomePage() {
                                         All deals <ArrowRight size={12} />
                                     </Link>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
+                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 stagger-children">
                                     {(latestProducts as any[]).map((product) => (
                                         <div key={product.id} className="animate-fade-in-up">
                                             <ProductCard product={product} />
@@ -175,8 +175,8 @@ export default async function HomePage() {
                             </section>
                         </div>
 
-                        {/* Sidebar */}
-                        <aside className="space-y-6">
+                        {/* Sidebar — shown above on mobile, right on desktop */}
+                        <aside className="space-y-4 order-1 lg:order-2">
 
                             {/* Blog / Shopping Tips */}
                             <div className="glass rounded-2xl p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">

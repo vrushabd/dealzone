@@ -27,22 +27,22 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(224_44%_4%)] flex items-center justify-center p-4 relative overflow-hidden mesh-bg">
+        <div className="min-h-screen bg-[hsl(220_10%_8%)] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Animated background blobs */}
-            <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[100px] animate-float pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[80px] animate-[float_7s_ease-in-out_infinite_reverse] pointer-events-none" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(24_95%_53%/0.05),transparent_65%)] pointer-events-none" />
+            <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-[hsl(214_89%_52%/0.06)] rounded-full blur-[100px] animate-float pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-[hsl(149_100%_33%/0.05)] rounded-full blur-[80px] animate-[float_7s_ease-in-out_infinite_reverse] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(214_89%_52%/0.04),transparent_65%)] pointer-events-none" />
 
             <div className="w-full max-w-md animate-fade-in-up relative z-10">
 
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="relative inline-block mb-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-[0_0_40px_hsl(24_95%_53%/0.4)] mx-auto">
+                        <div className="w-16 h-16 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_40%)] rounded-md flex items-center justify-center shadow-[0_0_40px_hsl(214_89%_52%/0.35)] mx-auto">
                             <Zap size={30} className="text-white" fill="currentColor" />
                         </div>
                         {/* Glow ring */}
-                        <div className="absolute inset-0 rounded-2xl border-2 border-orange-500/30 scale-110 opacity-60 animate-[pulseGlow_2s_ease-in-out_infinite]" />
+                        <div className="absolute inset-0 rounded-md border-2 border-[hsl(214_89%_52%/0.30)] scale-110 opacity-60 animate-[pulseGlow_2s_ease-in-out_infinite]" />
                     </div>
                     <h1 className="text-3xl font-extrabold gradient-text tracking-tight">DealZone</h1>
                     <p className="text-[hsl(215_12%_42%)] text-sm mt-1">Admin Dashboard</p>
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(24_95%_53%/0.4)] to-transparent" />
 
                     <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                        <Lock size={16} className="text-orange-400" />
+                        <Lock size={16} className="text-[hsl(214_89%_60%)]" />
                         Sign In to Admin
                     </h2>
 
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="admin@dealzone.com"
                                     required
-                                    className="input-base pl-10"
+                                    className="w-full bg-[hsl(220_10%_14%)] border border-[hsl(220_15%_22%)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-4 py-2.5 text-white placeholder-[hsl(215_10%_40%)] text-sm outline-none transition-all"
                                 />
                             </div>
                         </div>
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
-                                    className="input-base pl-10 pr-10"
+                                    className="w-full bg-[hsl(220_10%_14%)] border border-[hsl(220_15%_22%)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-10 py-2.5 text-white placeholder-[hsl(215_10%_40%)] text-sm outline-none transition-all"
                                 />
                                 <button
                                     type="button"
@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
                             id="admin-login-submit"
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 btn-glow shine-on-hover flex items-center justify-center gap-2 mt-2 shadow-[0_4px_16px_hsl(24_95%_53%/0.3)]"
+                            className="w-full bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-all duration-200 shine-on-hover flex items-center justify-center gap-2 mt-2 shadow-[0_4px_16px_hsl(214_89%_52%/0.3)]"
                         >
                             {loading ? (
                                 <>

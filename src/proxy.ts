@@ -2,8 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
-    function middleware(req) {
-        // Optional: Add custom logic here
+    function proxy(req) {
         return NextResponse.next();
     },
     {
@@ -19,13 +18,7 @@ export default withAuth(
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - login (admin login page)
-         * - public (public assets)
+         * Protect all /admin routes except /admin/login
          */
         "/admin/((?!login).*)",
     ],

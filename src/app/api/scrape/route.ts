@@ -8,10 +8,18 @@ export async function POST(req: NextRequest) {
 
         const data = await scrapeProduct(url);
         if (!data) {
-            return NextResponse.json({ error: 'Could not scrape product details from this URL. Try copying the product page URL directly.' }, { status: 422 });
+            return NextResponse.json({
+                error: 'Could not fetch product details. The site may be blocking our request. Please fill in the details manually.'
+            }, { status: 422 });
         }
 
-        return NextResponse.json(data);
+        // Return with a warning flag if we only got data from the URL slug
+        return NextResponse.json({
+            ...data,
+            warning: data.fromUrl
+                ? 'Site blocked auto-fetch. Title was extracted from URL — please verify and fill in price & image manually.'
+                : null,
+        });
     } catch (error) {
         console.error('Scrape API error:', error);
         return NextResponse.json({ error: 'Failed to fetch product data' }, { status: 500 });

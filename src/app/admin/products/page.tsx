@@ -107,9 +107,9 @@ function ProductForm({
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-                <h2 className="text-lg font-bold text-white">{initial ? "Edit Product" : "Add New Product"}</h2>
-                <button type="button" onClick={onClose} className="text-gray-400 hover:text-white transition-colors rounded-lg p-1.5 hover:bg-gray-700">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">{initial ? "Edit Product" : "Add New Product"}</h2>
+                <button type="button" onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors rounded-lg p-1.5 hover:bg-[var(--bg-elevated)]">
                     <X size={18} />
                 </button>
             </div>
@@ -188,8 +188,8 @@ function ProductForm({
                 </label>
             </div>
 
-            <div className="flex gap-3 px-6 py-4 border-t border-gray-800">
-                <button type="button" onClick={onClose} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-md text-sm font-medium transition-colors">Cancel</button>
+            <div className="flex gap-3 px-6 py-4 border-t border-[var(--border)]">
+                <button type="button" onClick={onClose} className="flex-1 bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] text-[var(--text-secondary)] py-2.5 rounded-md text-sm font-medium transition-colors">Cancel</button>
                 <button type="submit" disabled={loading}
                     className="flex-1 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white py-2.5 rounded-md text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     {loading ? <><Loader2 size={15} className="animate-spin" />Saving...</> : (initial ? "Save Changes" : "Add Product")}
@@ -235,8 +235,8 @@ export default function AdminProductsPage() {
         <div className="animate-fade-in-up lg:pt-0 pt-16">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Products</h1>
-                    <p className="text-gray-400 text-sm mt-1">{products.length} total deals</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">Products</h1>
+                    <p className="text-[var(--text-secondary)] text-sm mt-1">{products.length} total deals</p>
                 </div>
                 <button onClick={openAdd}
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
@@ -261,11 +261,11 @@ export default function AdminProductsPage() {
                     <p>No products found. <button onClick={openAdd} className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</button></p>
                 </div>
             ) : (
-                <div className="glass rounded-md overflow-hidden">
-                    <div className="divide-y divide-gray-800">
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
+                    <div className="divide-y divide-[var(--border)]">
                         {filtered.map((p) => (
-                            <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-800/30 transition-colors group">
-                                <div className="w-12 h-12 bg-gray-800 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors group">
+                                <div className="w-12 h-12 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                                     {p.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
@@ -275,18 +275,18 @@ export default function AdminProductsPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium text-gray-200 text-sm line-clamp-1">{p.title}</span>
+                                        <span className="font-medium text-[var(--text-primary)] text-sm line-clamp-1">{p.title}</span>
                                         {p.featured && <Star size={12} className="text-yellow-400 flex-shrink-0" />}
                                     </div>
                                     <div className="flex items-center gap-2 mt-1">
-                                        {p.category && <span className="text-xs text-gray-500">{p.category.name}</span>}
-                                        {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-1.5 py-0.5 rounded-full">Amazon</span>}
-                                        {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-400 px-1.5 py-0.5 rounded-full">Flipkart</span>}
+                                        {p.category && <span className="text-xs text-[var(--text-muted)]">{p.category.name}</span>}
+                                        {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-600 px-1.5 py-0.5 rounded-full">Amazon</span>}
+                                        {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-600 px-1.5 py-0.5 rounded-full">Flipkart</span>}
                                     </div>
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     {p.price && <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
-                                    {p.originalPrice && <div className="text-gray-600 text-xs line-through">₹{p.originalPrice.toLocaleString("en-IN")}</div>}
+                                    {p.originalPrice && <div className="text-[var(--text-muted)] text-xs line-through">₹{p.originalPrice.toLocaleString("en-IN")}</div>}
                                 </div>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">

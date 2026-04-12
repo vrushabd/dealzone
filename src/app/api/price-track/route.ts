@@ -35,13 +35,18 @@ export async function POST(req: NextRequest) {
 
         if (needsDemoData && exactMatch) {
             // exactMatch IS the same product — safe to use its stored data
-            effectiveTitle    = exactMatch.title;
-            effectiveImage    = exactMatch.image;
-            effectivePrice    = exactMatch.price ?? (exactMatch.originalPrice ? Math.floor(exactMatch.originalPrice * 0.75) : Math.floor(Math.random() * 4000) + 1000);
-            effectiveOriginal = exactMatch.originalPrice;
+            effectiveTitle    = exactMatch.title || effectiveTitle;
+            effectiveImage    = exactMatch.image || effectiveImage;
+            // Use || not ?? so that stored price=0 also triggers the fallback
+            effectivePrice    = (exactMatch.price && exactMatch.price > 0)
+                ? exactMatch.price
+                : (exactMatch.originalPrice
+                    ? Math.floor(exactMatch.originalPrice * 0.75)
+                    : Math.floor(Math.random() * 4000) + 1000);
+            effectiveOriginal = exactMatch.originalPrice || null;
         } else if (needsDemoData) {
-            // No DB match either — synthesise a plausible price
-            effectivePrice = Math.floor(Math.random() * 4000) + 1000;
+            // No DB match — synthesise a plausible price so UI is non-empty
+            effectivePrice    = Math.floor(Math.random() * 4000) + 1000;
             effectiveOriginal = Math.floor(effectivePrice * 1.3);
         }
 

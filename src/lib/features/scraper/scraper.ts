@@ -332,55 +332,78 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
 }
 
 function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
+    // Scoping to main product container to avoid picking up similar products/ads
+    const mainContainer = root.querySelector('.aMaAEs') || root.querySelector('.DOjaZg') || root;
+    
     // Title — Flipkart rotates class names frequently
     const title = (
-        root.querySelector('.VU-Z7x')?.text?.trim()  ||
-        root.querySelector('h1.yhB1nd')?.text?.trim() ||
-        root.querySelector('.B_NuCI')?.text?.trim()   ||
-        root.querySelector('h1._9E25nV')?.text?.trim()||
-        root.querySelector('span.B_NuCI')?.text?.trim()||
-        root.querySelector('._2W109w')?.text?.trim() ||
+        mainContainer.querySelector('.VU-Z7x')?.text?.trim()  ||
+        mainContainer.querySelector('h1.yhB1nd')?.text?.trim() ||
+        mainContainer.querySelector('.B_NuCI')?.text?.trim()   ||
+        mainContainer.querySelector('h1._9E25nV')?.text?.trim()||
+        mainContainer.querySelector('span.B_NuCI')?.text?.trim()||
+        mainContainer.querySelector('._2W109w')?.text?.trim() ||
         root.querySelector('h1')?.text?.trim() || ''
     ).trim();
 
-    // Price
-    const priceStr = (
-        root.querySelector('.Nx9n0j')?.text  ||
-        root.querySelector('._30jeq3')?.text ||
-        root.querySelector('._16Jk6d')?.text ||
-        root.querySelector('.hl05eU')?.text  ||
-        root.querySelector('.UOCQB1 .Nx9n0j')?.text ||
-        root.querySelector('[class*="finalPrice"]')?.text || 
-        root.querySelector('.Y1HWO0')?.text || '0'
-    ).replace(/[,₹\s]/g, '');
-    const price = parseFloat(priceStr) || 0;
+    // Price selectors - Ordered by reliability
+    const priceSelectors = [
+        '.Nx9n0j', 
+        '._30jeq3', 
+        '._16Jk6d', 
+        '.hl05eU', 
+        '.UOCQB1 .Nx9n0j', 
+        '[class*="finalPrice"]',
+        '.Y1HWO0'
+    ];
+    
+    let price = 0;
+    for (const sel of priceSelectors) {
+        const raw = mainContainer.querySelector(sel)?.text?.replace(/[,₹\s]/g, '');
+        if (raw) {
+            const p = parseFloat(raw);
+            if (p > 0 && (price === 0 || p < price)) { price = p; }
+        }
+    }
 
     // Original / MRP price
-    const originalPriceStr = (
-        root.querySelector('.y9H9c2')?.text ||
-        root.querySelector('._3I9_wc')?.text ||
-        root.querySelector('.yRaY8j')?.text ||
-        root.querySelector('.font-extra-light-black')?.text ||
-        root.querySelector('[class*="mrpPrice"]')?.text || ''
-    ).replace(/[,₹\s]/g, '');
-    const originalPrice = originalPriceStr ? parseFloat(originalPriceStr) : undefined;
+    const originalPriceSelectors = [
+        '.y9H9c2',
+        '._3I9_wc',
+        '.yRaY8j',
+        '.font-extra-light-black',
+        '[class*="mrpPrice"]'
+    ];
+    
+    let originalPrice: number | undefined;
+    for (const sel of originalPriceSelectors) {
+        const raw = mainContainer.querySelector(sel)?.text?.replace(/[,₹\s]/g, '');
+        if (raw) {
+            const p = parseFloat(raw);
+            if (p > 0 && p > price) { originalPrice = p; break; }
+        }
+    }
 
     // Discount
     const discountStr = (
-        root.querySelector('.UkUFwK')?.text  ||
-        root.querySelector('._3Ay6Sb')?.text ||
-        root.querySelector('span._2Tpdn3')?.text || ''
+        mainContainer.querySelector('.UkUFwK')?.text  ||
+        mainContainer.querySelector('._3Ay6Sb')?.text ||
+        mainContainer.querySelector('span._2Tpdn3')?.text || ''
     ).replace(/[%off\s]/g, '');
     const discount = discountStr ? parseFloat(discountStr) : undefined;
 
+    // Sanity check: if price is ridiculously high compared to originalPrice, it's likely wrong
+    if (price > 0 && originalPrice && originalPrice > 0 && price > originalPrice) {
+        // Assume price is actually the originalPrice and we might be seeing a placeholder
+        price = originalPrice;
+    }
+
     // Image — priority order
     let image = (
-        root.querySelector('._95YkrM img')?.getAttribute('src')  ||
-        root.querySelector('._396cs4')?.getAttribute('src')      ||
-        root.querySelector('._2r_T1I')?.getAttribute('src')      ||
+        mainContainer.querySelector('._95YkrM img')?.getAttribute('src')  ||
+        mainContainer.querySelector('._396cs4')?.getAttribute('src')      ||
+        mainContainer.querySelector('._2r_T1I')?.getAttribute('src')      ||
         root.querySelector('img._2r_T1I')?.getAttribute('src')   ||
-        root.querySelector('._09Y79Z img')?.getAttribute('src')  ||
-        root.querySelector('.DByo73 img')?.getAttribute('src')   ||
         root.querySelector('img[src*="rukminim"]')?.getAttribute('src') || ''
     );
 

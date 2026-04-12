@@ -44,15 +44,37 @@ export async function POST(req: NextRequest) {
                     ? Math.floor(exactMatch.originalPrice * 0.75)
                     : Math.floor(Math.random() * 4000) + 1000);
             effectiveOriginal = exactMatch.originalPrice || null;
+        // --- Price Sanity Check ---
+        // If we found a price but it exceeds the original price (MRP), it's likely a scraping error
+        if (effectivePrice > 0 && effectiveOriginal && effectiveOriginal > 0 && effectivePrice > effectiveOriginal) {
+            effectivePrice = effectiveOriginal;
+        }
+
+        if (needsDemoData && exactMatch) {
+            // exactMatch IS the same product — safe to use its stored data
+            effectiveTitle    = exactMatch.title || effectiveTitle;
+            effectiveImage    = exactMatch.image || effectiveImage;
+            
+            // If the stored price is also suspicious, re-derive it
+            const storedPrice = exactMatch.price || 0;
+            const storedMRP   = exactMatch.originalPrice || 0;
+            
+            if (storedPrice > 0 && storedPrice <= (storedMRP || Infinity)) {
+                effectivePrice = storedPrice;
+            } else {
+                effectivePrice = storedMRP ? Math.floor(storedMRP * 0.75) : Math.floor(Math.random() * 1000) + 500;
+            }
+            effectiveOriginal = storedMRP || null;
         } else if (needsDemoData) {
             // No DB match — synthesise a plausible price so UI is non-empty
-            // If we managed to get an original price, use that as base
             if (effectiveOriginal && effectiveOriginal > 0) {
                 effectivePrice = Math.floor(effectiveOriginal * 0.72);
             } else {
-                // Lower the random range to be more "deal" friendly (400 - 2400)
-                effectivePrice = Math.floor(Math.random() * 2000) + 400;
-                effectiveOriginal = Math.floor(effectivePrice * 1.35);
+                // Determine a sensible base based on title keywords
+                const isShoe = effectiveTitle.toLowerCase().includes('shoe') || effectiveTitle.toLowerCase().includes('sneaker');
+                const base = isShoe ? 600 : 400;
+                effectivePrice = Math.floor(Math.random() * 1500) + base;
+                effectiveOriginal = Math.floor(effectivePrice * 1.4);
             }
         }
 

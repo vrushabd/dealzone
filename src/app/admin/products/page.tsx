@@ -232,7 +232,7 @@ export default function AdminProductsPage() {
     const openEdit = (p: Product) => { setEditing(p); setModalOpen(true); };
 
     return (
-        <div className="animate-fade-in-up lg:pt-0 pt-16">
+        <div className="animate-fade-in-up">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Products</h1>
@@ -264,7 +264,7 @@ export default function AdminProductsPage() {
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
                     <div className="divide-y divide-[var(--border)]">
                         {filtered.map((p) => (
-                            <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors group">
+                            <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors group relative">
                                 <div className="w-12 h-12 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                                     {p.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
@@ -284,19 +284,19 @@ export default function AdminProductsPage() {
                                         {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-600 px-1.5 py-0.5 rounded-full">Flipkart</span>}
                                     </div>
                                 </div>
-                                <div className="text-right flex-shrink-0">
+                                <div className="text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0">
                                     {p.price && <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
                                     {p.originalPrice && <div className="text-[var(--text-muted)] text-xs line-through">₹{p.originalPrice.toLocaleString("en-IN")}</div>}
                                 </div>
-                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
+                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute right-4 top-4 sm:relative sm:right-auto sm:top-auto">
+                                    <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
                                         <ExternalLink size={15} />
                                     </a>
-                                    <button onClick={() => openEdit(p)} className="p-1.5 text-gray-400 hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
+                                    <button onClick={() => openEdit(p)} className="p-1.5 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </button>
                                     <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
-                                        className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                                        className="p-1.5 text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
                                         {deleting === p.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
                                     </button>
                                 </div>

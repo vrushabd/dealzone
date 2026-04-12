@@ -36,7 +36,7 @@ export default async function AdminDashboard() {
     };
 
     return (
-        <div className="animate-fade-in-up lg:pt-0 pt-16">
+        <div className="animate-fade-in-up">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -46,7 +46,7 @@ export default async function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 stagger-children">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 stagger-children">
                 {stats.map(({ label, value, icon: Icon, href, color }) => (
                     <Link
                         key={label}
@@ -101,7 +101,7 @@ export default async function AdminDashboard() {
                         No products yet. <Link href="/admin/products" className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</Link>
                     </div>
                 ) : (
-                    <div className="divide-y divide-gray-800">
+                    <div className="divide-y divide-[var(--border)]">
                         {recentProducts.map((p) => (
                             <div key={p.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[var(--bg-base)]/50 transition-colors">
                                 <div className="w-10 h-10 bg-[var(--bg-base)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">

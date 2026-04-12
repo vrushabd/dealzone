@@ -91,7 +91,7 @@ export default function AdminSidebar() {
         <>
             {/* Desktop sidebar */}
             <aside
-                className={`hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0 bg-[var(--bg-surface)] border-r border-[var(--border)] transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
+                className={`hidden md:flex flex-col flex-shrink-0 h-screen sticky top-0 bg-[var(--bg-surface)] border-r border-[var(--border)] transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
             >
                 <button
                     onClick={() => setCollapsed(!collapsed)}
@@ -103,7 +103,7 @@ export default function AdminSidebar() {
             </aside>
 
             {/* Mobile top bar */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 px-4 py-3">
+            <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 px-4 py-3">
                 <button onClick={() => setMobileOpen(true)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     <Menu size={22} />
                 </button>
@@ -112,7 +112,7 @@ export default function AdminSidebar() {
 
             {/* Mobile drawer */}
             {mobileOpen && (
-                <div className="lg:hidden fixed inset-0 z-50 flex">
+                <div className="md:hidden fixed inset-0 z-50 flex">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
                     <aside className="relative w-64 bg-[var(--bg-surface)] h-full">
                         <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">

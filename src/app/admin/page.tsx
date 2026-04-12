@@ -73,14 +73,14 @@ export default async function AdminDashboard() {
                     <Link
                         key={href}
                         href={href}
-                        className="glass rounded-md p-5 flex items-center gap-4 hover:border-[hsl(214_89%_52%/0.30)] transition-all duration-200 hover:bg-gray-800/60 group"
+                        className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex items-center gap-4 hover:border-[hsl(214_89%_52%/0.30)] transition-all duration-200 hover:bg-[var(--bg-card-hover)] group"
                     >
                         <div className="w-10 h-10 bg-[hsl(214_89%_52%/0.08)] rounded-md flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(214_89%_45%)]/20 transition-colors">
                             <Plus size={18} className="text-[hsl(214_89%_55%)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-[var(--text-secondary)] text-sm group-hover:text-[hsl(214_89%_55%)] transition-colors">{label}</div>
-                            <div className="text-xs text-[var(--text-muted)]">{desc}</div>
+                            <div className="font-semibold text-[var(--text-primary)] text-sm group-hover:text-[hsl(214_89%_55%)] transition-colors">{label}</div>
+                            <div className="text-xs text-[var(--text-secondary)]">{desc}</div>
                         </div>
                         <ArrowRight size={16} className="text-[var(--text-muted)] group-hover:text-[hsl(214_89%_55%)] transition-colors flex-shrink-0" />
                     </Link>
@@ -88,7 +88,7 @@ export default async function AdminDashboard() {
             </div>
 
             {/* Recent Products */}
-            <div className="glass rounded-md overflow-hidden bg-[var(--bg-card)] border-[var(--border)]">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
                     <h2 className="font-semibold text-[var(--text-primary)]">Recent Products</h2>
                     <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_62%)] flex items-center gap-1 transition-colors">
@@ -103,8 +103,8 @@ export default async function AdminDashboard() {
                 ) : (
                     <div className="divide-y divide-gray-800">
                         {recentProducts.map((p) => (
-                            <div key={p.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-800/30 transition-colors">
-                                <div className="w-10 h-10 bg-gray-800 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <div key={p.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[var(--bg-base)]/50 transition-colors">
+                                <div className="w-10 h-10 bg-[var(--bg-base)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                                     {p.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
@@ -113,8 +113,8 @@ export default async function AdminDashboard() {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-[var(--text-secondary)] text-sm line-clamp-1">{p.title}</div>
-                                    <div className="text-xs text-[var(--text-muted)]">{p.category?.name || "Uncategorised"}</div>
+                                    <div className="font-medium text-[var(--text-primary)] text-sm line-clamp-1">{p.title}</div>
+                                    <div className="text-xs text-[var(--text-secondary)]">{p.category?.name || "Uncategorised"}</div>
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     {p.price && (

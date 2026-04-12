@@ -59,8 +59,8 @@ function LinkGenerator() {
                     <Zap size={16} className="text-[hsl(214_89%_55%)]" fill="currentColor" />
                 </div>
                 <div>
-                    <h2 className="text-base font-bold text-white">Affiliate Link Generator</h2>
-                    <p className="text-xs text-[hsl(215_12%_42%)]">Paste any Amazon or Flipkart product URL to get your affiliate link instantly</p>
+                    <h2 className="text-base font-bold text-[var(--text-primary)]">Affiliate Link Generator</h2>
+                    <p className="text-xs text-[var(--text-muted)]">Paste any Amazon or Flipkart product URL to get your affiliate link instantly</p>
                 </div>
             </div>
 
@@ -89,10 +89,10 @@ function LinkGenerator() {
 
             {/* Platform badges */}
             <div className="flex items-center gap-2 mb-4">
-                <span className="text-[10px] text-[hsl(215_10%_35%)]">Supports:</span>
+                <span className="text-[10px] text-[var(--text-muted)]">Supports:</span>
                 <span className="text-[10px] font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">amazon.in</span>
                 <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">flipkart.com</span>
-                <span className="text-[10px] text-[hsl(215_10%_35%)] ml-2">Tag: <code className="text-[hsl(214_89%_55%)]">dealzone-21</code></span>
+                <span className="text-[10px] text-[var(--text-muted)] ml-2">Tag: <code className="text-[hsl(214_89%_55%)]">dealzone-21</code></span>
             </div>
 
             {/* Error */}
@@ -112,16 +112,16 @@ function LinkGenerator() {
                             {result.platform === 'amazon' ? '🛒 Amazon' : '🛍️ Flipkart'} affiliate link generated
                         </span>
                     </div>
-                    <div className="flex items-center gap-2 bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_14%)] rounded-lg px-3 py-2.5">
+                    <div className="flex items-center gap-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg px-3 py-2.5">
                         <span className="text-xs font-mono text-[hsl(214_89%_55%)] flex-1 truncate">{result.affiliateUrl}</span>
-                        <button onClick={copy} className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] text-[hsl(215_12%_42%)] hover:text-white transition-colors" title="Copy">
+                        <button onClick={copy} className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Copy">
                             {copied ? <Check size={13} className="text-[hsl(142_72%_50%)]" /> : <Copy size={13} />}
                         </button>
-                        <a href={result.affiliateUrl} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] text-[hsl(215_12%_42%)] hover:text-white transition-colors" title="Open link">
+                        <a href={result.affiliateUrl} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Open link">
                             <ExternalLink size={13} />
                         </a>
                     </div>
-                    <p className="text-[10px] text-[hsl(215_10%_35%)] mt-2">
+                    <p className="text-[10px] text-[var(--text-muted)] mt-2">
                         Update <code className="text-[hsl(214_89%_55%)]">AMAZON_AFFILIATE_TAG</code> in <code className="text-[hsl(214_89%_55%)]">.env</code> with your real Associates tag to start earning commissions.
                     </p>
                 </div>
@@ -154,26 +154,26 @@ export default function AffiliateDashboard() {
                         <Sparkles size={13} />
                         Admin Panel
                     </div>
-                    <h1 className="text-2xl font-extrabold text-white tracking-tight">
+                    <h1 className="text-2xl font-extrabold text-[var(--text-primary)] tracking-tight">
                         Affiliate <span className="gradient-text">Analytics</span>
                     </h1>
-                    <p className="text-[hsl(215_15%_45%)] text-sm mt-1">Monitor performance and generate affiliate links.</p>
+                    <p className="text-[var(--text-secondary)] text-sm mt-1">Monitor performance and generate affiliate links.</p>
                 </div>
 
                 {/* Stats */}
-                <div className="flex gap-3">
-                    <div className="glass px-5 py-3 rounded-md flex items-center gap-3">
+                <div className="flex flex-col xs:flex-row gap-3">
+                    <div className="bg-[var(--bg-card)] border border-[var(--border)] px-5 py-3 rounded-md flex items-center gap-3">
                         <MousePointer2 size={18} className="text-[hsl(214_89%_55%)]" />
                         <div>
-                            <div className="text-[10px] text-[hsl(215_10%_40%)] uppercase font-bold">Total Clicks</div>
-                            <div className="text-xl font-extrabold text-white">{totalClicks.toLocaleString()}</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Total Clicks</div>
+                            <div className="text-xl font-extrabold text-[var(--text-primary)]">{totalClicks.toLocaleString()}</div>
                         </div>
                     </div>
-                    <div className="glass px-5 py-3 rounded-md flex items-center gap-3">
+                    <div className="bg-[var(--bg-card)] border border-[var(--border)] px-5 py-3 rounded-md flex items-center gap-3">
                         <Package size={18} className="text-green-400" />
                         <div>
-                            <div className="text-[10px] text-[hsl(215_10%_40%)] uppercase font-bold">Products w/ Links</div>
-                            <div className="text-xl font-extrabold text-white">{withLinks}</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Products w/ Links</div>
+                            <div className="text-xl font-extrabold text-[var(--text-primary)]">{withLinks}</div>
                         </div>
                     </div>
                 </div>
@@ -189,23 +189,23 @@ export default function AffiliateDashboard() {
                     <span className="text-[hsl(215_15%_45%)] text-sm">Loading products...</span>
                 </div>
             ) : (
-                <div className="glass rounded-md overflow-hidden">
-                    <div className="px-6 py-4 border-b border-[hsl(224_20%_13%)] flex items-center gap-2">
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
+                    <div className="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
                         <BarChart3 size={15} className="text-[hsl(214_89%_55%)]" />
-                        <h3 className="text-sm font-bold text-white">Products with Affiliate Links</h3>
-                        <span className="ml-auto text-[10px] text-[hsl(215_10%_38%)]">{products.length} total</span>
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">Products with Affiliate Links</h3>
+                        <span className="ml-auto text-[10px] text-[var(--text-muted)]">{products.length} total</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-[hsl(224_20%_11%)] bg-[hsl(224_28%_7%)]">
-                                    <th className="px-6 py-3 text-[10px] font-bold text-[hsl(215_10%_40%)] uppercase tracking-widest">Product</th>
-                                    <th className="px-6 py-3 text-[10px] font-bold text-[hsl(215_10%_40%)] uppercase tracking-widest text-center">Clicks</th>
-                                    <th className="px-6 py-3 text-[10px] font-bold text-[hsl(215_10%_40%)] uppercase tracking-widest">Platform</th>
-                                    <th className="px-6 py-3 text-[10px] font-bold text-[hsl(215_10%_40%)] uppercase tracking-widest text-right">Link</th>
+                                <tr className="border-b border-[var(--border)] bg-[var(--bg-elevated)]">
+                                    <th className="px-6 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Product</th>
+                                    <th className="px-6 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest text-center">Clicks</th>
+                                    <th className="px-6 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Platform</th>
+                                    <th className="px-6 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest text-right">Link</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[hsl(224_20%_11%)]">
+                            <tbody className="divide-y divide-[var(--border)]">
                                 {products.map((product) => (
                                     <tr key={product.id} className="hover:bg-[hsl(224_25%_8%)] transition-colors group">
                                         <td className="px-6 py-4">

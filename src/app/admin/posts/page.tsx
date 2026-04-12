@@ -131,11 +131,11 @@ export default function AdminPostsPage() {
     const filtered = posts.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
 
     return (
-        <div className="animate-fade-in-up lg:pt-0 pt-16">
+        <div className="animate-fade-in-up">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Blog Posts</h1>
-                    <p className="text-gray-400 text-sm mt-1">{posts.length} posts total</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">Blog Posts</h1>
+                    <p className="text-[var(--text-secondary)] text-sm mt-1">{posts.length} posts total</p>
                 </div>
                 <button onClick={() => { setEditing(null); setModalOpen(true); }}
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
@@ -157,31 +157,31 @@ export default function AdminPostsPage() {
                     <p>No posts yet. <button onClick={() => setModalOpen(true)} className="text-[hsl(214_89%_55%)] hover:underline">Write your first post →</button></p>
                 </div>
             ) : (
-                <div className="glass rounded-md overflow-hidden">
-                    <div className="divide-y divide-gray-800">
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
+                    <div className="divide-y divide-[var(--border)]">
                         {filtered.map((post) => (
-                            <div key={post.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-800/30 transition-colors group">
-                                <div className="flex-1 min-w-0">
+                            <div key={post.id} className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors group relative">
+                                <div className="flex-1 min-w-0 w-full">
                                     <div className="flex items-center gap-2.5">
-                                        <span className="font-medium text-gray-200 text-sm line-clamp-1">{post.title}</span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${post.published ? "bg-green-500/15 text-green-400" : "bg-gray-700 text-gray-400"}`}>
+                                        <span className="font-medium text-[var(--text-primary)] text-sm line-clamp-1">{post.title}</span>
+                                        <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${post.published ? "bg-green-500/15 text-green-600" : "bg-[var(--bg-elevated)] text-[var(--text-muted)]"}`}>
                                             {post.published ? "Published" : "Draft"}
                                         </span>
                                     </div>
-                                    {post.excerpt && <p className="text-xs text-gray-500 mt-1 line-clamp-1">{post.excerpt}</p>}
-                                    <div className="text-xs text-gray-600 mt-1">
+                                    {post.excerpt && <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-1">{post.excerpt}</p>}
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">
                                         {new Date(post.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <a href={`/blog/${post.slug}`} target="_blank" className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
+                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute right-4 top-4 sm:relative sm:right-auto sm:top-auto">
+                                    <a href={`/blog/${post.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
                                         <Eye size={15} />
                                     </a>
-                                    <button onClick={() => { setEditing(post); setModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
+                                    <button onClick={() => { setEditing(post); setModalOpen(true); }} className="p-1.5 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </button>
                                     <button onClick={() => handleDelete(post.id)} disabled={deleting === post.id}
-                                        className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                                        className="p-1.5 text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
                                         {deleting === post.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
                                     </button>
                                 </div>

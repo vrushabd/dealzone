@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(220_10%_8%)] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Animated background blobs */}
             <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-[hsl(214_89%_52%/0.06)] rounded-full blur-[100px] animate-float pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-[hsl(149_100%_33%/0.05)] rounded-full blur-[80px] animate-[float_7s_ease-in-out_infinite_reverse] pointer-events-none" />
@@ -45,15 +45,15 @@ export default function AdminLoginPage() {
                         <div className="absolute inset-0 rounded-md border-2 border-[hsl(214_89%_52%/0.30)] scale-110 opacity-60 animate-[pulseGlow_2s_ease-in-out_infinite]" />
                     </div>
                     <h1 className="text-3xl font-extrabold gradient-text tracking-tight">DealZone</h1>
-                    <p className="text-[hsl(215_12%_42%)] text-sm mt-1">Admin Dashboard</p>
+                    <p className="text-[var(--text-muted)] text-sm mt-1">Admin Dashboard</p>
                 </div>
 
                 {/* Card */}
-                <div className="glass-strong rounded-2xl p-8 shadow-[0_24px_80px_hsl(224_44%_0%/0.6),0_0_0_1px_hsl(224_22%_22%/0.5)] relative overflow-hidden">
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-8 shadow-[var(--shadow-elevated)] relative overflow-hidden">
                     {/* Inner glow */}
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(24_95%_53%/0.4)] to-transparent" />
 
-                    <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-[var(--text-primary)] mb-6 flex items-center gap-2">
                         <Lock size={16} className="text-[hsl(214_89%_60%)]" />
                         Sign In to Admin
                     </h2>
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
                                 Email
                             </label>
                             <div className="relative">
-                                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)]" />
+                                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                 <input
                                     id="admin-email"
                                     type="email"
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="admin@dealzone.com"
                                     required
-                                    className="w-full bg-[hsl(220_10%_14%)] border border-[hsl(220_15%_22%)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-4 py-2.5 text-white placeholder-[hsl(215_10%_40%)] text-sm outline-none transition-all"
+                                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-4 py-2.5 text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm outline-none transition-all"
                                 />
                             </div>
                         </div>
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
                                 Password
                             </label>
                             <div className="relative">
-                                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)]" />
+                                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                 <input
                                     id="admin-password"
                                     type={showPw ? "text" : "password"}
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
-                                    className="w-full bg-[hsl(220_10%_14%)] border border-[hsl(220_15%_22%)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-10 py-2.5 text-white placeholder-[hsl(215_10%_40%)] text-sm outline-none transition-all"
+                                    className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-10 py-2.5 text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm outline-none transition-all"
                                 />
                                 <button
                                     type="button"
@@ -133,10 +133,10 @@ export default function AdminLoginPage() {
                     </form>
 
                     {/* Hint */}
-                    <div className="mt-6 pt-5 border-t border-[hsl(224_20%_14%)] flex items-center justify-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[hsl(215_12%_30%)]" />
-                        <p className="text-[hsl(215_10%_38%)] text-xs">
-                            Default: <span className="text-[hsl(215_15%_48%)]">admin@dealzone.com</span> / <span className="text-[hsl(215_15%_48%)]">admin123</span>
+                    <div className="mt-6 pt-5 border-t border-[var(--border)] flex items-center justify-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[var(--border)]" />
+                        <p className="text-[var(--text-muted)] text-xs">
+                            Default: <span className="text-[var(--text-secondary)]">admin@dealzone.com</span> / <span className="text-[var(--text-secondary)]">admin123</span>
                         </p>
                     </div>
                 </div>

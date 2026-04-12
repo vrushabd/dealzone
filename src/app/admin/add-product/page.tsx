@@ -78,11 +78,11 @@ export default function AddViaUrlPage() {
         <div className="animate-fade-in-up max-w-2xl">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
                     <Zap size={22} className="text-[hsl(214_89%_52%)]" fill="currentColor" />
                     Add Product via URL
                 </h1>
-                <p className="text-[hsl(215_15%_52%)] text-sm mt-1">
+                <p className="text-[var(--text-secondary)] text-sm mt-1">
                     Paste any Amazon or Flipkart product URL — we&apos;ll auto-fetch the details and generate your affiliate link.
                 </p>
             </div>
@@ -165,7 +165,7 @@ export default function AddViaUrlPage() {
             {result && !loading && (
                 <div className="glass-brand rounded-md overflow-hidden animate-scale-in">
                     {/* Success banner */}
-                    <div className="flex items-center gap-2 px-5 py-3 bg-[hsl(142_72%_50%/0.08)] border-b border-[hsl(142_72%_50%/0.15)]">
+                    <div className="flex items-center gap-2 px-5 py-3 bg-[hsl(142_72%_50%/0.08)] border-b border-[var(--border)]">
                         <div className="w-5 h-5 rounded-full bg-[hsl(142_72%_50%/0.2)] flex items-center justify-center">
                             <Check size={11} className="text-[hsl(142_72%_50%)]" />
                         </div>
@@ -185,11 +185,11 @@ export default function AddViaUrlPage() {
                                 <img
                                     src={result.image}
                                     alt={result.title}
-                                    className="w-20 h-20 object-contain bg-[hsl(224_25%_11%)] rounded-md p-2 flex-shrink-0 border border-[hsl(224_20%_16%)]"
+                                    className="w-20 h-20 object-contain bg-[var(--bg-elevated)] rounded-md p-2 flex-shrink-0 border border-[var(--border)]"
                                 />
                             )}
                             <div className="min-w-0">
-                                <h3 className="text-white font-semibold text-sm leading-snug line-clamp-2 mb-2">{result.title}</h3>
+                                <h3 className="text-[var(--text-primary)] font-semibold text-sm leading-snug line-clamp-2 mb-2">{result.title}</h3>
                                 <div className="flex items-baseline gap-2">
                                     {result.price > 0 && (
                                         <span className="text-lg font-extrabold text-[hsl(214_89%_55%)]">
@@ -197,7 +197,7 @@ export default function AddViaUrlPage() {
                                         </span>
                                     )}
                                     {result.originalPrice && result.originalPrice > result.price && (
-                                        <span className="text-xs text-[hsl(215_12%_42%)] line-through">
+                                        <span className="text-xs text-[var(--text-muted)] line-through">
                                             ₹{result.originalPrice.toLocaleString("en-IN")}
                                         </span>
                                     )}
@@ -210,15 +210,15 @@ export default function AddViaUrlPage() {
 
                         {/* Affiliate URL */}
                         <div className="mb-4">
-                            <div className="text-[10px] font-semibold text-[hsl(215_15%_45%)] uppercase tracking-wider mb-2">
+                            <div className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                                 Generated Affiliate Link
                             </div>
                             {result.affiliateUrl ? (
-                                <div className="flex items-center gap-2 bg-[hsl(224_28%_9%)] border border-[hsl(224_20%_16%)] rounded-md px-3 py-2.5">
+                                <div className="flex items-center gap-2 bg-[var(--bg-base)] border border-[var(--border)] rounded-md px-3 py-2.5">
                                     <span className="text-xs text-[hsl(214_89%_55%)] font-mono flex-1 truncate">{result.affiliateUrl}</span>
                                     <button
                                         onClick={() => copy(result.affiliateUrl!)}
-                                        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] transition-colors text-[hsl(215_12%_42%)] hover:text-white"
+                                        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[var(--bg-card-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                                         title="Copy link"
                                     >
                                         {copying ? <Check size={13} className="text-[hsl(142_72%_50%)]" /> : <Copy size={13} />}
@@ -227,24 +227,24 @@ export default function AddViaUrlPage() {
                                         href={result.affiliateUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[hsl(224_25%_14%)] transition-colors text-[hsl(215_12%_42%)] hover:text-white"
+                                        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[var(--bg-card-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                                     >
                                         <ExternalLink size={13} />
                                     </a>
                                 </div>
                             ) : (
-                                <div className="text-xs text-[hsl(215_12%_40%)] italic px-3 py-2.5 border border-dashed border-[hsl(224_20%_16%)] rounded-md">
+                                <div className="text-xs text-[var(--text-muted)] italic px-3 py-2.5 border border-dashed border-[var(--border)] rounded-md">
                                     No affiliate link generated — check your AMAZON_AFFILIATE_TAG / FLIPKART_AFFILIATE_ID in .env
                                 </div>
                             )}
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2 pt-3 border-t border-[hsl(224_20%_14%)]">
+                        <div className="flex gap-2 pt-3 border-t border-[var(--border)]">
                             <a
                                 href={result.slug ? `/products/${result.slug}` : "/products"}
                                 target="_blank"
-                                className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(224_25%_12%)] hover:bg-[hsl(224_22%_15%)] border border-[hsl(224_20%_16%)] text-[hsl(210_30%_88%)] text-xs font-semibold py-2.5 rounded-md transition-all"
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-xs font-semibold py-2.5 rounded-md transition-all"
                             >
                                 <Package size={13} />
                                 View Product

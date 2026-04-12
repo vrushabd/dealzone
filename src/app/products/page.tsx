@@ -24,6 +24,7 @@ export default async function ProductsPage({
     const [products, categories] = await Promise.all([
         prisma.product.findMany({
             where: {
+                isPublic: true,
                 ...(category && { category: { slug: category } }),
                 ...(featured === "true" && { featured: true }),
             },

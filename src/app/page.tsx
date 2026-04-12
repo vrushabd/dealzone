@@ -20,7 +20,7 @@ export const revalidate = 60;
 export default async function HomePage() {
     const [featuredProducts, categories, recentPosts] = await Promise.all([
         prisma.product.findMany({
-            where: { featured: true },
+            where: { featured: true, isPublic: true },
             include: { category: true },
             orderBy: { createdAt: "desc" },
             take: 8,
@@ -40,7 +40,7 @@ export default async function HomePage() {
     });
 
     const latestProducts = await prisma.product.findMany({
-        where: { featured: false },
+        where: { featured: false, isPublic: true },
         include: { category: true },
         orderBy: { createdAt: "desc" },
         take: 8,

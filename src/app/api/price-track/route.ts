@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
                     originalUrl:   url,
                     flipkartLink:  platform === 'flipkart' ? url : null,
                     amazonLink:    platform === 'amazon'   ? url : null,
+                    isPublic:      false,
                 },
                 include: { priceHistory: true },
             });

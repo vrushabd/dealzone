@@ -29,10 +29,10 @@ export default async function AdminDashboard() {
     ];
 
     const colorMap: Record<string, string> = {
-        orange: "from-[hsl(214_89%_52%/0.12)] to-[hsl(214_89%_52%/0.03)] border-[hsl(214_89%_52%/0.20)] text-[hsl(214_89%_55%)]",
-        blue: "from-blue-500/20 to-blue-600/5 border-blue-500/20 text-blue-400",
-        purple: "from-purple-500/20 to-purple-600/5 border-purple-500/20 text-purple-400",
-        yellow: "from-yellow-500/20 to-yellow-600/5 border-yellow-500/20 text-yellow-400",
+        orange: "from-[var(--brand-glow)] to-[var(--bg-base)] border-[var(--brand-glow-strong)] text-[var(--brand)]",
+        blue: "from-blue-500/10 to-[var(--bg-base)] border-blue-500/20 text-blue-600 dark:text-blue-400",
+        purple: "from-purple-500/10 to-[var(--bg-base)] border-purple-500/20 text-purple-600 dark:text-purple-400",
+        yellow: "from-[var(--warning)]/10 to-[var(--bg-base)] border-[var(--warning)]/20 text-[var(--warning)]",
     };
 
     return (
@@ -75,8 +75,8 @@ export default async function AdminDashboard() {
                         href={href}
                         className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex items-center gap-4 hover:border-[hsl(214_89%_52%/0.30)] transition-all duration-200 hover:bg-[var(--bg-card-hover)] group"
                     >
-                        <div className="w-10 h-10 bg-[hsl(214_89%_52%/0.08)] rounded-md flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(214_89%_45%)]/20 transition-colors">
-                            <Plus size={18} className="text-[hsl(214_89%_55%)]" />
+                        <div className="w-10 h-10 bg-[var(--brand-glow)] rounded-md flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--brand)]/20 transition-colors">
+                            <Plus size={18} className="text-[var(--brand)]" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="font-semibold text-[var(--text-primary)] text-sm group-hover:text-[hsl(214_89%_55%)] transition-colors">{label}</div>
@@ -121,8 +121,8 @@ export default async function AdminDashboard() {
                                         <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>
                                     )}
                                     <div className="flex gap-1 mt-1 justify-end">
-                                        {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-1.5 py-0.5 rounded-full">AMZ</span>}
-                                        {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-400 px-1.5 py-0.5 rounded-full">FK</span>}
+                                        {p.amazonLink && <span className="text-[10px] bg-[var(--warning)]/15 text-[var(--warning)] px-1.5 py-0.5 rounded-full font-bold">AMZ</span>}
+                                        {p.flipkartLink && <span className="text-[10px] bg-[var(--brand)]/15 text-[var(--brand)] px-1.5 py-0.5 rounded-full font-bold">FK</span>}
                                     </div>
                                 </div>
                             </div>

@@ -54,13 +54,13 @@ export default function AdminLoginPage() {
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(24_95%_53%/0.4)] to-transparent" />
 
                     <h2 className="text-lg font-bold text-[var(--text-primary)] mb-6 flex items-center gap-2">
-                        <Lock size={16} className="text-[hsl(214_89%_60%)]" />
+                        <Lock size={16} className="text-[var(--brand)]" />
                         Sign In to Admin
                     </h2>
 
                     {error && (
-                        <div className="bg-[hsl(0_84%_60%/0.1)] border border-[hsl(0_84%_60%/0.25)] text-[hsl(0_84%_70%)] rounded-xl px-4 py-3 text-sm mb-5 flex items-center gap-2 animate-scale-in">
-                            <span className="w-2 h-2 rounded-full bg-[hsl(0_84%_60%)] flex-shrink-0" />
+                        <div className="bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] rounded-xl px-4 py-3 text-sm mb-5 flex items-center gap-2 animate-scale-in">
+                            <span className="w-2 h-2 rounded-full bg-[var(--danger)] flex-shrink-0" />
                             {error}
                         </div>
                     )}
@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Email */}
                         <div>
-                            <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] mb-1.5 uppercase tracking-wider">
+                            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5 uppercase tracking-wider">
                                 Email
                             </label>
                             <div className="relative">
@@ -87,7 +87,7 @@ export default function AdminLoginPage() {
 
                         {/* Password */}
                         <div>
-                            <label className="block text-xs font-semibold text-[hsl(215_15%_55%)] mb-1.5 uppercase tracking-wider">
+                            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5 uppercase tracking-wider">
                                 Password
                             </label>
                             <div className="relative">
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPw(!showPw)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)] hover:text-[hsl(215_18%_65%)] transition-colors p-0.5"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors p-0.5"
                                 >
                                     {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
                                 </button>
@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
                             id="admin-login-submit"
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-all duration-200 shine-on-hover flex items-center justify-center gap-2 mt-2 shadow-[0_4px_16px_hsl(214_89%_52%/0.3)]"
+                            className="w-full bg-[var(--brand)] hover:bg-[var(--brand-dim)] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-all duration-200 shine-on-hover flex items-center justify-center gap-2 mt-2 shadow-[var(--shadow-brand)]"
                         >
                             {loading ? (
                                 <>

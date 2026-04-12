@@ -246,7 +246,7 @@ export default function AdminProductsPage() {
 
             {/* Search */}
             <div className="relative mb-6">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..."
                     className="input-base pl-10 max-w-sm" />
             </div>
@@ -256,9 +256,9 @@ export default function AdminProductsPage() {
                     {[...Array(5)].map((_, i) => <div key={i} className="skeleton h-16 rounded-md" />)}
                 </div>
             ) : filtered.length === 0 ? (
-                <div className="text-center py-20 text-gray-500">
+                <div className="text-center py-20 text-[var(--text-muted)]">
                     <ShoppingBag size={40} className="mx-auto mb-3 opacity-30" />
-                    <p>No products found. <button onClick={openAdd} className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</button></p>
+                    <p>No products found. <button onClick={openAdd} className="text-[var(--brand)] hover:underline">Add your first deal →</button></p>
                 </div>
             ) : (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
@@ -285,14 +285,14 @@ export default function AdminProductsPage() {
                                     </div>
                                 </div>
                                 <div className="text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0">
-                                    {p.price && <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
+                                    {p.price && <div className="text-[var(--brand)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
                                     {p.originalPrice && <div className="text-[var(--text-muted)] text-xs line-through">₹{p.originalPrice.toLocaleString("en-IN")}</div>}
                                 </div>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute right-4 top-4 sm:relative sm:right-auto sm:top-auto">
-                                    <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
+                                    <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-[var(--brand)] hover:bg-[var(--brand-glow)] rounded-lg transition-all">
                                         <ExternalLink size={15} />
                                     </a>
-                                    <button onClick={() => openEdit(p)} className="p-1.5 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
+                                    <button onClick={() => openEdit(p)} className="p-1.5 text-[var(--text-muted)] hover:text-[var(--brand)] hover:bg-[var(--brand-glow)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </button>
                                     <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}

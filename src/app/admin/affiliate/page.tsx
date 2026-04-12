@@ -55,8 +55,8 @@ function LinkGenerator() {
     return (
         <div className="bg-[var(--bg-card)] rounded-md p-6 mb-10 border border-[var(--border)]">
             <div className="flex items-center gap-2 mb-5">
-                <div className="w-8 h-8 rounded-md bg-[hsl(214_89%_52%/0.12)] flex items-center justify-center">
-                    <Zap size={16} className="text-[hsl(214_89%_55%)]" fill="currentColor" />
+                <div className="w-8 h-8 rounded-md bg-[var(--brand-glow)] flex items-center justify-center">
+                    <Zap size={16} className="text-[var(--brand)]" fill="currentColor" />
                 </div>
                 <div>
                     <h2 className="text-base font-bold text-[var(--text-primary)]">Affiliate Link Generator</h2>
@@ -90,9 +90,9 @@ function LinkGenerator() {
             {/* Platform badges */}
             <div className="flex items-center gap-2 mb-4">
                 <span className="text-[10px] text-[var(--text-muted)]">Supports:</span>
-                <span className="text-[10px] font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">amazon.in</span>
-                <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">flipkart.com</span>
-                <span className="text-[10px] text-[var(--text-muted)] ml-2">Tag: <code className="text-[hsl(214_89%_55%)]">dealzone-21</code></span>
+                <span className="text-[10px] font-semibold text-[var(--warning)] bg-[var(--warning)]/10 border border-[var(--warning)]/20 px-2 py-0.5 rounded-full">amazon.in</span>
+                <span className="text-[10px] font-semibold text-[var(--brand)] bg-[var(--brand)]/10 border border-[var(--brand)]/20 px-2 py-0.5 rounded-full">flipkart.com</span>
+                <span className="text-[10px] text-[var(--text-muted)] ml-2">Tag: <code className="text-[var(--brand)] font-bold">dealzone-21</code></span>
             </div>
 
             {/* Error */}
@@ -150,7 +150,7 @@ export default function AffiliateDashboard() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-1">
+                    <div className="flex items-center gap-2 text-[var(--brand)] font-bold text-xs uppercase tracking-widest mb-1">
                         <Sparkles size={13} />
                         Admin Panel
                     </div>
@@ -163,14 +163,14 @@ export default function AffiliateDashboard() {
                 {/* Stats */}
                 <div className="flex flex-col xs:flex-row gap-3">
                     <div className="bg-[var(--bg-card)] border border-[var(--border)] px-5 py-3 rounded-md flex items-center gap-3">
-                        <MousePointer2 size={18} className="text-[hsl(214_89%_55%)]" />
+                        <MousePointer2 size={18} className="text-[var(--brand)]" />
                         <div>
                             <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Total Clicks</div>
                             <div className="text-xl font-extrabold text-[var(--text-primary)]">{totalClicks.toLocaleString()}</div>
                         </div>
                     </div>
                     <div className="bg-[var(--bg-card)] border border-[var(--border)] px-5 py-3 rounded-md flex items-center gap-3">
-                        <Package size={18} className="text-green-400" />
+                        <Package size={18} className="text-[var(--success)]" />
                         <div>
                             <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Products w/ Links</div>
                             <div className="text-xl font-extrabold text-[var(--text-primary)]">{withLinks}</div>
@@ -184,14 +184,14 @@ export default function AffiliateDashboard() {
 
             {/* Products Table */}
             {loading ? (
-                <div className="glass rounded-md p-12 flex items-center justify-center gap-3">
-                    <Loader2 className="animate-spin text-[hsl(214_89%_52%)]" size={24} />
-                    <span className="text-[hsl(215_15%_45%)] text-sm">Loading products...</span>
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-12 flex items-center justify-center gap-3">
+                    <Loader2 className="animate-spin text-[var(--brand)]" size={24} />
+                    <span className="text-[var(--text-secondary)] text-sm">Loading products...</span>
                 </div>
             ) : (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
                     <div className="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
-                        <BarChart3 size={15} className="text-[hsl(214_89%_55%)]" />
+                        <BarChart3 size={15} className="text-[var(--brand)]" />
                         <h3 className="text-sm font-bold text-[var(--text-primary)]">Products with Affiliate Links</h3>
                         <span className="ml-auto text-[10px] text-[var(--text-muted)]">{products.length} total</span>
                     </div>
@@ -214,7 +214,7 @@ export default function AffiliateDashboard() {
                                                     {product.image && <img src={product.image} className="w-full h-full object-contain p-1" alt="" />}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-semibold text-[var(--text-primary)] group-hover:text-[hsl(214_89%_55%)] transition-colors truncate max-w-xs text-xs">
+                                                    <div className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--brand)] transition-colors truncate max-w-xs text-xs">
                                                         {product.title}
                                                     </div>
                                                     <div className="text-[10px] text-[var(--text-muted)] mt-0.5">
@@ -224,7 +224,7 @@ export default function AffiliateDashboard() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className="text-[hsl(214_89%_55%)] font-bold text-sm">{product.clickCount || 0}</span>
+                                            <span className="text-[var(--brand)] font-bold text-sm">{product.clickCount || 0}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
@@ -256,9 +256,9 @@ export default function AffiliateDashboard() {
                             </tbody>
                         </table>
                         {products.length === 0 && (
-                            <div className="py-16 text-center text-[hsl(215_12%_40%)] text-sm">
+                            <div className="py-16 text-center text-[var(--text-muted)] text-sm">
                                 No products yet. Add some via{' '}
-                                <a href="/admin/add-product" className="text-[hsl(214_89%_55%)] hover:underline">Add via URL</a>.
+                                <a href="/admin/add-product" className="text-[var(--brand)] hover:underline">Add via URL</a>.
                             </div>
                         )}
                     </div>

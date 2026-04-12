@@ -39,10 +39,10 @@ export default async function AdminDashboard() {
         <div className="animate-fade-in-up lg:pt-0 pt-16">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-[var(--text-primary)]">
                     Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"} 👋
                 </h1>
-                <p className="text-gray-400 mt-1">Here's what's happening with your store.</p>
+                <p className="text-[var(--text-secondary)] mt-1">Here's what's happening with your store.</p>
             </div>
 
             {/* Stats Grid */}
@@ -57,7 +57,7 @@ export default async function AdminDashboard() {
                             <Icon size={20} className="opacity-80" />
                             <TrendingUp size={14} className="opacity-40" />
                         </div>
-                        <div className="text-3xl font-extrabold text-white">{value}</div>
+                        <div className="text-3xl font-extrabold text-[var(--text-primary)]">{value}</div>
                         <div className="text-sm opacity-70 mt-1">{label}</div>
                     </Link>
                 ))}
@@ -79,18 +79,18 @@ export default async function AdminDashboard() {
                             <Plus size={18} className="text-[hsl(214_89%_55%)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-gray-200 text-sm group-hover:text-[hsl(214_89%_55%)] transition-colors">{label}</div>
-                            <div className="text-xs text-gray-500">{desc}</div>
+                            <div className="font-semibold text-[var(--text-secondary)] text-sm group-hover:text-[hsl(214_89%_55%)] transition-colors">{label}</div>
+                            <div className="text-xs text-[var(--text-muted)]">{desc}</div>
                         </div>
-                        <ArrowRight size={16} className="text-gray-600 group-hover:text-[hsl(214_89%_55%)] transition-colors flex-shrink-0" />
+                        <ArrowRight size={16} className="text-[var(--text-muted)] group-hover:text-[hsl(214_89%_55%)] transition-colors flex-shrink-0" />
                     </Link>
                 ))}
             </div>
 
             {/* Recent Products */}
-            <div className="glass rounded-md overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
-                    <h2 className="font-semibold text-gray-200">Recent Products</h2>
+            <div className="glass rounded-md overflow-hidden bg-[var(--bg-card)] border-[var(--border)]">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+                    <h2 className="font-semibold text-[var(--text-primary)]">Recent Products</h2>
                     <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_62%)] flex items-center gap-1 transition-colors">
                         View all <ArrowRight size={12} />
                     </Link>
@@ -113,8 +113,8 @@ export default async function AdminDashboard() {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-gray-200 text-sm line-clamp-1">{p.title}</div>
-                                    <div className="text-xs text-gray-500">{p.category?.name || "Uncategorised"}</div>
+                                    <div className="font-medium text-[var(--text-secondary)] text-sm line-clamp-1">{p.title}</div>
+                                    <div className="text-xs text-[var(--text-muted)]">{p.category?.name || "Uncategorised"}</div>
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     {p.price && (

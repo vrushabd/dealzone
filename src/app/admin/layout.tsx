@@ -8,7 +8,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     // or we can use a (protected) group. For now, let's just make it stable.
 
     return (
-        <div className="min-h-screen bg-gray-950 flex">
+        <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] flex">
             <main className="flex-1 min-h-screen overflow-auto">
                 <div className="flex">
                     <AdminSidebar />

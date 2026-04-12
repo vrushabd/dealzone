@@ -165,7 +165,7 @@ export async function scrapeProduct(url: string): Promise<ScrapedProduct | null>
 
         if (!isBotPage(html, pageTitle)) {
             if (platform === 'amazon')   result = parseAmazon(root, url);
-            else if (platform === 'flipkart') result = parseFlipkart(root, url);
+            else if (platform === 'flipkart') result = parseFlipkart(root, url, html);
             else if (platform === 'myntra')   result = parseMyntra(root, url);
         }
 
@@ -331,7 +331,7 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     return { title, price, originalPrice, discount, image, platform: 'amazon', url };
 }
 
-function parseFlipkart(root: any, url: string): ScrapedProduct {
+function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     // Title — Flipkart rotates class names frequently
     const title = (
         root.querySelector('.VU-Z7x')?.text?.trim()  ||
@@ -339,6 +339,7 @@ function parseFlipkart(root: any, url: string): ScrapedProduct {
         root.querySelector('.B_NuCI')?.text?.trim()   ||
         root.querySelector('h1._9E25nV')?.text?.trim()||
         root.querySelector('span.B_NuCI')?.text?.trim()||
+        root.querySelector('._2W109w')?.text?.trim() ||
         root.querySelector('h1')?.text?.trim() || ''
     ).trim();
 
@@ -347,8 +348,10 @@ function parseFlipkart(root: any, url: string): ScrapedProduct {
         root.querySelector('.Nx9n0j')?.text  ||
         root.querySelector('._30jeq3')?.text ||
         root.querySelector('._16Jk6d')?.text ||
+        root.querySelector('.hl05eU')?.text  ||
         root.querySelector('.UOCQB1 .Nx9n0j')?.text ||
-        root.querySelector('[class*="finalPrice"]')?.text || '0'
+        root.querySelector('[class*="finalPrice"]')?.text || 
+        root.querySelector('.Y1HWO0')?.text || '0'
     ).replace(/[,₹\s]/g, '');
     const price = parseFloat(priceStr) || 0;
 
@@ -357,6 +360,7 @@ function parseFlipkart(root: any, url: string): ScrapedProduct {
         root.querySelector('.y9H9c2')?.text ||
         root.querySelector('._3I9_wc')?.text ||
         root.querySelector('.yRaY8j')?.text ||
+        root.querySelector('.font-extra-light-black')?.text ||
         root.querySelector('[class*="mrpPrice"]')?.text || ''
     ).replace(/[,₹\s]/g, '');
     const originalPrice = originalPriceStr ? parseFloat(originalPriceStr) : undefined;
@@ -370,7 +374,7 @@ function parseFlipkart(root: any, url: string): ScrapedProduct {
     const discount = discountStr ? parseFloat(discountStr) : undefined;
 
     // Image — priority order
-    const image = (
+    let image = (
         root.querySelector('._95YkrM img')?.getAttribute('src')  ||
         root.querySelector('._396cs4')?.getAttribute('src')      ||
         root.querySelector('._2r_T1I')?.getAttribute('src')      ||
@@ -379,6 +383,12 @@ function parseFlipkart(root: any, url: string): ScrapedProduct {
         root.querySelector('.DByo73 img')?.getAttribute('src')   ||
         root.querySelector('img[src*="rukminim"]')?.getAttribute('src') || ''
     );
+
+    // If image is still empty, look in HTML for cloudfront/rukminim URLs
+    if (!image && html) {
+        const imgMatch = html.match(/https:\/\/[^"']+\.(?:jpg|jpeg|png|webp)\?q=\d+/);
+        if (imgMatch) image = imgMatch[0];
+    }
 
     return { title, price, originalPrice, discount, image, platform: 'flipkart', url };
 }

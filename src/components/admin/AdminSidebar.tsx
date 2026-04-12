@@ -29,7 +29,7 @@ export default function AdminSidebar() {
     const SidebarContent = () => (
         <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className={`flex items-center gap-2.5 px-4 py-5 border-b border-gray-800 ${collapsed ? "justify-center" : ""}`}>
+            <div className={`flex items-center gap-2.5 px-4 py-5 border-b border-[var(--border)] ${collapsed ? "justify-center" : ""}`}>
                 <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-[hsl(214_89%_52%/0.25)]">
                     <Zap size={16} className="text-white" />
                 </div>
@@ -48,11 +48,11 @@ export default function AdminSidebar() {
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group relative
                 ${active
                                     ? "bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_55%)] shadow-sm"
-                                    : "text-gray-400 hover:text-gray-100 hover:bg-gray-800/70"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                                 }`}
                         >
                             {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[hsl(214_89%_52%)] rounded-r-full" />}
-                            <Icon size={17} className={`flex-shrink-0 ${active ? "text-[hsl(214_89%_55%)]" : "text-gray-500 group-hover:text-gray-300"}`} />
+                            <Icon size={17} className={`flex-shrink-0 ${active ? "text-[hsl(214_89%_55%)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]"}`} />
                             {!collapsed && <span>{label}</span>}
                             {!collapsed && active && <ChevronRight size={14} className="ml-auto text-[hsl(214_89%_55%)]/60" />}
                         </Link>
@@ -61,26 +61,26 @@ export default function AdminSidebar() {
             </nav>
 
             {/* Footer actions */}
-            <div className="p-3 border-t border-gray-800 space-y-1">
+            <div className="p-3 border-t border-[var(--border)] space-y-1">
                 <a
                     href="/"
                     target="_blank"
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all"
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-all"
                 >
-                    <ExternalLink size={17} className="text-gray-500 flex-shrink-0" />
+                    <ExternalLink size={17} className="text-[var(--text-muted)] flex-shrink-0" />
                     {!collapsed && <span>View Site</span>}
                 </a>
                 
-                <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-gray-800/70 transition-all">
+                <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
                     <GlobalThemeToggle />
                     {!collapsed && <span>Global Default Theme</span>}
                 </div>
 
                 <button
                     onClick={() => signOut({ callbackUrl: "/admin/login" })}
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-red-400 hover:bg-red-500/10 transition-all"
                 >
-                    <LogOut size={17} className="text-gray-500 flex-shrink-0" />
+                    <LogOut size={17} className="text-[var(--text-muted)] flex-shrink-0" />
                     {!collapsed && <span>Sign Out</span>}
                 </button>
             </div>
@@ -91,11 +91,11 @@ export default function AdminSidebar() {
         <>
             {/* Desktop sidebar */}
             <aside
-                className={`hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0 bg-gray-900 border-r border-gray-800 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
+                className={`hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0 bg-[var(--bg-surface)] border-r border-[var(--border)] transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
             >
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="absolute -right-3 top-6 w-6 h-6 bg-gray-800 border border-gray-700 rounded-full flex items-center justify-center text-gray-400 hover:text-white z-10 transition-colors"
+                    className="absolute -right-3 top-6 w-6 h-6 bg-[var(--bg-card)] border border-[var(--border)] rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] z-10 transition-colors"
                 >
                     {collapsed ? <ChevronRight size={12} /> : <X size={12} />}
                 </button>
@@ -103,8 +103,8 @@ export default function AdminSidebar() {
             </aside>
 
             {/* Mobile top bar */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-gray-800 flex items-center gap-3 px-4 py-3">
-                <button onClick={() => setMobileOpen(true)} className="text-gray-400 hover:text-white transition-colors">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 px-4 py-3">
+                <button onClick={() => setMobileOpen(true)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     <Menu size={22} />
                 </button>
                 <span className="font-bold gradient-text">DealZone Admin</span>
@@ -114,8 +114,8 @@ export default function AdminSidebar() {
             {mobileOpen && (
                 <div className="lg:hidden fixed inset-0 z-50 flex">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-                    <aside className="relative w-64 bg-gray-900 h-full">
-                        <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <aside className="relative w-64 bg-[var(--bg-surface)] h-full">
+                        <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                             <X size={20} />
                         </button>
                         <SidebarContent />

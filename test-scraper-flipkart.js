@@ -1,11 +1,30 @@
-async function main() {
-    const url = "https://www.flipkart.com/sti-men-women-cargos/p/itm7ae3a4b0f62ca?pid=CRGHK2Z4EPGVTY";
+const { parse } = require('node-html-parser');
+
+async function testSelectors(url) {
+    console.log("Testing URL:", url);
     const res = await fetch(url, { headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
     }});
     const html = await res.text();
-    console.log("LENGTH:", html.length);
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    console.log("TITLE:", titleMatch ? titleMatch[1] : "None");
+    const root = parse(html);
+
+    const title = (
+        root.querySelector('.VU-Z7x')?.text?.trim()  ||
+        root.querySelector('h1.yhB1nd')?.text?.trim() ||
+        root.querySelector('.B_NuCI')?.text?.trim()   ||
+        root.querySelector('._2W109w')?.text?.trim() || "None"
+    );
+
+    const price = (
+        root.querySelector('.Nx9n0j')?.text  ||
+        root.querySelector('._30jeq3')?.text ||
+        root.querySelector('.hl05eU')?.text  ||
+        root.querySelector('.Y1HWO0')?.text || "None"
+    );
+
+    console.log("Found Title:", title);
+    console.log("Found Price:", price);
 }
-main().catch(console.error);
+
+const url = "https://www.flipkart.com/jqr-signature-sneakers-men/p/itm1d93d5d82ea93";
+testSelectors(url).catch(console.error);

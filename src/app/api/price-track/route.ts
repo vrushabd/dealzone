@@ -46,8 +46,14 @@ export async function POST(req: NextRequest) {
             effectiveOriginal = exactMatch.originalPrice || null;
         } else if (needsDemoData) {
             // No DB match — synthesise a plausible price so UI is non-empty
-            effectivePrice    = Math.floor(Math.random() * 4000) + 1000;
-            effectiveOriginal = Math.floor(effectivePrice * 1.3);
+            // If we managed to get an original price, use that as base
+            if (effectiveOriginal && effectiveOriginal > 0) {
+                effectivePrice = Math.floor(effectiveOriginal * 0.72);
+            } else {
+                // Lower the random range to be more "deal" friendly (400 - 2400)
+                effectivePrice = Math.floor(Math.random() * 2000) + 400;
+                effectiveOriginal = Math.floor(effectivePrice * 1.35);
+            }
         }
 
         // ── Phase 3: Upsert product record ────────────────────────────────────────

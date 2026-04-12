@@ -53,7 +53,7 @@ function LinkGenerator() {
     };
 
     return (
-        <div className="glass rounded-md p-6 mb-10 border border-[hsl(224_20%_16%)]">
+        <div className="bg-[var(--bg-card)] rounded-md p-6 mb-10 border border-[var(--border)]">
             <div className="flex items-center gap-2 mb-5">
                 <div className="w-8 h-8 rounded-md bg-[hsl(214_89%_52%/0.12)] flex items-center justify-center">
                     <Zap size={16} className="text-[hsl(214_89%_55%)]" fill="currentColor" />
@@ -67,7 +67,7 @@ function LinkGenerator() {
             {/* Input row */}
             <div className="flex gap-3 mb-4">
                 <div className="relative flex-1">
-                    <Link2 size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[hsl(215_12%_40%)]" />
+                    <Link2 size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                     <input
                         type="url"
                         value={url}
@@ -207,17 +207,17 @@ export default function AffiliateDashboard() {
                             </thead>
                             <tbody className="divide-y divide-[var(--border)]">
                                 {products.map((product) => (
-                                    <tr key={product.id} className="hover:bg-[hsl(224_25%_8%)] transition-colors group">
+                                    <tr key={product.id} className="hover:bg-[var(--bg-card-hover)] transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-md bg-[hsl(224_25%_11%)] overflow-hidden flex-shrink-0 border border-[hsl(224_20%_14%)]">
+                                                <div className="w-10 h-10 rounded-md bg-[var(--bg-elevated)] overflow-hidden flex-shrink-0 border border-[var(--border)]">
                                                     {product.image && <img src={product.image} className="w-full h-full object-contain p-1" alt="" />}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-semibold text-[hsl(210_30%_88%)] group-hover:text-[hsl(214_89%_55%)] transition-colors truncate max-w-xs text-xs">
+                                                    <div className="font-semibold text-[var(--text-primary)] group-hover:text-[hsl(214_89%_55%)] transition-colors truncate max-w-xs text-xs">
                                                         {product.title}
                                                     </div>
-                                                    <div className="text-[10px] text-[hsl(215_10%_38%)] mt-0.5">
+                                                    <div className="text-[10px] text-[var(--text-muted)] mt-0.5">
                                                         {product.price ? `₹${product.price.toLocaleString('en-IN')}` : '—'}
                                                     </div>
                                                 </div>
@@ -232,7 +232,7 @@ export default function AffiliateDashboard() {
                                                     ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
                                                     : product.flipkartLink
                                                     ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                                                    : 'bg-[hsl(224_20%_11%)] text-[hsl(215_12%_42%)] border border-[hsl(224_20%_15%)]'
+                                                    : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border)]'
                                             }`}>
                                                 {product.amazonLink ? 'Amazon' : product.flipkartLink ? 'Flipkart' : 'No link'}
                                             </span>
@@ -243,12 +243,12 @@ export default function AffiliateDashboard() {
                                                     href={product.affiliateUrl || product.amazonLink || product.flipkartLink}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[hsl(224_25%_11%)] hover:bg-[hsl(224_22%_14%)] text-[10px] font-bold rounded-lg border border-[hsl(224_20%_16%)] transition-all text-[hsl(215_15%_52%)] hover:text-white"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--bg-card-hover)] text-[10px] font-bold rounded-lg border border-[var(--border)] transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                                                 >
                                                     Open <ExternalLink size={10} />
                                                 </a>
                                             ) : (
-                                                <span className="text-[10px] text-[hsl(215_10%_32%)]">—</span>
+                                                <span className="text-[10px] text-[var(--text-muted)] opacity-50">—</span>
                                             )}
                                         </td>
                                     </tr>

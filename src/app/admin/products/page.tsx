@@ -15,7 +15,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-md shadow-2xl animate-fade-in-up">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border)] rounded-md shadow-2xl animate-fade-in-up">
                 {children}
             </div>
         </div>
@@ -151,14 +151,14 @@ function ProductForm({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {fields.slice(0, 1).map(({ key, label, placeholder, type }) => (
                         <div key={key} className="sm:col-span-2">
-                            <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
+                            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">{label}</label>
                             <input type={type} value={(form as StringFields)[key as keyof StringFields]} onChange={(e) => set(key, e.target.value)}
                                 placeholder={placeholder} required={key === "title"} className="input-base" />
                         </div>
                     ))}
                     {fields.slice(1).map(({ key, label, placeholder, type }) => (
                         <div key={key}>
-                            <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
+                            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">{label}</label>
                             <input type={type} value={(form as StringFields)[key as keyof StringFields]} onChange={(e) => set(key, e.target.value)}
                                 placeholder={placeholder} className="input-base" />
                         </div>
@@ -166,7 +166,7 @@ function ProductForm({
                 </div>
 
                 <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">Category</label>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Category</label>
                     <select value={form.categoryId} onChange={(e) => set("categoryId", e.target.value)} className="input-base">
                         <option value="">None</option>
                         {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -174,17 +174,17 @@ function ProductForm({
                 </div>
 
                 <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">Description</label>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Description</label>
                     <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
                         placeholder="Product description..." rows={3} className="input-base resize-none" />
                 </div>
 
                 <label className="flex items-center gap-3 cursor-pointer group">
                     <div onClick={() => set("featured", !form.featured)}
-                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-[hsl(214_89%_52%)]" : "bg-gray-700"}`}>
+                        className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-[hsl(214_89%_52%)]" : "bg-[var(--bg-elevated)]"}`}>
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${form.featured ? "left-5" : "left-0.5"}`} />
                     </div>
-                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Mark as Featured Deal</span>
+                    <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">Mark as Featured Deal</span>
                 </label>
             </div>
 

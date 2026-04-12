@@ -37,23 +37,6 @@ export async function POST(req: NextRequest) {
             // exactMatch IS the same product — safe to use its stored data
             effectiveTitle    = exactMatch.title || effectiveTitle;
             effectiveImage    = exactMatch.image || effectiveImage;
-            // Use || not ?? so that stored price=0 also triggers the fallback
-            effectivePrice    = (exactMatch.price && exactMatch.price > 0)
-                ? exactMatch.price
-                : (exactMatch.originalPrice
-                    ? Math.floor(exactMatch.originalPrice * 0.75)
-                    : Math.floor(Math.random() * 4000) + 1000);
-            effectiveOriginal = exactMatch.originalPrice || null;
-        // --- Price Sanity Check ---
-        // If we found a price but it exceeds the original price (MRP), it's likely a scraping error
-        if (effectivePrice > 0 && effectiveOriginal && effectiveOriginal > 0 && effectivePrice > effectiveOriginal) {
-            effectivePrice = effectiveOriginal;
-        }
-
-        if (needsDemoData && exactMatch) {
-            // exactMatch IS the same product — safe to use its stored data
-            effectiveTitle    = exactMatch.title || effectiveTitle;
-            effectiveImage    = exactMatch.image || effectiveImage;
             
             // If the stored price is also suspicious, re-derive it
             const storedPrice = exactMatch.price || 0;
@@ -76,6 +59,12 @@ export async function POST(req: NextRequest) {
                 effectivePrice = Math.floor(Math.random() * 1500) + base;
                 effectiveOriginal = Math.floor(effectivePrice * 1.4);
             }
+        }
+
+        // --- Price Sanity Check ---
+        // If we found a price but it exceeds the original price (MRP), it's likely a scraping error
+        if (effectivePrice > 0 && effectiveOriginal && effectiveOriginal > 0 && effectivePrice > effectiveOriginal) {
+            effectivePrice = effectiveOriginal;
         }
 
         // ── Phase 3: Upsert product record ────────────────────────────────────────

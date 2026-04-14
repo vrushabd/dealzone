@@ -133,6 +133,11 @@ export async function POST(req: NextRequest) {
                 await prisma.productPriceHistory.create({
                     data: { productId: product.id, price: effectivePrice, platform },
                 });
+            } else if (existing.price !== effectivePrice && !needsDemoData) {
+                await prisma.productPriceHistory.update({
+                    where: { id: existing.id },
+                    data: { price: effectivePrice },
+                });
             }
         }
 
@@ -156,8 +161,8 @@ export async function POST(req: NextRequest) {
                 price: h.price,
                 date:  h.timestamp,
             })),
-            lowestPrice:  history.length > 0 ? Math.min(...history.map((h: any) => h.price)) : effectivePrice,
-            highestPrice: history.length > 0 ? Math.max(...history.map((h: any) => h.price)) : effectivePrice,
+            lowestPrice:  Math.min(effectivePrice, ...history.map((h: any) => h.price)),
+            highestPrice: Math.max(effectivePrice, ...history.map((h: any) => h.price)),
         });
 
     } catch (error) {

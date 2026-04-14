@@ -99,38 +99,33 @@ function parseOpenGraph(root: any): { title?: string; image?: string; price?: nu
 // ────────────────────────────────────────────────────────────────
 // HTTP Headers
 // ────────────────────────────────────────────────────────────────
+const GOOGLEBOT_UA = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+
 const BASE_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
     'Accept-Language': 'en-IN,en;q=0.9,hi;q=0.8',
     'Accept-Encoding': 'gzip, deflate, br',
     'Cache-Control': 'no-cache',
     'Upgrade-Insecure-Requests': '1',
-    'sec-ch-ua': '"Google Chrome";v="124", "Not:A-Brand";v="8"',
-    'sec-ch-ua-mobile': '?0',
-    'Sec-Fetch-Dest': 'document',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-Site': 'same-origin',
 };
 
 const AMAZON_HEADERS = {
     ...BASE_HEADERS,
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    'Referer': 'https://www.amazon.in/',
-    'Origin': 'https://www.amazon.in',
+    'User-Agent': GOOGLEBOT_UA,
+    'Referer': 'https://www.google.com/',
 };
 
 const FLIPKART_HEADERS = {
     ...BASE_HEADERS,
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    'Referer': 'https://www.flipkart.com/',
-    'Origin': 'https://www.flipkart.com',
+    'User-Agent': GOOGLEBOT_UA,
+    'Referer': 'https://www.google.com/',
 };
 
 const MOBILE_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.82 Mobile Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en-IN,en;q=0.9',
-    'Referer': 'https://www.flipkart.com/',
+    'Referer': 'https://www.google.com/',
 };
 
 async function fetchHtml(url: string, headers: Record<string, string>): Promise<string | null> {
@@ -363,6 +358,14 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
         if (raw) {
             const p = parseFloat(raw);
             if (p > 0 && (price === 0 || p < price)) { price = p; }
+        }
+    }
+
+    if (price === 0 && html) {
+        // Regex catch-all for deeply nested or obfuscated raw price strings
+        const regexMatch = html.match(/"(?:finalPrice|price)"\s*:\s*"?(\d+(?:\.\d+)?)/);
+        if (regexMatch) {
+            price = parseFloat(regexMatch[1]);
         }
     }
 

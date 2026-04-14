@@ -38,33 +38,31 @@ export async function POST(req: NextRequest) {
             effectiveTitle    = exactMatch.title || effectiveTitle;
             effectiveImage    = exactMatch.image || effectiveImage;
             
-            // If the stored price is also suspicious, re-derive it
+            // Only use stored price if valid, never guess or randomize
             const storedPrice = exactMatch.price || 0;
             const storedMRP   = exactMatch.originalPrice || 0;
             
-            if (storedPrice > 0 && storedPrice <= (storedMRP || Infinity)) {
+            if (storedPrice > 0) {
                 effectivePrice = storedPrice;
             } else {
-                effectivePrice = storedMRP ? Math.floor(storedMRP * 0.75) : Math.floor(Math.random() * 1000) + 500;
+                effectivePrice = 0; 
             }
             effectiveOriginal = storedMRP || null;
         } else if (needsDemoData) {
-            // No DB match — synthesise a plausible price so UI is non-empty
-            if (effectiveOriginal && effectiveOriginal > 0) {
-                effectivePrice = Math.floor(effectiveOriginal * 0.72);
-            } else {
-                // Determine a sensible base based on title keywords
-                const isShoe = effectiveTitle.toLowerCase().includes('shoe') || effectiveTitle.toLowerCase().includes('sneaker');
-                const base = isShoe ? 600 : 400;
-                effectivePrice = Math.floor(Math.random() * 1500) + base;
-                effectiveOriginal = Math.floor(effectivePrice * 1.4);
-            }
+            // No DB match and scrape failed — DO NOT synthesize!
+            // The scraper was completely blocked or failed to find price data.
+            effectivePrice = 0;
         }
 
         // --- Price Sanity Check ---
         // If we found a price but it exceeds the original price (MRP), it's likely a scraping error
         if (effectivePrice > 0 && effectiveOriginal && effectiveOriginal > 0 && effectivePrice > effectiveOriginal) {
             effectivePrice = effectiveOriginal;
+        }
+
+        // --- Block zero price creation ---
+        if (effectivePrice === 0 && !exactMatch) {
+            return NextResponse.json({ error: 'Could not extract exact product price. The product might be unavailable or protected against scraping.' }, { status: 400 });
         }
 
         // ── Phase 3: Upsert product record ────────────────────────────────────────

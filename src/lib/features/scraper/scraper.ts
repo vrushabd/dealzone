@@ -27,6 +27,25 @@ function titleFromSlug(url: string): string {
     } catch { return ''; }
 }
 
+/** Improve image quality by rewriting dimension parameters in URLs */
+function upscaleImageUrl(url: string, platform: string): string {
+    if (!url) return '';
+    try {
+        if (platform === 'flipkart' && url.includes('rukminim')) {
+            // Replace /image/160/210/ with /image/832/832/ and set high quality q=90
+            return url
+                .replace(/\/image\/\d+\/\d+\//, '/image/832/832/')
+                .replace(/\?q=\d+/, '?q=90');
+        }
+        if (platform === 'amazon' && url.includes('media-amazon.com')) {
+            // Remove thumbnail markers and target original hi-res masters
+            // Marker pattern: ._AC_..._ or ._SY..._ or ._SX..._
+            return url.replace(/\._[A-Z0-9,]+_\./g, '.');
+        }
+    } catch { /* ignore */ }
+    return url;
+}
+
 /** Check for bot/CAPTCHA page */
 function isBotPage(html: string, title: string): boolean {
     const botPhrases = ['are you a human', 'robot', 'captcha', 'access denied', 'verify you are', '403 forbidden', 'security check', 'one moment'];
@@ -309,18 +328,15 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     ).replace(/[-%\s]/g, '');
     const discount = discountStr ? parseFloat(discountStr) : undefined;
 
-    const imageSelectors = [
-        '#landingImage',
-        '#imgBlkFront',
-        '#main-image-container img',
-        '#imgTagWrapperId img',
-        'img#landingImage',
-    ];
     let image = '';
     for (const sel of imageSelectors) {
         const el = root.querySelector(sel);
         const src = el?.getAttribute('src') || el?.getAttribute('data-src') || el?.getAttribute('data-old-hires');
         if (src && !src.includes('gif') && src.startsWith('http')) { image = src; break; }
+    }
+
+    if (image && image.includes('media-amazon.com')) {
+        image = upscaleImageUrl(image, 'amazon');
     }
 
     return { title, price, originalPrice, discount, image, platform: 'amazon', url };
@@ -415,6 +431,9 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
         const imgMatch = html.match(/https:\/\/[^"']+\.(?:jpg|jpeg|png|webp)\?q=\d+/);
         if (imgMatch) image = imgMatch[0];
     }
+
+    // Upscale image if found
+    if (image) image = upscaleImageUrl(image, 'flipkart');
 
     return { title, price, originalPrice, discount, image, platform: 'flipkart', url };
 }

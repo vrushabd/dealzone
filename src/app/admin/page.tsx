@@ -4,12 +4,21 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import {
     ShoppingBag, BookOpen, Tag, TrendingUp,
-    Plus, ArrowRight, Star,
+    Plus, ArrowRight, Star, Users, Monitor, BarChart3, Activity
 } from "lucide-react";
 
 export default async function AdminDashboard() {
     const session = await getServerSession(authOptions);
-    const [productCount, postCount, categoryCount, recentProducts, featuredCount] = await Promise.all([
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+    const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
+    const startOfWeek = new Date(new Date().setDate(new Date().getDate() - 7));
+    const startOfMonth = new Date(new Date().setMonth(new Date().getMonth() - 1));
+
+    const [
+        productCount, postCount, categoryCount, recentProducts, featuredCount,
+        onlineUsers, dailyViews, weeklyViews, monthlyViews
+    ] = await Promise.all([
         prisma.product.count(),
         prisma.post.count(),
         prisma.category.count(),
@@ -19,20 +28,27 @@ export default async function AdminDashboard() {
             include: { category: true },
         }),
         prisma.product.count({ where: { featured: true } }),
+        prisma.pageView.groupBy({
+            by: ['sessionId'],
+            where: { timestamp: { gte: fifteenMinutesAgo } },
+        }).then(res => res.length),
+        prisma.pageView.count({ where: { timestamp: { gte: startOfToday } } }),
+        prisma.pageView.count({ where: { timestamp: { gte: startOfWeek } } }),
+        prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
     ]);
 
     const stats = [
         { label: "Total Products", value: productCount, icon: ShoppingBag, href: "/admin/products", color: "orange" },
         { label: "Blog Posts", value: postCount, icon: BookOpen, href: "/admin/posts", color: "blue" },
-        { label: "Categories", value: categoryCount, icon: Tag, href: "/admin/categories", color: "purple" },
-        { label: "Featured", value: featuredCount, icon: Star, href: "/admin/products", color: "yellow" },
+        { label: "Featured Deals", value: featuredCount, icon: Star, href: "/admin/products", color: "yellow" },
+        { label: "Online Now", value: onlineUsers, icon: Activity, href: "#", color: "green" },
     ];
 
     const colorMap: Record<string, string> = {
         orange: "from-[var(--brand-glow)] to-[var(--bg-base)] border-[var(--brand-glow-strong)] text-[var(--brand)]",
         blue: "from-blue-500/10 to-[var(--bg-base)] border-blue-500/20 text-blue-600 dark:text-blue-400",
-        purple: "from-purple-500/10 to-[var(--bg-base)] border-purple-500/20 text-purple-600 dark:text-purple-400",
         yellow: "from-[var(--warning)]/10 to-[var(--bg-base)] border-[var(--warning)]/20 text-[var(--warning)]",
+        green: "from-green-500/10 to-[var(--bg-base)] border-green-500/20 text-green-600 dark:text-green-400",
     };
 
     return (
@@ -60,6 +76,28 @@ export default async function AdminDashboard() {
                         <div className="text-3xl font-extrabold text-[var(--text-primary)]">{value}</div>
                         <div className="text-sm opacity-70 mt-1">{label}</div>
                     </Link>
+                ))}
+            </div>
+
+            {/* Traffic Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                {[
+                    { label: "Daily Views", value: dailyViews, icon: Monitor, trend: "Visitors today" },
+                    { label: "Weekly Views", value: weeklyViews, icon: BarChart3, trend: "Last 7 days" },
+                    { label: "Monthly Views", value: monthlyViews, icon: Users, trend: "Last 30 days" },
+                ].map(({ label, value, icon: Icon, trend }) => (
+                    <div key={label} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex items-center justify-between">
+                        <div>
+                            <div className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider mb-1">{label}</div>
+                            <div className="text-2xl font-black text-[var(--text-primary)]">{value.toLocaleString()}</div>
+                            <div className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-1">
+                                <TrendingUp size={10} className="text-green-500" /> {trend}
+                            </div>
+                        </div>
+                        <div className="w-12 h-12 bg-[var(--bg-elevated)] rounded-full flex items-center justify-center text-[var(--text-muted)]">
+                            <Icon size={20} />
+                        </div>
+                    </div>
                 ))}
             </div>
 

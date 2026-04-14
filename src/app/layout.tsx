@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { AnalyticsTracker } from "@/components/layout/AnalyticsTracker";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -51,6 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="bg-[var(--bg-base)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-300">
         <Providers forcedDefaultTheme={defaultTheme}>{children}</Providers>
+        <AnalyticsTracker />
       </body>
     </html>
   );

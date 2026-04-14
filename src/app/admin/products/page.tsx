@@ -67,6 +67,19 @@ function ProductForm({
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Failed to fetch");
+            
+            // Auto-select category if matching name found
+            let matchedCategoryId = f.categoryId;
+            if (data.category) {
+                const scrapedLower = data.category.toLowerCase();
+                const match = categories.find(c => 
+                    c.name.toLowerCase() === scrapedLower || 
+                    scrapedLower.includes(c.name.toLowerCase()) ||
+                    c.name.toLowerCase().includes(scrapedLower)
+                );
+                if (match) matchedCategoryId = match.id;
+            }
+
             setForm((f) => ({
                 ...f,
                 title: data.title || f.title,
@@ -76,6 +89,7 @@ function ProductForm({
                 discount: data.discount ? data.discount.toString() : f.discount,
                 amazonLink: data.platform === "amazon" ? urlInput.trim() : f.amazonLink,
                 flipkartLink: data.platform === "flipkart" ? urlInput.trim() : f.flipkartLink,
+                categoryId: matchedCategoryId,
             }));
             setScraped(true);
         } catch (e: unknown) {

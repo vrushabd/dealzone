@@ -11,6 +11,7 @@ export interface ScrapedProduct {
     availability?: string;
     platform: 'amazon' | 'flipkart' | 'myntra' | 'unknown';
     url: string;
+    category?: string;
     fromUrl?: boolean;
 }
 
@@ -339,7 +340,10 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
         image = upscaleImageUrl(image, 'amazon');
     }
 
-    return { title, price, originalPrice, discount, image, platform: 'amazon', url };
+    const category = root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child')?.text?.trim() || 
+                     root.querySelector('#wayfinding-breadcrumbs_container ul li:nth-last-child(2)')?.text?.trim() || '';
+
+    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category };
 }
 
 function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
@@ -435,7 +439,11 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     // Upscale image if found
     if (image) image = upscaleImageUrl(image, 'flipkart');
 
-    return { title, price, originalPrice, discount, image, platform: 'flipkart', url };
+    // Extract category from breadcrumbs
+    const category = Array.from(root.querySelectorAll('._2whKao')).pop()?.text?.trim() || 
+                     Array.from(root.querySelectorAll('._1HEO9G')).pop()?.text?.trim() || '';
+
+    return { title, price, originalPrice, discount, image, platform: 'flipkart', url, category };
 }
 
 function parseFlipkartMobile(root: any, url: string): ScrapedProduct {

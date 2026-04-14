@@ -163,6 +163,7 @@ export async function POST(req: NextRequest) {
             })),
             lowestPrice:  Math.min(effectivePrice, ...history.map((h: any) => h.price)),
             highestPrice: Math.max(effectivePrice, ...history.map((h: any) => h.price)),
+            category:     validScraped?.category || null,
         });
 
     } catch (error) {

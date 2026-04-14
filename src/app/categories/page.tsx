@@ -22,32 +22,32 @@ export default async function CategoriesPage() {
     return (
         <>
             <Navbar />
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-16">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-2">
                         <Tag size={13} />
                         Browse
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-white">All Categories</h1>
-                    <p className="text-[hsl(215_12%_45%)] text-sm mt-1">Find deals across every category</p>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">All Categories</h1>
+                    <p className="text-[var(--text-secondary)] text-sm mt-1">Find deals across every category</p>
                 </div>
 
                 {categories.length === 0 ? (
-                    <div className="text-center py-24 text-[hsl(215_12%_40%)]">No categories yet.</div>
+                    <div className="text-center py-24 text-[var(--text-muted)]">No categories yet.</div>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {categories.map((cat) => (
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
-                                className="group glass border border-[hsl(224_20%_14%)] hover:border-[hsl(214_89%_52%/0.30)] rounded-md p-5 text-center transition-all duration-200 card-glow flex flex-col items-center"
+                                className="group glass border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.30)] rounded-md p-5 text-center transition-all duration-200 card-glow flex flex-col items-center"
                             >
                                 <CategoryIcon slug={cat.slug} variant="page" />
-                                <h2 className="font-bold text-[hsl(210_30%_88%)] group-hover:text-[hsl(214_89%_55%)] transition-colors mt-3 text-sm">
+                                <h2 className="font-bold text-[var(--text-primary)] group-hover:text-[hsl(214_89%_55%)] transition-colors mt-3 text-sm">
                                     {cat.name}
                                 </h2>
-                                <p className="text-[10px] text-[hsl(215_10%_40%)] mt-1">
+                                <p className="text-[10px] text-[var(--text-muted)] mt-1">
                                     {cat._count.products} deals
                                 </p>
                             </Link>

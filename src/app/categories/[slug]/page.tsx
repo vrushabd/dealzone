@@ -37,20 +37,20 @@ export default async function CategoryPage({ params }: Params) {
         <>
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <Link href="/categories" className="inline-flex items-center gap-2 text-gray-400 hover:text-[hsl(214_89%_55%)] text-sm mb-6 transition-colors">
+                <Link href="/categories" className="inline-flex items-center gap-2 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-sm mb-6 transition-colors">
                     <ArrowLeft size={16} /> All Categories
                 </Link>
 
                 <div className="flex items-center gap-4 mb-8">
                     <div className="text-4xl">{category.icon || "📦"}</div>
                     <div>
-                        <h1 className="text-3xl font-bold text-white">{category.name}</h1>
-                        <p className="text-gray-400 text-sm">{category.products.length} deals</p>
+                        <h1 className="text-3xl font-bold text-[var(--text-primary)]">{category.name}</h1>
+                        <p className="text-[var(--text-secondary)] text-sm">{category.products.length} deals</p>
                     </div>
                 </div>
 
                 {category.products.length === 0 ? (
-                    <div className="text-center py-24 text-gray-500">
+                    <div className="text-center py-24 text-[var(--text-muted)]">
                         <p>No deals in this category yet.</p>
                     </div>
                 ) : (

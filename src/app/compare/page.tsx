@@ -33,7 +33,7 @@ export default function ComparePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white pb-20 pt-24">
+        <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] pb-20 pt-24">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Hero Section */}
                 <div className="text-center mb-16 animate-fade-in-up">
@@ -43,14 +43,14 @@ export default function ComparePage() {
                     </div>
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[1.1]">
                         Compare <span className="gradient-text">Instantly.</span><br />
-                        Buy <span className="text-white/40">Smarter.</span>
+                        Buy <span className="text-[var(--text-muted)]">Smarter.</span>
                     </h1>
-                    <p className="text-lg md:text-xl text-gray-500 font-medium max-w-2xl mx-auto mb-12">
+                    <p className="text-lg md:text-xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto mb-12">
                         Deconstruct prices across Amazon, Flipkart, and Myntra.
                         Get real-time insights and AI-powered forecasting.
                     </p>
 
-                    <div className="max-w-3xl mx-auto glass p-8 rounded-[3rem] border border-white/5 shadow-2xl">
+                    <div className="max-w-3xl mx-auto glass p-8 rounded-[3rem] border border-[var(--border)] shadow-2xl">
                         <ProductInput onCompare={handleCompare} loading={isLoading} />
                     </div>
                 </div>
@@ -83,12 +83,12 @@ export default function ComparePage() {
                                 { icon: <TrendingDown className="text-green-400" />, title: "Price Vectoring", desc: "Track historical volatility and wait for the optimal buy signal." },
                                 { icon: <ShieldCheck className="text-purple-400" />, title: "Verified Sourcing", desc: "Only authorized sellers and stock status are extracted." }
                             ].map((feature, i) => (
-                                <div key={i} className="p-10 glass rounded-[2.5rem] border border-white/5 card-glow h-full flex flex-col items-center text-center">
-                                    <div className="w-16 h-16 bg-white/5 rounded-md flex items-center justify-center mb-6 border border-white/5">
+                                <div key={i} className="p-10 glass rounded-[2.5rem] border border-[var(--border)] card-glow h-full flex flex-col items-center text-center">
+                                    <div className="w-16 h-16 bg-[var(--bg-elevated)] rounded-md flex items-center justify-center mb-6 border border-[var(--border)]">
                                         {feature.icon}
                                     </div>
-                                    <h3 className="text-2xl font-black text-white mb-4 tracking-tight">{feature.title}</h3>
-                                    <p className="text-gray-500 font-medium leading-relaxed">{feature.desc}</p>
+                                    <h3 className="text-2xl font-black text-[var(--text-primary)] mb-4 tracking-tight">{feature.title}</h3>
+                                    <p className="text-[var(--text-secondary)] font-medium leading-relaxed">{feature.desc}</p>
                                 </div>
                             ))}
                         </div>

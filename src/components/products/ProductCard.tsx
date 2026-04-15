@@ -54,6 +54,22 @@ export default function ProductCard({ product }: { product: Product }) {
         ? cashbacks.reduce((prev, cur) => (cur.value! > prev.value! ? cur : prev))
         : null;
 
+    const trackClick = async (platform: string) => {
+        try {
+            await fetch("/api/analytics/click", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productId: product.id,
+                    platform,
+                    sessionId: typeof window !== "undefined" ? localStorage.getItem("dealzone_session") : "unknown"
+                }),
+            });
+        } catch (err) {
+            console.error("Failed to track click:", err);
+        }
+    };
+
     const handleAlertSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -241,6 +257,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                             href={product.amazonLink}
                                             target="_blank"
                                             rel="noopener noreferrer sponsored"
+                                            onClick={() => trackClick("amazon")}
                                             className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold py-2 px-4 rounded-md transition-all shine-on-hover"
                                         >
                                             <ExternalLink size={11} />
@@ -252,6 +269,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                             href={product.flipkartLink}
                                             target="_blank"
                                             rel="noopener noreferrer sponsored"
+                                            onClick={() => trackClick("flipkart")}
                                             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded-md transition-all shine-on-hover"
                                         >
                                             <ExternalLink size={11} />

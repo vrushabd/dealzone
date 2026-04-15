@@ -8,7 +8,7 @@ import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
-import { ExternalLink, Tag, ShoppingCart } from "lucide-react";
+import { ExternalLink, Tag, ShoppingCart, Star } from "lucide-react";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -35,7 +35,7 @@ export default async function ProductDetailPage({ params }: Params) {
     const { slug } = await params;
     const product = await prisma.product.findUnique({
         where: { slug },
-        include: { category: true },
+        include: { category: true, reviews: { orderBy: { rating: 'desc' }, take: 5 } },
     });
 
     if (!product) notFound();
@@ -144,29 +144,32 @@ export default async function ProductDetailPage({ params }: Params) {
                             )}
                         </div>
 
+import TrackedLink from "@/components/products/TrackedLink";
+
+// ... inside ProductDetailPage ...
                         {/* Affiliate Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 mb-8">
                             {product.amazonLink && (
-                                <a
+                                <TrackedLink
+                                    productId={product.id}
+                                    platform="amazon"
                                     href={product.amazonLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer sponsored"
                                     className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
                                 >
                                     <ExternalLink size={18} />
                                     Buy on Amazon
-                                </a>
+                                </TrackedLink>
                             )}
                             {product.flipkartLink && (
-                                <a
+                                <TrackedLink
+                                    productId={product.id}
+                                    platform="flipkart"
                                     href={product.flipkartLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer sponsored"
                                     className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
                                 >
                                     <ExternalLink size={18} />
                                     Buy on Flipkart
-                                </a>
+                                </TrackedLink>
                             )}
                         </div>
 
@@ -186,6 +189,35 @@ export default async function ProductDetailPage({ params }: Params) {
                         </p>
                     </div>
                 </div>
+
+                {/* Customer Reviews Section */}
+                {(product as any).reviews && (product as any).reviews.length > 0 && (
+                    <section className="mb-12">
+                        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6">What Buyers Are Saying</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {(product as any).reviews.map((review: any) => (
+                                <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex flex-col h-full">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-1 text-[var(--warning)]">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <Star key={i} size={14} className={i < Math.floor(review.rating) ? "fill-current" : "opacity-30"} />
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-[var(--text-muted)] font-semibold">{review.rating}/5</div>
+                                    </div>
+                                    {review.title && <h3 className="font-bold text-[var(--text-primary)] text-sm mb-2">{review.title}</h3>}
+                                    <p className="text-sm text-[var(--text-secondary)] italic leading-relaxed flex-1 mb-4">"{review.comment}"</p>
+                                    <div className="text-xs text-[var(--text-muted)] mt-auto pt-4 border-t border-[var(--border)] flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-full bg-[var(--bg-base)] flex flex-shrink-0 items-center justify-center font-bold text-[10px] text-[var(--text-primary)]">
+                                            {review.author?.[0]?.toUpperCase() || 'Buyer'}
+                                        </div>
+                                        <span className="truncate">{review.author || 'Verified Buyer'}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 {/* Price History Chart */}
                 <section className="mb-12">

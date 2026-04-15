@@ -22,7 +22,14 @@ export async function POST(request: NextRequest) {
 
     try {
         const data = await request.json();
-        const slug = slugify(data.name, { lower: true, strict: true });
+        let slug = slugify(data.name, { lower: true, strict: true });
+        
+        // Ensure unique slug
+        const existing = await prisma.category.findUnique({ where: { slug } });
+        if (existing) {
+            slug = `${slug}-${Math.floor(Math.random() * 1000)}`;
+        }
+
         const category = await prisma.category.create({
             data: { name: data.name, slug, icon: data.icon || null },
         });

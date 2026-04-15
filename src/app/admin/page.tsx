@@ -7,6 +7,8 @@ import {
     Plus, ArrowRight, Star, Users, Monitor, BarChart3, Activity
 } from "lucide-react";
 
+import SyncButton from "@/components/admin/SyncButton";
+
 export default async function AdminDashboard() {
     const session = await getServerSession(authOptions);
     const now = new Date();
@@ -17,7 +19,7 @@ export default async function AdminDashboard() {
 
     const [
         productCount, postCount, categoryCount, recentProducts, featuredCount,
-        onlineUsers, dailyViews, weeklyViews, monthlyViews
+        onlineUsers, dailyViews, weeklyViews, monthlyViews, totalClicks, trendingProducts
     ] = await Promise.all([
         prisma.product.count(),
         prisma.post.count(),
@@ -35,11 +37,21 @@ export default async function AdminDashboard() {
         prisma.pageView.count({ where: { timestamp: { gte: startOfToday } } }),
         prisma.pageView.count({ where: { timestamp: { gte: startOfWeek } } }),
         prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
+        prisma.affiliateClick.count(),
+        prisma.product.findMany({
+            where: { affiliateClicks: { some: {} } },
+            take: 5,
+            orderBy: { affiliateClicks: { _count: 'desc' } },
+            include: { 
+                _count: { select: { affiliateClicks: true } },
+                category: true 
+            }
+        })
     ]);
 
     const stats = [
         { label: "Total Products", value: productCount, icon: ShoppingBag, href: "/admin/products", color: "orange" },
-        { label: "Blog Posts", value: postCount, icon: BookOpen, href: "/admin/posts", color: "blue" },
+        { label: "Affiliate Clicks", value: totalClicks, icon: TrendingUp, href: "#", color: "blue" },
         { label: "Featured Deals", value: featuredCount, icon: Star, href: "/admin/products", color: "yellow" },
         { label: "Online Now", value: onlineUsers, icon: Activity, href: "#", color: "green" },
     ];
@@ -102,7 +114,7 @@ export default async function AdminDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
                 {[
                     { href: "/admin/products", label: "Add Product", icon: ShoppingBag, desc: "Upload new affiliate deal" },
                     { href: "/admin/posts", label: "New Post", icon: BookOpen, desc: "Write a blog post" },
@@ -123,50 +135,92 @@ export default async function AdminDashboard() {
                         <ArrowRight size={16} className="text-[var(--text-muted)] group-hover:text-[hsl(214_89%_55%)] transition-colors flex-shrink-0" />
                     </Link>
                 ))}
+                <SyncButton />
             </div>
 
-            {/* Recent Products */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
-                    <h2 className="font-semibold text-[var(--text-primary)]">Recent Products</h2>
-                    <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_62%)] flex items-center gap-1 transition-colors">
-                        View all <ArrowRight size={12} />
-                    </Link>
-                </div>
 
-                {recentProducts.length === 0 ? (
-                    <div className="py-12 text-center text-gray-500 text-sm">
-                        No products yet. <Link href="/admin/products" className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</Link>
+            {/* Recent & Trending Products */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Recent Products */}
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+                        <h2 className="font-semibold text-[var(--text-primary)]">Recent Products</h2>
+                        <Link href="/admin/products" className="text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_62%)] flex items-center gap-1 transition-colors">
+                            View all <ArrowRight size={12} />
+                        </Link>
                     </div>
-                ) : (
-                    <div className="divide-y divide-[var(--border)]">
-                        {recentProducts.map((p) => (
-                            <div key={p.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[var(--bg-base)]/50 transition-colors">
-                                <div className="w-10 h-10 bg-[var(--bg-base)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                    {p.image ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
-                                    ) : (
-                                        <ShoppingBag size={16} className="text-gray-600" />
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-[var(--text-primary)] text-sm line-clamp-1">{p.title}</div>
-                                    <div className="text-xs text-[var(--text-secondary)]">{p.category?.name || "Uncategorised"}</div>
-                                </div>
-                                <div className="text-right flex-shrink-0">
-                                    {p.price && (
-                                        <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>
-                                    )}
-                                    <div className="flex gap-1 mt-1 justify-end">
-                                        {p.amazonLink && <span className="text-[10px] bg-[var(--warning)]/15 text-[var(--warning)] px-1.5 py-0.5 rounded-full font-bold">AMZ</span>}
-                                        {p.flipkartLink && <span className="text-[10px] bg-[var(--brand)]/15 text-[var(--brand)] px-1.5 py-0.5 rounded-full font-bold">FK</span>}
+
+                    {recentProducts.length === 0 ? (
+                        <div className="py-12 text-center text-gray-500 text-sm">
+                            No products yet. <Link href="/admin/products" className="text-[hsl(214_89%_55%)] hover:underline">Add your first deal →</Link>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-[var(--border)]">
+                            {recentProducts.map((p) => (
+                                <div key={p.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[var(--bg-base)]/50 transition-colors">
+                                    <div className="w-10 h-10 bg-[var(--bg-base)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                        {p.image ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
+                                        ) : (
+                                            <ShoppingBag size={16} className="text-gray-600" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-[var(--text-primary)] text-sm line-clamp-1">{p.title}</div>
+                                        <div className="text-xs text-[var(--text-secondary)]">{p.category?.name || "Uncategorised"}</div>
+                                    </div>
+                                    <div className="text-right flex-shrink-0">
+                                        {p.price && (
+                                            <div className="text-[hsl(214_89%_55%)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>
+                                        )}
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Trending Leaderboard */}
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)] bg-[var(--brand-glow)]/5">
+                        <div className="flex items-center gap-2">
+                             <TrendingUp size={16} className="text-[var(--brand)]" />
+                             <h2 className="font-bold text-[var(--text-primary)]">Trending Now</h2>
+                        </div>
+                        <span className="text-[10px] font-bold text-[var(--brand)] uppercase tracking-widest">Most Clicked</span>
                     </div>
-                )}
+
+                    {trendingProducts.length === 0 ? (
+                        <div className="py-12 text-center text-[var(--text-muted)] text-sm italic">
+                            No affiliate clicks recorded yet correctly.
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-[var(--border)]">
+                            {trendingProducts.map((p, idx) => (
+                                <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--bg-base)]/50 transition-colors relative group">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--brand)] scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
+                                    <div className="w-6 text-sm font-black text-[var(--text-muted)] italic">#{idx + 1}</div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-[var(--text-primary)] text-sm line-clamp-1">{p.title}</div>
+                                        <div className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-2">
+                                            {p.category?.name} • 
+                                            <span className="inline-flex items-center gap-1 text-[var(--brand)] font-bold">
+                                                 <Activity size={10} /> {(p as any)._count.affiliateClicks} CLICKS
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="w-16 h-1 w-16 bg-[var(--bg-elevated)] rounded-full overflow-hidden relative">
+                                        <div 
+                                            className="absolute inset-y-0 left-0 bg-[var(--brand)] rounded-full" 
+                                            style={{ width: `${Math.min(100, ((p as any)._count.affiliateClicks / Math.max(1, totalClicks)) * 400)}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -34,10 +34,23 @@ model Product {
   isPublic         Boolean               @default(true)
   affiliateClicks  AffiliateClick[]
   priceAlerts      PriceAlert[]
+  reviews          ProductReview[]
   category         Category?             @relation(fields: [categoryId], references: [id])
   priceHistory     ProductPriceHistory[]
   trackedBy        TrackedProduct[]
 }
+
+model ProductReview {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating    Float
+  title     String?
+  comment   String
+  author    String?
+  createdAt DateTime @default(now())
+}
+
 
 model Category {
   id       String    @id @default(cuid())
@@ -115,6 +128,8 @@ model TrackedProduct {
 model AffiliateClick {
   id        String   @id @default(cuid())
   productId String
+  platform  String?  @default("unknown")
+  sessionId String?
   ip        String?
   userAgent String?
   timestamp DateTime @default(now())

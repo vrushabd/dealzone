@@ -12,6 +12,8 @@ export interface ScrapedProduct {
     platform: 'amazon' | 'flipkart' | 'myntra' | 'unknown';
     url: string;
     category?: string;
+    description?: string;
+    reviews?: { rating: number, title?: string, comment: string, author?: string }[];
     fromUrl?: boolean;
 }
 
@@ -268,6 +270,7 @@ export async function scrapeProduct(url: string): Promise<ScrapedProduct | null>
             price:         result?.price || 0,
             originalPrice: result?.originalPrice,
             discount:      result?.discount,
+            description:   result?.description,
             platform,
             url,
             fromUrl: true,
@@ -343,7 +346,31 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     const category = root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child')?.text?.trim() || 
                      root.querySelector('#wayfinding-breadcrumbs_container ul li:nth-last-child(2)')?.text?.trim() || '';
 
-    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category };
+    // Description extraction
+    const descriptionLines = Array.from(root.querySelectorAll('#feature-bullets li span.a-list-item'))
+        .map((el: any) => el?.text?.trim())
+        .filter((t: string) => t && t.length > 5);
+    
+    let description = descriptionLines.join('\n');
+    if (!description) {
+        description = root.querySelector('#productDescription p')?.text?.trim() || '';
+    }
+
+    const reviews: { rating: number, title?: string, comment: string, author?: string }[] = [];
+    try {
+        const reviewElements = root.querySelectorAll('div[data-hook="review"]');
+        for (const el of reviewElements.slice(0, 5)) {
+            const ratingStr = el.querySelector('i[data-hook="review-star-rating"] span')?.text || '';
+            const rating = parseFloat(ratingStr) || 5;
+            const rTitle = el.querySelector('a[data-hook="review-title"] span:not(.a-icon-alt)')?.text?.trim() || 
+                           el.querySelector('a[data-hook="review-title"] span')?.text?.trim() || '';
+            const comment = el.querySelector('span[data-hook="review-body"] span')?.text?.trim() || '';
+            const author = el.querySelector('span.a-profile-name')?.text?.trim() || 'Amazon Customer';
+            if (comment) reviews.push({ rating, title: rTitle, comment, author });
+        }
+    } catch {}
+
+    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category, description, reviews };
 }
 
 function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
@@ -443,7 +470,30 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     const category = Array.from(root.querySelectorAll('._2whKao')).pop()?.text?.trim() || 
                      Array.from(root.querySelectorAll('._1HEO9G')).pop()?.text?.trim() || '';
 
-    return { title, price, originalPrice, discount, image, platform: 'flipkart', url, category };
+    // Description extraction
+    let description = mainContainer.querySelector('._1mXcCf')?.text?.trim() || '';
+    if (!description && html) {
+        const descMatch = html.match(/"description":"([^"]+)"/);
+        if (descMatch) description = descMatch[1].replace(/\\n/g, '\n');
+    }
+
+    const reviews: { rating: number, title?: string, comment: string, author?: string }[] = [];
+    try {
+        const reviewContainers = root.querySelectorAll('div.t-ZTKy') || [];
+        const ratingContainers = root.querySelectorAll('div._3LWZlK') || [];
+        const authorContainers = root.querySelectorAll('p._2sc7ZR._2V5EAA') || [];
+        const titleContainers = root.querySelectorAll('p._2-N8zT') || [];
+        
+        for (let i = 0; i < Math.min(5, reviewContainers.length); i++) {
+            const comment = reviewContainers[i]?.text?.trim()?.replace(/READ MORE$/, '') || '';
+            const rTitle = titleContainers[i]?.text?.trim() || '';
+            const rating = parseFloat(ratingContainers[i]?.text || '5');
+            const author = authorContainers[i]?.text?.trim() || 'Flipkart Customer';
+            if (comment) reviews.push({ rating, title: rTitle, comment, author });
+        }
+    } catch {}
+
+    return { title, price, originalPrice, discount, image, platform: 'flipkart', url, category, description, reviews };
 }
 
 function parseFlipkartMobile(root: any, url: string): ScrapedProduct {

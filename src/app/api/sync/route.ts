@@ -43,14 +43,30 @@ export async function GET(req: NextRequest) {
                     const platform = url.includes('amazon') ? 'amazon' : 'flipkart';
                     
                     // Update main product record
+                    const updateData: any = {
+                        price: scraped.price,
+                        originalPrice: scraped.originalPrice || product.originalPrice,
+                        image: scraped.image || product.image,
+                        updatedAt: new Date(),
+                    };
+                    if (scraped.description) updateData.description = scraped.description;
+                    if (scraped.seller) updateData.seller = scraped.seller;
+                    if (scraped.rating) updateData.rating = scraped.rating;
+                    if (scraped.reviews && scraped.reviews.length > 0) {
+                        updateData.reviews = {
+                            deleteMany: {},
+                            create: scraped.reviews.map((r: any) => ({
+                                rating: r.rating,
+                                title: r.title,
+                                comment: r.comment,
+                                author: r.author
+                            }))
+                        };
+                    }
+
                     await prisma.product.update({
                         where: { id: product.id },
-                        data: {
-                            price: scraped.price,
-                            originalPrice: scraped.originalPrice || product.originalPrice,
-                            image: scraped.image || product.image,
-                            updatedAt: new Date(),
-                        }
+                        data: updateData
                     });
 
                     // Record history for today if not already recorded

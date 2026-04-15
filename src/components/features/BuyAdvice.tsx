@@ -52,12 +52,15 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
         );
     }
 
-    const isDown   = prediction.trend === "down";
-    const isUp     = prediction.trend === "up";
-    const isStable = prediction.trend === "stable";
+    const isInsufficient = prediction.confidence === 0;
+    const isDown   = !isInsufficient && prediction.trend === "down";
+    const isUp     = !isInsufficient && prediction.trend === "up";
+    const isStable = !isInsufficient && prediction.trend === "stable";
 
     // "Should I buy now?" verdict
-    const verdict = isDown
+    const verdict = isInsufficient
+        ? { label: "Observing Trends", sub: "Collecting real-time price points", bg: "bg-[var(--bg-elevated)]", border: "border-[var(--border)]", text: "text-[var(--text-muted)]", icon: <Clock size={20} />, dot: "bg-[var(--text-muted)]" }
+        : isDown
         ? { label: "Wait a Few Days", sub: "Price likely dropping soon", bg: "bg-[hsl(45_95%_53%/0.08)]", border: "border-[hsl(45_95%_53%/0.25)]", text: "text-[hsl(45_95%_53%)]", icon: <Clock size={20} />, dot: "bg-[hsl(45_95%_53%)]" }
         : isUp
         ? { label: "Buy Now!", sub: "Price trending upward", bg: "bg-[hsl(0_84%_60%/0.08)]", border: "border-[hsl(0_84%_60%/0.25)]", text: "text-[hsl(0_84%_65%)]", icon: <ShoppingCart size={20} />, dot: "bg-[hsl(0_84%_60%)]" }

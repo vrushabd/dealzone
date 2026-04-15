@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
 
         // ── Phase 3: Upsert product record ────────────────────────────────────────
         let product = exactMatch;
-        let historyDataToInject: any[] | null = null;
 
         if (!product) {
             const { default: slugify } = await import('slugify');
@@ -87,10 +86,6 @@ export async function POST(req: NextRequest) {
                 },
                 include: { priceHistory: true },
             });
-
-            // Seed 15 days of realistic mocked history so the chart is meaningful
-            historyDataToInject = buildMockHistory(product.id, effectivePrice, platform);
-
         } else if (product.price === 0 || product.priceHistory.length === 0) {
             // Existing product with unusable state — heal it
             product = await prisma.product.update({
@@ -103,10 +98,6 @@ export async function POST(req: NextRequest) {
                 },
                 include: { priceHistory: true },
             });
-
-            if (product.priceHistory.length === 0) {
-                historyDataToInject = buildMockHistory(product.id, effectivePrice, platform);
-            }
         } else if (!needsDemoData && effectivePrice > 0) {
             // Live scrape succeeded AND price changed — keep product data fresh
             await prisma.product.update({
@@ -118,9 +109,7 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        if (historyDataToInject && historyDataToInject.length > 0) {
-            await prisma.productPriceHistory.createMany({ data: historyDataToInject });
-        }
+
 
         // ── Phase 4: Record today's price point ───────────────────────────────────
         if (product && effectivePrice > 0) {
@@ -172,27 +161,4 @@ export async function POST(req: NextRequest) {
     }
 }
 
-/** Build 15 days of realistic mock price history for a new product */
-function buildMockHistory(productId: string, basePrice: number, platform: string) {
-    const history: any[] = [];
-    const now = new Date();
-    // Start ~15% higher and trend down to current price
-    let trendPrice = basePrice * 1.15;
 
-    for (let i = 15; i >= 1; i--) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - i);
-
-        // Random walk ±3% per day, biased slightly downward
-        const change = (Math.random() > 0.45 ? -1 : 1) * (basePrice * 0.03);
-        trendPrice = Math.max(basePrice * 0.8, trendPrice + change);
-
-        history.push({
-            productId,
-            price:     Math.round(trendPrice),
-            platform,
-            timestamp: date,
-        });
-    }
-    return history;
-}

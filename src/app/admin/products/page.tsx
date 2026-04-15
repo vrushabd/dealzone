@@ -4,9 +4,11 @@ import { Plus, Pencil, Trash2, ShoppingBag, Search, X, Loader2, Star, ExternalLi
 
 interface Category { id: string; name: string; }
 interface Product {
-    id: string; title: string; slug: string; image?: string | null;
+    id: string; title: string; slug: string; image?: string | null; description?: string | null;
     price?: number | null; originalPrice?: number | null; discount?: number | null;
     amazonLink?: string | null; flipkartLink?: string | null;
+    cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
+    seller?: string | null; rating?: number | null;
     featured: boolean; category?: { name: string } | null;
 }
 
@@ -38,6 +40,8 @@ function ProductForm({
         title: string; image: string; price: string; originalPrice: string;
         discount: string; amazonLink: string; flipkartLink: string;
         featured: boolean; categoryId: string; description: string;
+        cashbackAmazon: string; cashbackFlipkart: string;
+        seller: string; rating: string;
     }>({
         title: initial?.title || "",
         image: initial?.image || "",
@@ -48,7 +52,11 @@ function ProductForm({
         flipkartLink: initial?.flipkartLink || "",
         featured: initial?.featured || false,
         categoryId: "",
-        description: "",
+        description: initial?.description || "",
+        cashbackAmazon: initial?.cashbackAmazon?.toString() || "",
+        cashbackFlipkart: initial?.cashbackFlipkart?.toString() || "",
+        seller: initial?.seller || "",
+        rating: initial?.rating?.toString() || "",
     });
     type StringFields = Omit<typeof form, 'featured'>;
     const [loading, setLoading] = useState(false);
@@ -83,6 +91,7 @@ function ProductForm({
             setForm((f) => ({
                 ...f,
                 title: data.title || f.title,
+                description: data.description || f.description,
                 image: data.image || f.image,
                 price: data.price > 0 ? data.price.toString() : f.price,
                 originalPrice: data.originalPrice ? data.originalPrice.toString() : f.originalPrice,
@@ -112,13 +121,17 @@ function ProductForm({
     };
 
     const fields = [
-        { key: "title", label: "Product Title *", placeholder: "e.g. Samsung 4K TV 65 inch", type: "text" },
+        { key: "title", label: "Product Title *", placeholder: "e.g. Samsung 4K TV", type: "text" },
         { key: "image", label: "Image URL", placeholder: "https://...", type: "url" },
         { key: "price", label: "Price (₹)", placeholder: "e.g. 29999", type: "number" },
         { key: "originalPrice", label: "Original Price (₹)", placeholder: "e.g. 49999", type: "number" },
         { key: "discount", label: "Discount %", placeholder: "e.g. 40", type: "number" },
-        { key: "amazonLink", label: "Amazon Affiliate Link", placeholder: "https://amzn.to/...", type: "url" },
-        { key: "flipkartLink", label: "Flipkart Affiliate Link", placeholder: "https://fkrt.it/...", type: "url" },
+        { key: "amazonLink", label: "Amazon Link", placeholder: "https://amzn.to/...", type: "url" },
+        { key: "flipkartLink", label: "Flipkart Link", placeholder: "https://fkrt.it/...", type: "url" },
+        { key: "cashbackAmazon", label: "Amazon Cashback (₹)", placeholder: "0", type: "number" },
+        { key: "cashbackFlipkart", label: "Flipkart Cashback (₹)", placeholder: "0", type: "number" },
+        { key: "seller", label: "Seller Name", placeholder: "Appario Retail", type: "text" },
+        { key: "rating", label: "Rating (out of 5)", placeholder: "4.5", type: "number" },
     ];
 
     return (

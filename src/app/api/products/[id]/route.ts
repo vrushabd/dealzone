@@ -41,10 +41,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 discount: data.discount ? parseFloat(data.discount) : null,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
-                featured: data.featured || false,
                 categoryId: data.categoryId || null,
+                cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
+                cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
+                seller: data.seller || null,
+                rating: data.rating ? parseFloat(data.rating) : null,
+                reviews: data.reviews && Array.isArray(data.reviews) ? {
+                    deleteMany: {},
+                    create: data.reviews.map((r: any) => ({
+                        rating: r.rating,
+                        title: r.title,
+                        comment: r.comment,
+                        author: r.author
+                    }))
+                } : undefined,
             },
-            include: { category: true },
+            include: { category: true, reviews: true },
         });
 
         return NextResponse.json(product);
@@ -68,6 +80,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             prisma.productPriceHistory.deleteMany({ where: { productId: id } }),
             prisma.trackedProduct.deleteMany({ where: { productId: id } }),
             prisma.priceAlert.deleteMany({ where: { productId: id } }),
+            prisma.productReview.deleteMany({ where: { productId: id } }),
             prisma.product.delete({ where: { id } }),
         ]);
 

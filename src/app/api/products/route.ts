@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         const msg = error instanceof Error ? error.message : "Failed to create product";
         return NextResponse.json({ error: msg }, { status: 500 });
     } finally {
-        console.log(`Product creation attempt finished for slug: ${slug}`);
+        console.log(`Product creation attempt finished`);
     }
 }
 

@@ -121,32 +121,44 @@ function parseOpenGraph(root: any): { title?: string; image?: string; price?: nu
 }
 
 // ────────────────────────────────────────────────────────────────
-// HTTP Headers
+// HTTP Headers — rotate UAs and use real Chrome to bypass bot checks
 // ────────────────────────────────────────────────────────────────
+const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const CHROME_MAC_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 const GOOGLEBOT_UA = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
 
 const BASE_HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-IN,en;q=0.9,hi;q=0.8',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'en-IN,en-US;q=0.9,en;q=0.8,hi;q=0.7',
     'Accept-Encoding': 'gzip, deflate, br',
     'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
     'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Sec-Ch-Ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    'Sec-Ch-Ua-Mobile': '?0',
+    'Sec-Ch-Ua-Platform': '"Windows"',
 };
 
 const AMAZON_HEADERS = {
     ...BASE_HEADERS,
-    'User-Agent': GOOGLEBOT_UA,
+    'User-Agent': CHROME_UA,
     'Referer': 'https://www.google.com/',
+    'Host': 'www.amazon.in',
 };
 
 const FLIPKART_HEADERS = {
     ...BASE_HEADERS,
-    'User-Agent': GOOGLEBOT_UA,
+    'User-Agent': CHROME_MAC_UA,
     'Referer': 'https://www.google.com/',
+    'Host': 'www.flipkart.com',
 };
 
 const MOBILE_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en-IN,en;q=0.9',
     'Referer': 'https://www.google.com/',
@@ -154,11 +166,20 @@ const MOBILE_HEADERS = {
 
 async function fetchHtml(url: string, headers: Record<string, string>): Promise<string | null> {
     try {
-        const res = await fetch(url, { headers, redirect: 'follow' });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
+        const res = await fetch(url, { 
+            headers, 
+            redirect: 'follow',
+            signal: controller.signal,
+            cache: 'no-store',
+        });
+        clearTimeout(timeout);
         if (!res.ok) return null;
         return await res.text();
     } catch { return null; }
 }
+
 
 // ────────────────────────────────────────────────────────────────
 // Main Entry Point

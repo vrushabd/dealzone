@@ -8,7 +8,8 @@ import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
-import { ExternalLink, Tag, ShoppingCart, Star } from "lucide-react";
+import PriceAlertButton from "@/components/features/PriceAlertButton";
+import { ExternalLink, Tag, ShoppingCart, Star, ShieldCheck } from "lucide-react";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -123,55 +124,94 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug mb-6">{product.title}</h1>
 
-                        {/* Price */}
-                        <div className="flex items-baseline gap-3 mb-6">
-                            {(product.price ?? 0) > 0 ? (
-                                <span className="text-4xl font-extrabold text-[hsl(214_89%_55%)]">
-                                    ₹{product.price!.toLocaleString("en-IN")}
-                                </span>
-                            ) : (
-                                <span className="text-xl font-bold text-[var(--text-muted)]">
-                                    Check Store for Price
-                                </span>
-                            )}
-                            {product.originalPrice && product.originalPrice !== product.price && product.originalPrice > 0 && (
-                                <span className="text-xl text-[var(--text-muted)] line-through">
-                                    ₹{product.originalPrice.toLocaleString("en-IN")}
-                                </span>
-                            )}
-                            {discountPct && discountPct > 0 && (
-                                <span className="text-green-500 font-semibold text-sm">{discountPct}% off</span>
+                        {/* Price & Alert */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 pb-6 border-b border-[var(--border)]">
+                            <div className="flex items-baseline gap-3">
+                                {(product.price ?? 0) > 0 ? (
+                                    <span className="text-4xl font-extrabold text-[hsl(214_89%_55%)]">
+                                        ₹{product.price!.toLocaleString("en-IN")}
+                                    </span>
+                                ) : (
+                                    <span className="text-xl font-bold text-[var(--text-muted)]">
+                                        Check Store for Price
+                                    </span>
+                                )}
+                                {product.originalPrice && product.originalPrice !== product.price && product.originalPrice > 0 && (
+                                    <span className="text-xl text-[var(--text-muted)] line-through">
+                                        ₹{product.originalPrice.toLocaleString("en-IN")}
+                                    </span>
+                                )}
+                                {discountPct && discountPct > 0 && (
+                                    <span className="text-green-500 font-semibold text-sm">{discountPct}% off</span>
+                                )}
+                            </div>
+                            
+                            {(product.price ?? 0) > 0 && (
+                                <PriceAlertButton 
+                                    productId={product.id} 
+                                    currentPrice={product.price!} 
+                                    productName={product.title} 
+                                />
                             )}
                         </div>
 
 import TrackedLink from "@/components/products/TrackedLink";
 
 // ... inside ProductDetailPage ...
-                        {/* Affiliate Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                            {product.amazonLink && (
-                                <TrackedLink
-                                    productId={product.id}
-                                    platform="amazon"
-                                    href={product.amazonLink}
-                                    className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
-                                >
-                                    <ExternalLink size={18} />
-                                    Buy on Amazon
-                                </TrackedLink>
-                            )}
-                            {product.flipkartLink && (
-                                <TrackedLink
-                                    productId={product.id}
-                                    platform="flipkart"
-                                    href={product.flipkartLink}
-                                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
-                                >
-                                    <ExternalLink size={18} />
-                                    Buy on Flipkart
-                                </TrackedLink>
-                            )}
-                        </div>
+                        {/* Compare Prices / Buying Options */}
+                        {product.amazonLink && product.flipkartLink ? (
+                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 mb-8">
+                                <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+                                    <ShieldCheck size={18} className="text-green-500" />
+                                    Compare Store Prices
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-base)] border border-[var(--border)]">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold text-yellow-600 text-xs">AMZ</div>
+                                            <span className="font-semibold text-[var(--text-primary)]">Amazon</span>
+                                        </div>
+                                        <TrackedLink productId={product.id} platform="amazon" href={product.amazonLink} className="bg-yellow-500 hover:bg-yellow-400 text-gray-950 text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
+                                            Check Deal <ExternalLink size={14} />
+                                        </TrackedLink>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-base)] border border-[var(--border)]">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white text-xs">FLK</div>
+                                            <span className="font-semibold text-[var(--text-primary)]">Flipkart</span>
+                                        </div>
+                                        <TrackedLink productId={product.id} platform="flipkart" href={product.flipkartLink} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
+                                            Check Deal <ExternalLink size={14} />
+                                        </TrackedLink>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                                {product.amazonLink && (
+                                    <TrackedLink
+                                        productId={product.id}
+                                        platform="amazon"
+                                        href={product.amazonLink}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
+                                    >
+                                        <ExternalLink size={18} />
+                                        Buy on Amazon
+                                    </TrackedLink>
+                                )}
+                                {product.flipkartLink && (
+                                    <TrackedLink
+                                        productId={product.id}
+                                        platform="flipkart"
+                                        href={product.flipkartLink}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
+                                    >
+                                        <ExternalLink size={18} />
+                                        Buy on Flipkart
+                                    </TrackedLink>
+                                )}
+                            </div>
+                        )}
 
                         {/* AI Buy Advisor */}
                         <BuyAdvice productId={product.id} currentPrice={product.price ?? 0} />

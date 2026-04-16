@@ -77,7 +77,7 @@ function ProductForm({
             if (!res.ok) throw new Error(data.error || "Failed to fetch");
             
             // Auto-select category if matching name found
-            let matchedCategoryId = f.categoryId;
+            let matchedCategoryId = form.categoryId;
             if (data.category) {
                 const scrapedLower = data.category.toLowerCase();
                 const match = categories.find(c => 

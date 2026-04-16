@@ -332,6 +332,12 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     ).replace(/[-%\s]/g, '');
     const discount = discountStr ? parseFloat(discountStr) : undefined;
 
+    const imageSelectors = [
+        '#landingImage',
+        '#imgBlkFront',
+        '#main-image',
+        '.a-dynamic-image'
+    ];
     let image = '';
     for (const sel of imageSelectors) {
         const el = root.querySelector(sel);
@@ -467,8 +473,10 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     if (image) image = upscaleImageUrl(image, 'flipkart');
 
     // Extract category from breadcrumbs
-    const category = Array.from(root.querySelectorAll('._2whKao')).pop()?.text?.trim() || 
-                     Array.from(root.querySelectorAll('._1HEO9G')).pop()?.text?.trim() || '';
+    const cats1 = root.querySelectorAll('._2whKao');
+    const cats2 = root.querySelectorAll('._1HEO9G');
+    const category = (cats1.length > 0 ? cats1[cats1.length - 1].text?.trim() : null) || 
+                     (cats2.length > 0 ? cats2[cats2.length - 1].text?.trim() : null) || '';
 
     // Description extraction
     let description = mainContainer.querySelector('._1mXcCf')?.text?.trim() || '';

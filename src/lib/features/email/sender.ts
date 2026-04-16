@@ -1,7 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export interface PriceDropData {
     userEmail: string;
     productTitle: string;
@@ -67,6 +65,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
     `;
 
     try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
         const result = await resend.emails.send({
             from: `DealZone <${senderEmail}>`,
             to: [data.userEmail],

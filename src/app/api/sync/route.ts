@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { scrapeProduct } from '@/lib/features/scraper/scraper';
 import { sendPriceDropEmail } from '@/lib/features/email/sender';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/sync
  * Manually or automatically trigger a refresh of all product prices and images.

@@ -9,6 +9,7 @@ import ProductCard from "@/components/products/ProductCard";
 import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
+import TrackedLink from "@/components/products/TrackedLink";
 import { ExternalLink, Tag, ShoppingCart, Star, ShieldCheck } from "lucide-react";
 
 interface Params {
@@ -154,10 +155,6 @@ export default async function ProductDetailPage({ params }: Params) {
                                 />
                             )}
                         </div>
-
-import TrackedLink from "@/components/products/TrackedLink";
-
-// ... inside ProductDetailPage ...
                         {/* Compare Prices / Buying Options */}
                         {product.amazonLink && product.flipkartLink ? (
                             <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 mb-8">

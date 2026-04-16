@@ -372,8 +372,28 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
         image = upscaleImageUrl(image, 'amazon');
     }
 
-    const category = root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child')?.text?.trim() || 
-                     root.querySelector('#wayfinding-breadcrumbs_container ul li:nth-last-child(2)')?.text?.trim() || '';
+    // Category from breadcrumbs
+    const category = (
+        root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child a')?.text?.trim() ||
+        root.querySelector('#wayfinding-breadcrumbs_container ul li:nth-last-child(2) a')?.text?.trim() ||
+        root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child')?.text?.trim() ||
+        // Fallback: extract from URL path
+        (() => {
+            try {
+                const match = url.match(/amazon\.in\/([a-zA-Z-]+)\//i);
+                if (match && match[1] !== 'dp') return match[1].replace(/-/g, ' ');
+            } catch {}
+            return '';
+        })()
+    )?.trim() || '';
+
+    // Rating
+    const ratingStr = (
+        root.querySelector('#acrPopover')?.getAttribute('title') ||
+        root.querySelector('span[data-hook="rating-out-of-text"]')?.text ||
+        root.querySelector('.a-icon-star span.a-icon-alt')?.text || ''
+    ).replace(/[^0-9.]/g, '');
+    const rating = ratingStr ? parseFloat(ratingStr) : undefined;
 
     // Description extraction
     const descriptionLines = Array.from(root.querySelectorAll('#feature-bullets li span.a-list-item'))
@@ -411,7 +431,7 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     const deliveryInfo = root.querySelector('#mir-layout-DELIVERY_BLOCK-slot-PRIMARY_DELIVERY_MESSAGE_ID span')?.text?.trim() || 
                         root.querySelector('#deliveryMessageMirId span')?.text?.trim() || '';
 
-    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category, description, reviews, bankOffers, deliveryInfo };
+    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category, rating, description, reviews, bankOffers, deliveryInfo };
 }
 
 function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
@@ -507,11 +527,42 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     // Upscale image if found
     if (image) image = upscaleImageUrl(image, 'flipkart');
 
-    // Extract category from breadcrumbs
-    const cats1 = root.querySelectorAll('._2whKao');
-    const cats2 = root.querySelectorAll('._1HEO9G');
-    const category = (cats1.length > 0 ? cats1[cats1.length - 1].text?.trim() : null) || 
-                     (cats2.length > 0 ? cats2[cats2.length - 1].text?.trim() : null) || '';
+    // Category from breadcrumbs — try multiple selectors + URL fallback
+    const catEls1 = root.querySelectorAll('._2whKao');
+    const catEls2 = root.querySelectorAll('._1HEO9G');
+    const catEls3 = root.querySelectorAll('a.dvEPBh');
+    const catEls4 = root.querySelectorAll('.l7Mx8l a');
+    const category = (
+        (catEls4.length > 0 ? catEls4[catEls4.length - 2]?.text?.trim() : null) ||
+        (catEls3.length > 0 ? catEls3[catEls3.length - 1]?.text?.trim() : null) ||
+        (catEls1.length > 0 ? catEls1[catEls1.length - 1]?.text?.trim() : null) ||
+        (catEls2.length > 0 ? catEls2[catEls2.length - 1]?.text?.trim() : null) ||
+        // URL-based fallback
+        (() => {
+            try {
+                const urlLower = url.toLowerCase();
+                if (urlLower.includes('mobile') || urlLower.includes('iphone') || urlLower.includes('smartphone')) return 'Smartphones';
+                if (urlLower.includes('laptop')) return 'Laptops';
+                if (urlLower.includes('television') || urlLower.includes('-tv-')) return 'Televisions';
+                if (urlLower.includes('headphone') || urlLower.includes('earphone') || urlLower.includes('earbuds')) return 'Headphones';
+                if (urlLower.includes('tablet')) return 'Tablets';
+                if (urlLower.includes('camera')) return 'Cameras';
+                if (urlLower.includes('watch')) return 'Smartwatches';
+                if (urlLower.includes('shoe') || urlLower.includes('sneaker')) return 'Footwear';
+                if (urlLower.includes('shirt') || urlLower.includes('dress') || urlLower.includes('kurta')) return 'Clothing';
+            } catch {}
+            return '';
+        })()
+    )?.trim() || '';
+
+    // Rating
+    const ratingStr = (
+        mainContainer.querySelector('._3LWZlK')?.text?.trim() ||
+        mainContainer.querySelector('.XQDdHH')?.text?.trim() ||
+        mainContainer.querySelector('._2d4LTz')?.text?.trim() ||
+        root.querySelector('div.row-fluid-seo [itemprop="ratingValue"]')?.text?.trim() || ''
+    ).replace(/[^0-9.]/g, '');
+    const rating = ratingStr ? parseFloat(ratingStr) : undefined;
 
     // Description extraction
     let description = mainContainer.querySelector('._1mXcCf')?.text?.trim() || '';
@@ -557,6 +608,7 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
         originalPrice,
         discount,
         image,
+        rating,
         platform: 'flipkart',
         url,
         category,

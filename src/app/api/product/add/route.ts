@@ -4,6 +4,8 @@ import { AffiliateService } from '@/lib/features/affiliate/service';
 import { prisma } from '@/lib/prisma';
 import slugify from 'slugify';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         const { amazonUrl, flipkartUrl, url } = await req.json();
@@ -41,7 +43,25 @@ export async function POST(req: NextRequest) {
         const originalPrices = [amazonScraped?.originalPrice, flipkartScraped?.originalPrice].filter(p => p !== undefined && p > 0) as number[];
         const bestOriginalPrice = originalPrices.length > 0 ? Math.max(...originalPrices) : undefined;
 
+        // Use scraped rating (prefer Amazon's as it's more stable)
+        const rating = amazonScraped?.rating || flipkartScraped?.rating || undefined;
+
+        // Use scraped description
+        const description = primary.description || `Best price for ${primary.title} on DealZone`;
+
+        // Determine category from scraper — use URL-described category or "Uncategorized"
+        const scrapedCategory = (primary.category || '').trim();
+        const categoryName = scrapedCategory || 'Uncategorized';
+        const categorySlug = slugify(categoryName, { lower: true, strict: true }) || 'uncategorized';
+
         const slug = slugify(primary.title, { lower: true, strict: true });
+
+        // Upsert category first to ensure it exists
+        const category = await prisma.category.upsert({
+            where: { slug: categorySlug },
+            update: {},
+            create: { name: categoryName, slug: categorySlug },
+        });
 
         const product = await prisma.product.upsert({
             where: { slug },
@@ -49,29 +69,28 @@ export async function POST(req: NextRequest) {
                 price: bestPrice,
                 originalPrice: bestOriginalPrice,
                 image: primary.image,
+                rating: rating,
+                description: description,
                 amazonLink: amazonAffiliate?.affiliateUrl || aUrl || undefined,
                 flipkartLink: flipkartAffiliate?.affiliateUrl || fUrl || undefined,
+                categoryId: category.id,
             },
             create: {
                 title: primary.title,
                 slug,
-                description: `Best price for ${primary.title}`,
+                description,
                 price: bestPrice,
                 originalPrice: bestOriginalPrice,
                 discount: primary.discount,
                 image: primary.image,
-                category: {
-                    connectOrCreate: {
-                        where: { slug: "uncategorized" },
-                        create: { name: "Uncategorized", slug: "uncategorized" },
-                    },
-                },
+                rating: rating,
+                categoryId: category.id,
                 amazonLink: amazonAffiliate?.affiliateUrl || aUrl || undefined,
                 flipkartLink: flipkartAffiliate?.affiliateUrl || fUrl || undefined,
             },
         });
 
-        // Record history for graph
+        // Record price history for graph
         if (amazonScraped && amazonScraped.price > 0) {
             await prisma.productPriceHistory.create({
                 data: { productId: product.id, price: amazonScraped.price, platform: 'amazon' }

@@ -55,6 +55,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         author: r.author
                     }))
                 } : undefined,
+                bankOffers: data.bankOffers && Array.isArray(data.bankOffers) ? data.bankOffers : [],
+                deliveryInfo: data.deliveryInfo || null,
             },
             include: { category: true, reviews: true },
         });

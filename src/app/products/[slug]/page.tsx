@@ -10,7 +10,7 @@ import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
 import TrackedLink from "@/components/products/TrackedLink";
-import { ExternalLink, Tag, ShoppingCart, Star, ShieldCheck } from "lucide-react";
+import { ExternalLink, Tag, ShoppingCart, Star, ShieldCheck, CreditCard, Truck, Calendar } from "lucide-react";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -147,6 +147,13 @@ export default async function ProductDetailPage({ params }: Params) {
                                 )}
                             </div>
                             
+                            {product.deliveryInfo && (
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md text-xs font-semibold text-[hsl(214_89%_55%)]">
+                                    <Truck size={14} />
+                                    {product.deliveryInfo}
+                                </div>
+                            )}
+
                             {(product.price ?? 0) > 0 && (
                                 <PriceAlertButton 
                                     productId={product.id} 
@@ -207,6 +214,27 @@ export default async function ProductDetailPage({ params }: Params) {
                                         Buy on Flipkart
                                     </TrackedLink>
                                 )}
+                            </div>
+                        )}
+
+                        {/* Special Bank Offers & Coupons */}
+                        {product.bankOffers && product.bankOffers.length > 0 && (
+                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 mb-8 overflow-hidden relative group">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                    <CreditCard size={100} />
+                                </div>
+                                <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+                                    <Tag size={18} className="text-[hsl(214_89%_55%)]" />
+                                    Special Offers & Coupons
+                                </h3>
+                                <div className="space-y-3 relative z-10">
+                                    {product.bankOffers.map((offer: string, idx: number) => (
+                                        <div key={idx} className="flex gap-3 items-start p-3 bg-[var(--bg-base)] border border-[var(--border)] border-l-4 border-l-[hsl(214_89%_55%)] rounded-r-md">
+                                            <CreditCard size={16} className="mt-1 text-[var(--text-secondary)]" />
+                                            <p className="text-sm text-[var(--text-primary)] leading-relaxed">{offer}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
 

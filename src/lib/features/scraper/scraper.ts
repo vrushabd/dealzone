@@ -13,6 +13,8 @@ export interface ScrapedProduct {
     url: string;
     category?: string;
     description?: string;
+    bankOffers?: string[];
+    deliveryInfo?: string;
     reviews?: { rating: number, title?: string, comment: string, author?: string }[];
     fromUrl?: boolean;
 }
@@ -376,7 +378,19 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
         }
     } catch {}
 
-    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category, description, reviews };
+    const bankOffers: string[] = [];
+    try {
+        const offerEls = root.querySelectorAll('#bankOffer_feature_div .a-carousel-card span.a-truncate-full, #bankOffer_feature_div .a-section-bank-offer span');
+        offerEls.forEach((el: any) => {
+            const txt = el.text?.trim();
+            if (txt && txt.length > 10 && !bankOffers.includes(txt)) bankOffers.push(txt);
+        });
+    } catch {}
+
+    const deliveryInfo = root.querySelector('#mir-layout-DELIVERY_BLOCK-slot-PRIMARY_DELIVERY_MESSAGE_ID span')?.text?.trim() || 
+                        root.querySelector('#deliveryMessageMirId span')?.text?.trim() || '';
+
+    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category, description, reviews, bankOffers, deliveryInfo };
 }
 
 function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
@@ -501,7 +515,35 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
         }
     } catch {}
 
-    return { title, price, originalPrice, discount, image, platform: 'flipkart', url, category, description, reviews };
+    const bankOffers: string[] = [];
+    try {
+        // Flipkart offers often in <li> with specific classes
+        const offerEls = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span');
+        offerEls.forEach((el: any) => {
+            const txt = el.text?.trim();
+            if (txt && txt.length > 15 && (txt.includes('Bank Offer') || txt.includes('% off')) && !bankOffers.includes(txt)) {
+                bankOffers.push(txt);
+            }
+        });
+    } catch {}
+
+    const deliveryInfo = mainContainer.querySelector('._3XNo0Z span')?.text?.trim() || 
+                        mainContainer.querySelector('.Y8v6Y_')?.text?.trim() || '';
+
+    return {
+        title,
+        price,
+        originalPrice,
+        discount,
+        image,
+        platform: 'flipkart',
+        url,
+        category,
+        description,
+        reviews,
+        bankOffers,
+        deliveryInfo
+    };
 }
 
 function parseFlipkartMobile(root: any, url: string): ScrapedProduct {

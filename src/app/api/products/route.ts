@@ -73,8 +73,6 @@ export async function POST(request: NextRequest) {
                 originalUrl: data.amazonLink || data.flipkartLink || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
-                seller: data.seller || null,
-                rating: data.rating ? parseFloat(data.rating) : null,
                 reviews: data.reviews && Array.isArray(data.reviews) ? {
                     create: data.reviews.map((r: any) => ({
                         rating: r.rating,
@@ -83,6 +81,8 @@ export async function POST(request: NextRequest) {
                         author: r.author
                     }))
                 } : undefined,
+                bankOffers: data.bankOffers && Array.isArray(data.bankOffers) ? data.bankOffers : [],
+                deliveryInfo: data.deliveryInfo || null,
             },
             include: { category: true, reviews: true },
         });

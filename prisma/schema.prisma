@@ -32,6 +32,8 @@ model Product {
   affiliateUrl     String?
   originalUrl      String?
   isPublic         Boolean               @default(true)
+  bankOffers       String[]              @default([])
+  deliveryInfo     String?
   affiliateClicks  AffiliateClick[]
   priceAlerts      PriceAlert[]
   reviews          ProductReview[]

@@ -2,12 +2,24 @@
 
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Bot, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ChatbotWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{role: 'user'|'assistant', content: string}[]>([
         { role: 'assistant', content: "Hi! I'm your DealZone AI Assistant. I can help you find products, compare prices, or track deals. What are you looking for?" }
     ]);
+    const [suggestedProducts, setSuggestedProducts] = useState<Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        price: number | null;
+        originalPrice: number | null;
+        category: string | null;
+        href: string;
+    }>>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,6 +37,7 @@ export default function ChatbotWidget() {
 
         const newMessages = [...messages, { role: 'user' as const, content: trimmed }];
         setMessages(newMessages);
+        setSuggestedProducts([]);
         setInput("");
         setIsLoading(true);
 
@@ -39,6 +52,9 @@ export default function ChatbotWidget() {
             
             if (res.ok) {
                 setMessages([...newMessages, { role: 'assistant', content: data.message }]);
+                if (Array.isArray(data.products)) {
+                    setSuggestedProducts(data.products.slice(0, 4));
+                }
             } else {
                 const friendly =
                     res.status === 429
@@ -53,11 +69,28 @@ export default function ChatbotWidget() {
         }
     };
 
+    const renderAssistantText = (text: string) => {
+        const escaped = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        const withLinks = escaped.replace(
+            /\[(.*?)\]\((.*?)\)/g,
+            `<a href="$2" class="text-[hsl(214_89%_65%)] underline underline-offset-2 break-words">$1</a>`
+        );
+
+        return withLinks
+            .split("\n")
+            .map((line) => `<div>${line || "&nbsp;"}</div>`)
+            .join("");
+    };
+
     return (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
-                <div className="bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl rounded-2xl w-[350px] max-w-[calc(100vw-3rem)] h-[500px] max-h-[80vh] flex flex-col mb-4 overflow-hidden animate-fade-in-up">
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl rounded-2xl w-[360px] sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[80vh] flex flex-col mb-4 overflow-hidden animate-fade-in-up">
                     {/* Header */}
                     <div className="bg-[var(--brand-glow)]/10 text-[var(--text-primary)] p-4 border-b border-[var(--border)] flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -80,17 +113,65 @@ export default function ChatbotWidget() {
                                     {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                 </div>
                                 <div className={`p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-[hsl(214_89%_52%)] text-white rounded-tr-none' : 'bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] rounded-tl-none leading-relaxed'}`}>
-                                    {/* Super simple markdown link parsing for relative links */}
-                                    {msg.role === 'assistant' 
-                                        ? msg.content.split('\n').map((line, i) => (
-                                            <div key={i}>
-                                                {line.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color:hsl(214 89% 65%); text-decoration:underline;">$1</a>')}
-                                            </div>
-                                        )) 
+                                    {msg.role === 'assistant'
+                                        ? <div dangerouslySetInnerHTML={{ __html: renderAssistantText(msg.content) }} />
                                         : msg.content}
                                 </div>
                             </div>
                         ))}
+
+                        {suggestedProducts.length > 0 && (
+                            <div className="self-start w-full">
+                                <div className="grid grid-cols-1 gap-2">
+                                    {suggestedProducts.map((p) => (
+                                        <div
+                                            key={p.id}
+                                            className="flex gap-3 p-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]"
+                                        >
+                                            <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-white flex-shrink-0">
+                                                {p.image ? (
+                                                    <Image
+                                                        src={p.image}
+                                                        alt={p.title}
+                                                        fill
+                                                        sizes="56px"
+                                                        className="object-contain p-1"
+                                                    />
+                                                ) : null}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-xs font-bold text-[var(--text-primary)] line-clamp-2">
+                                                    {p.title}
+                                                </div>
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    {typeof p.price === "number" && p.price > 0 ? (
+                                                        <div className="text-sm font-extrabold text-[hsl(214_89%_55%)]">
+                                                            ₹{p.price.toLocaleString("en-IN")}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-xs text-[var(--text-muted)]">Check store</div>
+                                                    )}
+                                                    {typeof p.originalPrice === "number" && typeof p.price === "number" && p.originalPrice > p.price ? (
+                                                        <div className="text-[10px] text-[var(--text-muted)] line-through">
+                                                            ₹{p.originalPrice.toLocaleString("en-IN")}
+                                                        </div>
+                                                    ) : null}
+                                                </div>
+                                                <div className="mt-2 flex gap-2">
+                                                    <Link
+                                                        href={p.href}
+                                                        className="inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white text-xs font-bold transition-colors"
+                                                    >
+                                                        Buy / View
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {isLoading && (
                             <div className="flex gap-3 max-w-[85%] self-start">
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center flex-shrink-0">

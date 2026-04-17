@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
+type ChatMessage = { role: 'user' | 'assistant' | 'system' | 'model'; content: string };
+
 // Basic in-memory rate limiting to protect the upstream AI API.
 // This is per-server-instance (works well enough for small deployments).
 const RATE_WINDOW_MS = 60_000; // 1 minute
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { messages } = await req.json();
+        const { messages } = (await req.json()) as { messages?: ChatMessage[] };
         
         if (!messages || !Array.isArray(messages) || messages.length === 0) {
             return NextResponse.json({ error: "No messages provided" }, { status: 400 });
@@ -75,7 +77,7 @@ export async function POST(req: NextRequest) {
             }, { status: 501 });
         }
 
-        const lastUserMessage = [...messages].reverse().find((m: any) => m.role === 'user')?.content || '';
+        const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
         
         // Keyword extraction for DB search
         const keywords = lastUserMessage.toLowerCase().split(' ').filter((w: string) => 
@@ -83,7 +85,17 @@ export async function POST(req: NextRequest) {
         );
 
         // Fetch matching products from DB
-        let contextProducts: any[] = [];
+        let contextProducts: Array<{
+            id: string;
+            title: string;
+            slug: string;
+            image: string | null;
+            price: number | null;
+            originalPrice: number | null;
+            amazonLink: string | null;
+            flipkartLink: string | null;
+            category: { name: string } | null;
+        }> = [];
         if (keywords.length > 0) {
             contextProducts = await prisma.product.findMany({
                 where: {
@@ -91,7 +103,17 @@ export async function POST(req: NextRequest) {
                     isPublic: true
                 },
                 take: 5,
-                select: { title: true, slug: true, price: true, category: { select: { name: true } } }
+                select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    image: true,
+                    price: true,
+                    originalPrice: true,
+                    amazonLink: true,
+                    flipkartLink: true,
+                    category: { select: { name: true } },
+                }
             });
         }
 
@@ -99,7 +121,17 @@ export async function POST(req: NextRequest) {
             contextProducts = await prisma.product.findMany({
                 where: { featured: true, isPublic: true },
                 take: 5,
-                select: { title: true, slug: true, price: true, category: { select: { name: true } } }
+                select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    image: true,
+                    price: true,
+                    originalPrice: true,
+                    amazonLink: true,
+                    flipkartLink: true,
+                    category: { select: { name: true } },
+                }
             });
         }
 
@@ -112,7 +144,7 @@ export async function POST(req: NextRequest) {
         const systemPrompt = `You are the DealZone AI Shopping Assistant. Help users find products, compare prices, and give buying advice based ONLY on products in the DealZone database. Be concise and friendly. Use markdown.\n\n${dbContext}\n\nOnly recommend products above. If not found, say DealZone doesn't track it yet. Do NOT invent prices.`;
 
         // Build conversation for Gemini API
-        const conversationHistory = messages.slice(0, -1).map((m: any) => ({
+        const conversationHistory = messages.slice(0, -1).map((m) => ({
             role: m.role === 'user' ? 'user' : 'model',
             parts: [{ text: m.content }]
         }));
@@ -196,7 +228,21 @@ export async function POST(req: NextRequest) {
             responseText = "I'm sorry, I couldn't generate a response.";
         }
 
-        return NextResponse.json({ message: responseText });
+        return NextResponse.json({
+            message: responseText,
+            products: contextProducts.map((p) => ({
+                id: p.id,
+                title: p.title,
+                slug: p.slug,
+                image: p.image,
+                price: p.price,
+                originalPrice: p.originalPrice,
+                category: p.category?.name || null,
+                amazonLink: p.amazonLink,
+                flipkartLink: p.flipkartLink,
+                href: `/products/${p.slug}`,
+            })),
+        });
 
     } catch (error) {
         console.error("Chat route error:", error);

@@ -102,7 +102,7 @@ export default async function HomePage() {
                     ))}
 
                     {/* Hero content */}
-                    <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
+                    <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-center">
                         {/* Label pill */}
                         <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6">
                             <Sparkles size={11} className="text-[hsl(149_100%_65%)]" />

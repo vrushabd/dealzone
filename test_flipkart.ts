@@ -1,0 +1,1 @@
+import { scrapeProduct } from "./src/lib/features/scraper/scraper"; scrapeProduct("https://www.flipkart.com/bruton-trendy-sports-running-shoes-men/p/itm5de16ed79acc7").then(console.log).catch(console.error);

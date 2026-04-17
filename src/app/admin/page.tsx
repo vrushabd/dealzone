@@ -17,27 +17,31 @@ export default async function AdminDashboard() {
     const startOfWeek = new Date(new Date().setDate(new Date().getDate() - 7));
     const startOfMonth = new Date(new Date().setMonth(new Date().getMonth() - 1));
 
-    const [
-        productCount, postCount, categoryCount, recentProducts, featuredCount,
-        onlineUsers, dailyViews, weeklyViews, monthlyViews, totalClicks, trendingProducts
-    ] = await Promise.all([
+    // Split queries to avoid hitting EMAXCONNSESSION (15 limit)
+    const stats_counts = await Promise.all([
         prisma.product.count(),
         prisma.post.count(),
         prisma.category.count(),
+        prisma.product.count({ where: { featured: true } }),
+        prisma.affiliateClick.count(),
+    ]);
+
+    const views_counts = await Promise.all([
+        prisma.pageView.count({ where: { timestamp: { gte: startOfToday } } }),
+        prisma.pageView.count({ where: { timestamp: { gte: startOfWeek } } }),
+        prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
+        prisma.pageView.groupBy({
+            by: ['sessionId'],
+            where: { timestamp: { gte: fifteenMinutesAgo } },
+        }).then(res => res.length),
+    ]);
+
+    const [recentProducts, trendingProducts] = await Promise.all([
         prisma.product.findMany({
             take: 5,
             orderBy: { createdAt: "desc" },
             include: { category: true },
         }),
-        prisma.product.count({ where: { featured: true } }),
-        prisma.pageView.groupBy({
-            by: ['sessionId'],
-            where: { timestamp: { gte: fifteenMinutesAgo } },
-        }).then(res => res.length),
-        prisma.pageView.count({ where: { timestamp: { gte: startOfToday } } }),
-        prisma.pageView.count({ where: { timestamp: { gte: startOfWeek } } }),
-        prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
-        prisma.affiliateClick.count(),
         prisma.product.findMany({
             where: { affiliateClicks: { some: {} } },
             take: 5,
@@ -48,6 +52,9 @@ export default async function AdminDashboard() {
             }
         })
     ]);
+
+    const [productCount, postCount, categoryCount, featuredCount, totalClicks] = stats_counts;
+    const [dailyViews, weeklyViews, monthlyViews, onlineUsers] = views_counts;
 
     const stats = [
         { label: "Total Products", value: productCount, icon: ShoppingBag, href: "/admin/products", color: "orange" },

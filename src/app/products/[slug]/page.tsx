@@ -5,6 +5,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import ProductGallery from "@/components/products/ProductGallery";
 import ProductCard from "@/components/products/ProductCard";
 import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
@@ -91,24 +92,15 @@ export default async function ProductDetailPage({ params }: Params) {
                 </nav>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-                    {/* Image */}
+                    {/* Image Gallery */}
                     <div className="relative">
-                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md aspect-square sm:aspect-auto sm:h-[500px] flex items-center justify-center overflow-hidden">
-                            {product.image ? (
-                                <Image
-                                    src={product.image}
-                                    alt={product.title}
-                                    fill
-                                    className="object-contain p-4 sm:p-8"
-                                    priority
-                                    sizes="(max-width: 1024px) 100vw, 50vw"
-                                />
-                            ) : (
-                                <ShoppingCart size={80} className="text-[var(--text-placeholder)]" />
-                            )}
-                        </div>
+                        <ProductGallery 
+                            images={product.images || []} 
+                            title={product.title} 
+                            primaryImage={product.image} 
+                        />
                         {discountPct && discountPct > 0 && (
-                            <div className="absolute top-4 left-4 bg-[hsl(214_89%_52%)] text-white text-sm font-bold px-3 py-1.5 rounded-full">
+                            <div className="absolute top-4 right-4 md:left-4 md:right-auto bg-[hsl(214_89%_52%)] text-white text-sm font-bold px-3 py-1.5 rounded-full z-10 shadow-md pointer-events-none">
                                 -{discountPct}% OFF
                             </div>
                         )}

@@ -101,7 +101,7 @@ export default function ProductCard({ product }: { product: Product }) {
                             src={product.image}
                             alt={product.title}
                             fill
-                            className="object-cover group-hover/card:scale-[1.04] transition-transform duration-400 ease-out"
+                            className="object-contain p-2 mix-blend-multiply group-hover/card:scale-[1.05] transition-transform duration-500 ease-out bg-white"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                     ) : (

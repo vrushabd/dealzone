@@ -6,6 +6,7 @@ export interface ScrapedProduct {
     originalPrice?: number;
     discount?: number;
     image: string;
+    images?: string[];
     seller?: string;
     rating?: number;
     availability?: string;
@@ -372,6 +373,22 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
         image = upscaleImageUrl(image, 'amazon');
     }
 
+    // Extract multiple high-res images from thumbnail gallery
+    const imagesSet = new Set<string>();
+    if (image) imagesSet.add(image);
+    
+    try {
+        const altEls = root.querySelectorAll('#altImages ul li.item span img, #altImages ul li.a-spacing-small img, #imageBlock_feature_div img');
+        for (const img of altEls) {
+            let src = img.getAttribute('data-old-hires') || img.getAttribute('src');
+            if (src && !src.includes('gif') && src.startsWith('http')) {
+                src = upscaleImageUrl(src, 'amazon');
+                imagesSet.add(src);
+            }
+        }
+    } catch {}
+    const images = Array.from(imagesSet).slice(0, 8);
+
     // Category from breadcrumbs
     const category = (
         root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child a')?.text?.trim() ||
@@ -431,7 +448,7 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     const deliveryInfo = root.querySelector('#mir-layout-DELIVERY_BLOCK-slot-PRIMARY_DELIVERY_MESSAGE_ID span')?.text?.trim() || 
                         root.querySelector('#deliveryMessageMirId span')?.text?.trim() || '';
 
-    return { title, price, originalPrice, discount, image, platform: 'amazon', url, category, rating, description, reviews, bankOffers, deliveryInfo };
+    return { title, price, originalPrice, discount, image, images, platform: 'amazon', url, category, rating, description, reviews, bankOffers, deliveryInfo };
 }
 
 function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
@@ -527,6 +544,24 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     // Upscale image if found
     if (image) image = upscaleImageUrl(image, 'flipkart');
 
+    // Extract multiple images using regex on the raw HTML, as DOM structure varies heavily
+    const imagesSet = new Set<string>();
+    if (image) imagesSet.add(image);
+    
+    if (html) {
+        try {
+            // Find rukminim links inside the JSON state or raw page
+            const matches = html.match(/"(https:\/\/rukminim[^"]+?\.(?:jpg|jpeg|png|webp)\?q=\d+)"/g);
+            if (matches) {
+                matches.forEach(m => {
+                    const cleanUrl = m.replace(/"/g, '');
+                    imagesSet.add(upscaleImageUrl(cleanUrl, 'flipkart'));
+                });
+            }
+        } catch {}
+    }
+    const images = Array.from(imagesSet).filter(Boolean).slice(0, 8);
+
     // Category from breadcrumbs — try multiple selectors + URL fallback
     const catEls1 = root.querySelectorAll('._2whKao');
     const catEls2 = root.querySelectorAll('._1HEO9G');
@@ -608,6 +643,7 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
         originalPrice,
         discount,
         image,
+        images,
         rating,
         platform: 'flipkart',
         url,

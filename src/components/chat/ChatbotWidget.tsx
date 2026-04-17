@@ -40,7 +40,11 @@ export default function ChatbotWidget() {
             if (res.ok) {
                 setMessages([...newMessages, { role: 'assistant', content: data.message }]);
             } else {
-                setMessages([...newMessages, { role: 'assistant', content: `Error: ${data.error || 'Something went wrong.'}` }]);
+                const friendly =
+                    res.status === 429
+                        ? (data?.error || "AI is busy right now. Please try again in a minute.")
+                        : (data?.error || "Something went wrong.");
+                setMessages([...newMessages, { role: 'assistant', content: `Error: ${friendly}` }]);
             }
         } catch (error) {
             setMessages([...newMessages, { role: 'assistant', content: "Failed to connect to the AI. Please try again." }]);

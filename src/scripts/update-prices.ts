@@ -12,6 +12,13 @@ async function updatePrices() {
                 { myntraLink: { not: null } },
             ],
         },
+        select: {
+            id: true,
+            title: true,
+            amazonLink: true,
+            flipkartLink: true,
+            myntraLink: true,
+        },
     });
 
     console.log(`Updating ${products.length} products...`);

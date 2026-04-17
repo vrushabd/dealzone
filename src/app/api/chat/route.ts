@@ -3,14 +3,58 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
+// Basic in-memory rate limiting to protect the upstream AI API.
+// This is per-server-instance (works well enough for small deployments).
+const RATE_WINDOW_MS = 60_000; // 1 minute
+const RATE_MAX_REQUESTS = 12;
+const rateBucket = new Map<string, number[]>();
+
 const GEMINI_MODELS = [
     process.env.GEMINI_MODEL,
     'gemini-2.0-flash',
     'gemini-1.5-flash',
 ].filter(Boolean) as string[];
 
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getClientKey(req: NextRequest) {
+    const fwd = req.headers.get("x-forwarded-for") || "";
+    const ip = fwd.split(",")[0]?.trim();
+    return ip || req.headers.get("x-real-ip") || "unknown";
+}
+
+function isRateLimited(key: string) {
+    const now = Date.now();
+    const windowStart = now - RATE_WINDOW_MS;
+    const arr = rateBucket.get(key) || [];
+    const recent = arr.filter((t) => t >= windowStart);
+    recent.push(now);
+    rateBucket.set(key, recent);
+    return recent.length > RATE_MAX_REQUESTS;
+}
+
+function extractUpstreamMessage(bodyText: string): string | null {
+    try {
+        const parsed = JSON.parse(bodyText);
+        const msg = parsed?.error?.message || parsed?.message;
+        return typeof msg === "string" ? msg : null;
+    } catch {
+        return null;
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
+        const clientKey = getClientKey(req);
+        if (isRateLimited(clientKey)) {
+            return NextResponse.json(
+                { error: "Too many chat requests. Please wait a minute and try again." },
+                { status: 429 }
+            );
+        }
+
         const { messages } = await req.json();
         
         if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -72,42 +116,73 @@ export async function POST(req: NextRequest) {
         let lastError: { status: number; body: string; model: string } | null = null;
 
         for (const model of GEMINI_MODELS) {
-            const geminiRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [
-                            { role: 'user', parts: [{ text: systemPrompt }] },
-                            { role: 'model', parts: [{ text: 'Understood. I am the DealZone shopping assistant.' }] },
-                            ...conversationHistory,
-                            { role: 'user', parts: [{ text: lastUserMessage }] }
-                        ],
-                        generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
-                    })
-                }
-            );
+            // Retry a bit on transient upstream overloads/rate limits.
+            // (If quota is exhausted, the retries will still fail, but user gets a clearer 429.)
+            const maxAttempts = 3;
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                const geminiRes = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [
+                                { role: 'user', parts: [{ text: systemPrompt }] },
+                                { role: 'model', parts: [{ text: 'Understood. I am the DealZone shopping assistant.' }] },
+                                ...conversationHistory,
+                                { role: 'user', parts: [{ text: lastUserMessage }] }
+                            ],
+                            generationConfig: { maxOutputTokens: 450, temperature: 0.7 }
+                        })
+                    }
+                );
 
-            if (!geminiRes.ok) {
-                const errBody = await geminiRes.text();
-                lastError = { status: geminiRes.status, body: errBody, model };
-                // If model is missing/invalid, try the next fallback model.
-                if (geminiRes.status === 404 || geminiRes.status === 400) continue;
-                console.error("Gemini API error:", geminiRes.status, errBody);
-                return NextResponse.json({ error: `AI API error: ${geminiRes.status}` }, { status: 500 });
+                if (!geminiRes.ok) {
+                    const errBody = await geminiRes.text();
+                    lastError = { status: geminiRes.status, body: errBody, model };
+
+                    // If model is missing/invalid, try the next fallback model.
+                    if (geminiRes.status === 404 || geminiRes.status === 400) break;
+
+                    // Upstream rate limit / overload: backoff + retry.
+                    if (geminiRes.status === 429 || geminiRes.status === 503) {
+                        const backoff = 350 * Math.pow(2, attempt - 1);
+                        await sleep(backoff);
+                        continue;
+                    }
+
+                    console.error("Gemini API error:", geminiRes.status, errBody);
+                    const upstreamMsg = extractUpstreamMessage(errBody);
+                    return NextResponse.json(
+                        { error: upstreamMsg ? `AI error: ${upstreamMsg}` : `AI API error: ${geminiRes.status}` },
+                        { status: 500 }
+                    );
+                }
+
+                const geminiData = await geminiRes.json();
+                responseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                if (responseText) break;
             }
 
-            const geminiData = await geminiRes.json();
-            responseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
             if (responseText) break;
         }
 
         if (!responseText) {
             if (lastError) {
                 console.error("Gemini model fallback exhausted:", lastError);
+                const upstreamMsg = extractUpstreamMessage(lastError.body);
+                if (lastError.status === 429) {
+                    return NextResponse.json(
+                        {
+                            error: upstreamMsg
+                                ? `AI is rate-limited: ${upstreamMsg}`
+                                : "AI is rate-limited right now. Please try again in a minute.",
+                        },
+                        { status: 429 }
+                    );
+                }
                 return NextResponse.json(
-                    { error: `AI API error: ${lastError.status}` },
+                    { error: upstreamMsg ? `AI error: ${upstreamMsg}` : `AI API error: ${lastError.status}` },
                     { status: 500 }
                 );
             }

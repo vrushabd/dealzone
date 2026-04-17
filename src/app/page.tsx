@@ -18,11 +18,29 @@ export const metadata: Metadata = {
 // Keep homepage fairly fresh so deletions show quickly.
 export const revalidate = 5;
 
+const productCardSelect = {
+    id: true,
+    title: true,
+    slug: true,
+    description: true,
+    image: true,
+    price: true,
+    originalPrice: true,
+    discount: true,
+    amazonLink: true,
+    flipkartLink: true,
+    cashbackAmazon: true,
+    cashbackFlipkart: true,
+    cashbackPaytm: true,
+    cashbackPhonePe: true,
+    category: { select: { name: true, slug: true } },
+};
+
 export default async function HomePage() {
     const [featuredProducts, categories, recentPosts] = await Promise.all([
         prisma.product.findMany({
             where: { featured: true, isPublic: true },
-            include: { category: true },
+            select: productCardSelect,
             orderBy: { createdAt: "desc" },
             take: 8,
         }),
@@ -42,7 +60,7 @@ export default async function HomePage() {
 
     const latestProducts = await prisma.product.findMany({
         where: { featured: false, isPublic: true },
-        include: { category: true },
+        select: productCardSelect,
         orderBy: { createdAt: "desc" },
         take: 8,
     }).catch(() => []);

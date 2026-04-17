@@ -13,6 +13,24 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
+const productCardSelect = {
+    id: true,
+    title: true,
+    slug: true,
+    description: true,
+    image: true,
+    price: true,
+    originalPrice: true,
+    discount: true,
+    amazonLink: true,
+    flipkartLink: true,
+    cashbackAmazon: true,
+    cashbackFlipkart: true,
+    cashbackPaytm: true,
+    cashbackPhonePe: true,
+    category: { select: { name: true, slug: true } },
+};
+
 export default async function ProductsPage({
     searchParams,
 }: {
@@ -28,7 +46,7 @@ export default async function ProductsPage({
                 ...(category && { category: { slug: category } }),
                 ...(featured === "true" && { featured: true }),
             },
-            include: { category: true },
+            select: productCardSelect,
             orderBy: sort === "price_asc" ? { price: "asc" } : sort === "price_desc" ? { price: "desc" } : { createdAt: "desc" },
         }),
         prisma.category.findMany({ orderBy: { name: "asc" } }),

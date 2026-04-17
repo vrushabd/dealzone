@@ -26,7 +26,18 @@ export async function GET(req: NextRequest) {
                     { flipkartLink: { not: null } },
                     { originalUrl: { not: null } }
                 ]
-            }
+            },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                price: true,
+                originalPrice: true,
+                image: true,
+                amazonLink: true,
+                flipkartLink: true,
+                originalUrl: true,
+            },
         });
 
         const results = {

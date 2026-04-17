@@ -19,7 +19,10 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
-    const product = await prisma.product.findUnique({ where: { slug } });
+    const product = await prisma.product.findUnique({
+        where: { slug },
+        select: { title: true, description: true, image: true },
+    });
     if (!product) return { title: "Product Not Found" };
     return {
         title: product.title,
@@ -34,18 +37,66 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export const revalidate = 60;
 
+const productCardSelect = {
+    id: true,
+    title: true,
+    slug: true,
+    description: true,
+    image: true,
+    price: true,
+    originalPrice: true,
+    discount: true,
+    amazonLink: true,
+    flipkartLink: true,
+    cashbackAmazon: true,
+    cashbackFlipkart: true,
+    cashbackPaytm: true,
+    cashbackPhonePe: true,
+    category: { select: { name: true, slug: true } },
+};
+
 export default async function ProductDetailPage({ params }: Params) {
     const { slug } = await params;
     const product = await prisma.product.findUnique({
         where: { slug },
-        include: { category: true, reviews: { orderBy: { rating: 'desc' }, take: 5 } },
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            image: true,
+            price: true,
+            originalPrice: true,
+            discount: true,
+            amazonLink: true,
+            flipkartLink: true,
+            myntraLink: true,
+            categoryId: true,
+            featured: true,
+            availability: true,
+            seller: true,
+            rating: true,
+            originalUrl: true,
+            cashbackAmazon: true,
+            cashbackFlipkart: true,
+            cashbackPaytm: true,
+            cashbackPhonePe: true,
+            bankOffers: true,
+            deliveryInfo: true,
+            createdAt: true,
+            updatedAt: true,
+            category: { select: { id: true, name: true, slug: true, icon: true } },
+            reviews: { orderBy: { rating: 'desc' }, take: 5 },
+            // NOTE: intentionally not selecting `images` to avoid crashes if the column
+            // isn't present yet in the deployed DB.
+        },
     });
 
     if (!product) notFound();
 
     const related = await prisma.product.findMany({
         where: { categoryId: product.categoryId, NOT: { id: product.id } },
-        include: { category: true },
+        select: productCardSelect,
         take: 4,
     });
 
@@ -95,7 +146,7 @@ export default async function ProductDetailPage({ params }: Params) {
                     {/* Image Gallery */}
                     <div className="relative">
                         <ProductGallery 
-                            images={product.images || []} 
+                            images={(product as any).images || []} 
                             title={product.title} 
                             primaryImage={product.image} 
                         />

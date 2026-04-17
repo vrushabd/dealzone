@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 
 import SyncButton from "@/components/admin/SyncButton";
+import PurgeSeedButton from "@/components/admin/PurgeSeedButton";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const productListSelect = {
     id: true,
@@ -170,6 +174,7 @@ export default async function AdminDashboard() {
                     </Link>
                 ))}
                 <SyncButton />
+                <PurgeSeedButton />
             </div>
 
 

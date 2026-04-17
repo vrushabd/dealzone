@@ -40,9 +40,12 @@ async function main() {
     }
     console.log("✅ Categories seeded");
 
+    const shouldSeedSampleData =
+        process.env.SEED_SAMPLE_DATA === "true" || process.env.NODE_ENV !== "production";
+
     // Sample products
     const electronics = await prisma.category.findUnique({ where: { slug: "electronics" } });
-    if (electronics) {
+    if (electronics && shouldSeedSampleData) {
         const sampleProducts = [
             {
                 title: "boAt Airdopes 141 TWS Earbuds",
@@ -99,21 +102,23 @@ async function main() {
             await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
         }
     }
-    console.log("✅ Sample products seeded");
+    if (shouldSeedSampleData) console.log("✅ Sample products seeded");
 
     // Sample blog post
-    await prisma.post.upsert({
-        where: { slug: "best-deals-this-week" },
-        update: {},
-        create: {
-            title: "Best Deals This Week – Don't Miss Out!",
-            slug: "best-deals-this-week",
-            excerpt: "We've curated the best discounts from Amazon and Flipkart this week. Check out these incredible offers!",
-            content: `Welcome to DealZone's weekly deals roundup!\n\nThis week we've found some incredible deals that you simply cannot miss. From electronics to fashion, we've got something for everyone.\n\nTop Picks:\n\n1. boAt Airdopes 141 – Down to ₹999 from ₹2,990 (67% off!)\n2. Samsung 43" 4K Smart TV – ₹29,990 from ₹46,900 (36% off!)\n3. Apple AirPods Pro 2nd Gen – ₹19,900 from ₹26,900 (26% off!)\n\nSimply click on the "Buy on Amazon" or "Buy on Flipkart" button on any product page and you'll be redirected with our affiliate link — no extra cost to you!\n\nHappy shopping! 🛍️`,
-            published: true,
-        },
-    });
-    console.log("✅ Sample blog post seeded");
+    if (shouldSeedSampleData) {
+        await prisma.post.upsert({
+            where: { slug: "best-deals-this-week" },
+            update: {},
+            create: {
+                title: "Best Deals This Week – Don't Miss Out!",
+                slug: "best-deals-this-week",
+                excerpt: "We've curated the best discounts from Amazon and Flipkart this week. Check out these incredible offers!",
+                content: `Welcome to DealZone's weekly deals roundup!\n\nThis week we've found some incredible deals that you simply cannot miss. From electronics to fashion, we've got something for everyone.\n\nTop Picks:\n\n1. boAt Airdopes 141 – Down to ₹999 from ₹2,990 (67% off!)\n2. Samsung 43" 4K Smart TV – ₹29,990 from ₹46,900 (36% off!)\n3. Apple AirPods Pro 2nd Gen – ₹19,900 from ₹26,900 (26% off!)\n\nSimply click on the "Buy on Amazon" or "Buy on Flipkart" button on any product page and you'll be redirected with our affiliate link — no extra cost to you!\n\nHappy shopping! 🛍️`,
+                published: true,
+            },
+        });
+        console.log("✅ Sample blog post seeded");
+    }
 
     console.log("\n🎉 Database seeded successfully!");
     console.log("👉 Admin login: admin@dealzone.com / admin123");

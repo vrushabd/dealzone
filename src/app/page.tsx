@@ -15,7 +15,8 @@ export const metadata: Metadata = {
     description: "Discover the best deals and discounts from Amazon & Flipkart. Handpicked deals updated daily.",
 };
 
-export const revalidate = 60;
+// Keep homepage fairly fresh so deletions show quickly.
+export const revalidate = 5;
 
 export default async function HomePage() {
     const [featuredProducts, categories, recentPosts] = await Promise.all([

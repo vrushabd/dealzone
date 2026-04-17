@@ -14,6 +14,9 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 Seeding database...");
 
+  const shouldSeedSampleData =
+    process.env.SEED_SAMPLE_DATA === "true" || process.env.NODE_ENV !== "production";
+
   // ── Admin ──────────────────────────────────────────────
   const existing = await prisma.admin.findUnique({
     where: { email: "admin@dealzone.com" },
@@ -50,7 +53,7 @@ async function main() {
 
   // ── Electronics ────────────────────────────────────────
   const electronics = await getCat("electronics");
-  if (electronics) {
+  if (electronics && shouldSeedSampleData) {
     const products = [
       {
         slug: "boat-airdopes-141-tws-earbuds",
@@ -122,11 +125,11 @@ async function main() {
       await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
     }
   }
-  console.log("✅ Electronics seeded");
+  if (shouldSeedSampleData) console.log("✅ Electronics seeded");
 
   // ── Gaming ─────────────────────────────────────────────
   const gaming = await getCat("gaming");
-  if (gaming) {
+  if (gaming && shouldSeedSampleData) {
     const products = [
       {
         slug: "sony-ps5-dualsense-controller",
@@ -159,11 +162,11 @@ async function main() {
       await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
     }
   }
-  console.log("✅ Gaming seeded");
+  if (shouldSeedSampleData) console.log("✅ Gaming seeded");
 
   // ── Fashion ────────────────────────────────────────────
   const fashion = await getCat("fashion");
-  if (fashion) {
+  if (fashion && shouldSeedSampleData) {
     const products = [
       {
         slug: "puma-mens-running-shoes-enzo-2",
@@ -196,11 +199,11 @@ async function main() {
       await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
     }
   }
-  console.log("✅ Fashion seeded");
+  if (shouldSeedSampleData) console.log("✅ Fashion seeded");
 
   // ── Home & Kitchen ─────────────────────────────────────
   const home = await getCat("home-kitchen");
-  if (home) {
+  if (home && shouldSeedSampleData) {
     const products = [
       {
         slug: "instant-pot-duo-7-in-1",
@@ -233,11 +236,11 @@ async function main() {
       await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
     }
   }
-  console.log("✅ Home & Kitchen seeded");
+  if (shouldSeedSampleData) console.log("✅ Home & Kitchen seeded");
 
   // ── Beauty ─────────────────────────────────────────────
   const beauty = await getCat("beauty");
-  if (beauty) {
+  if (beauty && shouldSeedSampleData) {
     const products = [
       {
         slug: "lakme-9to5-primer-matte-lip-color",
@@ -257,11 +260,11 @@ async function main() {
       await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
     }
   }
-  console.log("✅ Beauty seeded");
+  if (shouldSeedSampleData) console.log("✅ Beauty seeded");
 
   // ── Books ──────────────────────────────────────────────
   const books = await getCat("books");
-  if (books) {
+  if (books && shouldSeedSampleData) {
     const products = [
       {
         slug: "atomic-habits-james-clear",
@@ -294,7 +297,7 @@ async function main() {
       await prisma.product.upsert({ where: { slug: p.slug }, update: {}, create: p });
     }
   }
-  console.log("✅ Books seeded");
+  if (shouldSeedSampleData) console.log("✅ Books seeded");
 
   console.log("✅ Blog posts skipped (manage from Admin → Blog Posts)");
 

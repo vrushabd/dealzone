@@ -5,6 +5,28 @@ import { MessageSquare, X, Send, Bot, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+function Stars({ rating }: { rating: number }) {
+    const rounded = Math.max(0, Math.min(5, Math.round(rating * 2) / 2));
+    const full = Math.floor(rounded);
+    const half = rounded - full >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
+
+    return (
+        <div className="flex items-center gap-1">
+            {Array.from({ length: full }).map((_, i) => (
+                <span key={`f-${i}`} className="text-[hsl(45_93%_55%)] text-xs">★</span>
+            ))}
+            {half ? <span className="text-[hsl(45_93%_55%)] text-xs">⯪</span> : null}
+            {Array.from({ length: empty }).map((_, i) => (
+                <span key={`e-${i}`} className="text-[var(--text-muted)] text-xs">★</span>
+            ))}
+            <span className="ml-1 text-[10px] font-semibold text-[var(--text-muted)]">
+                {rounded.toFixed(1)}
+            </span>
+        </div>
+    );
+}
+
 export default function ChatbotWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{role: 'user'|'assistant', content: string}[]>([
@@ -17,6 +39,7 @@ export default function ChatbotWidget() {
         image: string | null;
         price: number | null;
         originalPrice: number | null;
+        rating?: number | null;
         category: string | null;
         href: string;
     }>>([]);
@@ -143,6 +166,11 @@ export default function ChatbotWidget() {
                                                 <div className="text-xs font-bold text-[var(--text-primary)] line-clamp-2">
                                                     {p.title}
                                                 </div>
+                                                {typeof p.rating === "number" && p.rating > 0 ? (
+                                                    <div className="mt-1">
+                                                        <Stars rating={p.rating} />
+                                                    </div>
+                                                ) : null}
                                                 <div className="mt-1 flex items-center gap-2">
                                                     {typeof p.price === "number" && p.price > 0 ? (
                                                         <div className="text-sm font-extrabold text-[hsl(214_89%_55%)]">

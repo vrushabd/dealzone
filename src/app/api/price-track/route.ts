@@ -9,6 +9,7 @@ const productForTrackingSelect = {
     image: true,
     price: true,
     originalPrice: true,
+    rating: true,
     originalUrl: true,
     amazonLink: true,
     flipkartLink: true,
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
         let effectiveImage    = validScraped?.image    || null;
         let effectivePrice    = validScraped?.price    || 0;
         let effectiveOriginal = validScraped?.originalPrice || null;
+        const effectiveRating = typeof validScraped?.rating === 'number' ? validScraped.rating : null;
 
         if (needsDemoData && exactMatch) {
             // exactMatch IS the same product — safe to use its stored data
@@ -107,6 +109,7 @@ export async function POST(req: NextRequest) {
                     price:         effectivePrice,
                     originalPrice: effectiveOriginal,
                     image:         effectiveImage,
+                    ...(effectiveRating ? { rating: effectiveRating } : {}),
                     originalUrl:   normalizedUrl,
                     flipkartLink:  platform === 'flipkart' ? normalizedUrl : null,
                     amazonLink:    platform === 'amazon'   ? normalizedUrl : null,
@@ -123,6 +126,7 @@ export async function POST(req: NextRequest) {
                     originalPrice: effectiveOriginal ?? product.originalPrice,
                     // Only update image if scraper returned one (don't overwrite with null)
                     ...(effectiveImage ? { image: effectiveImage } : {}),
+                    ...(effectiveRating ? { rating: effectiveRating } : {}),
                 },
                 select: productForTrackingSelect,
             });
@@ -133,6 +137,7 @@ export async function POST(req: NextRequest) {
                 data: {
                     price: effectivePrice,
                     ...(effectiveImage ? { image: effectiveImage } : {}),
+                    ...(effectiveRating ? { rating: effectiveRating } : {}),
                 },
             });
         }
@@ -171,6 +176,7 @@ export async function POST(req: NextRequest) {
                 image:         product!.image,
                 price:         effectivePrice || product!.price,
                 originalPrice: product!.originalPrice,
+                rating:        (product as any).rating ?? null,
                 platform,
                 url: normalizedUrl,
             },

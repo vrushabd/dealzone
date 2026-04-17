@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
             image: string | null;
             price: number | null;
             originalPrice: number | null;
+            rating: number | null;
             amazonLink: string | null;
             flipkartLink: string | null;
             category: { name: string } | null;
@@ -110,6 +111,7 @@ export async function POST(req: NextRequest) {
                     image: true,
                     price: true,
                     originalPrice: true,
+                    rating: true,
                     amazonLink: true,
                     flipkartLink: true,
                     category: { select: { name: true } },
@@ -128,6 +130,7 @@ export async function POST(req: NextRequest) {
                     image: true,
                     price: true,
                     originalPrice: true,
+                    rating: true,
                     amazonLink: true,
                     flipkartLink: true,
                     category: { select: { name: true } },
@@ -237,6 +240,7 @@ export async function POST(req: NextRequest) {
                 image: p.image,
                 price: p.price,
                 originalPrice: p.originalPrice,
+                rating: p.rating,
                 category: p.category?.name || null,
                 amazonLink: p.amazonLink,
                 flipkartLink: p.flipkartLink,

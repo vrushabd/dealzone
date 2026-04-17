@@ -279,7 +279,17 @@ export async function scrapeProduct(url: string): Promise<ScrapedProduct | null>
             // Also attempt OG image from mobile page
             if (!result?.image) {
                 const og = parseOpenGraph(parse(mHtml));
-                if (og.image) result = { ...result!, image: og.image };
+                if (og.image) {
+                    result = {
+                        title: result?.title || titleFromSlug(url) || 'Product',
+                        image: og.image,
+                        price: result?.price || 0,
+                        originalPrice: result?.originalPrice,
+                        discount: result?.discount,
+                        platform: 'flipkart',
+                        url,
+                    };
+                }
             }
         }
     }

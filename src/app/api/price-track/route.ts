@@ -7,19 +7,31 @@ export async function POST(req: NextRequest) {
         const { url } = await req.json();
         if (!url) return NextResponse.json({ error: 'URL is required' }, { status: 400 });
 
+        let normalizedUrl = "";
+        try {
+            const parsed = new URL(url.trim());
+            // Remove most tracking params to keep stable product identity.
+            ['pid', 'lid', 'marketplace', 'srsltid', 'affid', 'affExtParam1', 'affExtParam2'].forEach((k) =>
+                parsed.searchParams.delete(k)
+            );
+            normalizedUrl = parsed.toString();
+        } catch {
+            return NextResponse.json({ error: 'Invalid product URL' }, { status: 400 });
+        }
+
         // ── Phase 1: DB lookup (exact URL match only to avoid wrong-product data) ──
         const exactMatch = await prisma.product.findFirst({
-            where: { originalUrl: url },
+            where: { originalUrl: normalizedUrl },
             include: { priceHistory: { orderBy: { timestamp: 'asc' } } },
         });
 
         // ── Phase 2: Scrape current price ──────────────────────────────────────────
-        const scraped = await scrapeProduct(url);
+        const scraped = await scrapeProduct(normalizedUrl);
         const validScraped = scraped as any;
 
         // Determine platform from URL
-        const platform = url.includes('amazon') ? 'amazon'
-                       : url.includes('flipkart') ? 'flipkart'
+        const platform = normalizedUrl.includes('amazon') ? 'amazon'
+                       : normalizedUrl.includes('flipkart') ? 'flipkart'
                        : 'unknown';
 
         // needsDemoData = scraping returned nothing useful (blocked by anti-bot)
@@ -28,7 +40,7 @@ export async function POST(req: NextRequest) {
         // Build the "effective" product data for this URL.
         // IMPORTANT: Only fall back to exactMatch DB data if it's the same URL.
         // Never mix in data from a different product to avoid showing wrong details.
-        let effectiveTitle    = validScraped?.title   || url.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'Product';
+        let effectiveTitle    = validScraped?.title   || normalizedUrl.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'Product';
         let effectiveImage    = validScraped?.image    || null;
         let effectivePrice    = validScraped?.price    || 0;
         let effectiveOriginal = validScraped?.originalPrice || null;
@@ -79,9 +91,9 @@ export async function POST(req: NextRequest) {
                     price:         effectivePrice,
                     originalPrice: effectiveOriginal,
                     image:         effectiveImage,
-                    originalUrl:   url,
-                    flipkartLink:  platform === 'flipkart' ? url : null,
-                    amazonLink:    platform === 'amazon'   ? url : null,
+                    originalUrl:   normalizedUrl,
+                    flipkartLink:  platform === 'flipkart' ? normalizedUrl : null,
+                    amazonLink:    platform === 'amazon'   ? normalizedUrl : null,
                     isPublic:      false,
                 },
                 include: { priceHistory: true },
@@ -144,7 +156,7 @@ export async function POST(req: NextRequest) {
                 price:         effectivePrice || product!.price,
                 originalPrice: product!.originalPrice,
                 platform,
-                url,
+                url: normalizedUrl,
             },
             history: history.map((h: any) => ({
                 price: h.price,
@@ -157,7 +169,8 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Price track error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        const message = error instanceof Error ? error.message : 'Internal Server Error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
 

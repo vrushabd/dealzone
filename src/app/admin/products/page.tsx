@@ -279,6 +279,7 @@ export default function AdminProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
     const [search, setSearch] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<Product | null>(null);
@@ -286,8 +287,34 @@ export default function AdminProductsPage() {
 
     const load = async () => {
         setLoading(true);
-        const [p, c] = await Promise.all([fetch("/api/products").then(r => r.json()), fetch("/api/categories").then(r => r.json())]);
-        setProducts(p); setCategories(c); setLoading(false);
+        setLoadError("");
+        try {
+            const [productsRes, categoriesRes] = await Promise.all([
+                fetch("/api/products"),
+                fetch("/api/categories"),
+            ]);
+            const [productsData, categoriesData] = await Promise.all([
+                productsRes.json(),
+                categoriesRes.json(),
+            ]);
+
+            if (!productsRes.ok) {
+                throw new Error(productsData?.error || "Failed to load products");
+            }
+            if (!categoriesRes.ok) {
+                throw new Error(categoriesData?.error || "Failed to load categories");
+            }
+
+            setProducts(Array.isArray(productsData) ? productsData : []);
+            setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Failed to load admin data";
+            setLoadError(message);
+            setProducts([]);
+            setCategories([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => { load(); }, []);
@@ -330,6 +357,16 @@ export default function AdminProductsPage() {
             {loading ? (
                 <div className="space-y-3">
                     {[...Array(5)].map((_, i) => <div key={i} className="skeleton h-16 rounded-md" />)}
+                </div>
+            ) : loadError ? (
+                <div className="text-center py-16 text-[var(--text-muted)]">
+                    <p className="mb-3">{loadError}</p>
+                    <button
+                        onClick={load}
+                        className="text-[var(--brand)] hover:underline"
+                    >
+                        Retry loading data
+                    </button>
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-[var(--text-muted)]">

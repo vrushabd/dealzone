@@ -3,6 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
+const GEMINI_MODELS = [
+    process.env.GEMINI_MODEL,
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+].filter(Boolean) as string[];
+
 export async function POST(req: NextRequest) {
     try {
         const { messages } = await req.json();
@@ -60,32 +66,53 @@ export async function POST(req: NextRequest) {
             parts: [{ text: m.content }]
         }));
 
-        // Use the REST API directly to avoid SDK model compatibility issues
-        const geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: systemPrompt }] },
-                        { role: 'model', parts: [{ text: 'Understood. I am the DealZone shopping assistant.' }] },
-                        ...conversationHistory,
-                        { role: 'user', parts: [{ text: lastUserMessage }] }
-                    ],
-                    generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
-                })
-            }
-        );
+        // Try configured model first, then known-safe fallbacks.
+        // This avoids hard-failing when Google deprecates/renames a model.
+        let responseText = "";
+        let lastError: { status: number; body: string; model: string } | null = null;
 
-        if (!geminiRes.ok) {
-            const errBody = await geminiRes.text();
-            console.error("Gemini API error:", geminiRes.status, errBody);
-            return NextResponse.json({ error: `AI API error: ${geminiRes.status}` }, { status: 500 });
+        for (const model of GEMINI_MODELS) {
+            const geminiRes = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [
+                            { role: 'user', parts: [{ text: systemPrompt }] },
+                            { role: 'model', parts: [{ text: 'Understood. I am the DealZone shopping assistant.' }] },
+                            ...conversationHistory,
+                            { role: 'user', parts: [{ text: lastUserMessage }] }
+                        ],
+                        generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
+                    })
+                }
+            );
+
+            if (!geminiRes.ok) {
+                const errBody = await geminiRes.text();
+                lastError = { status: geminiRes.status, body: errBody, model };
+                // If model is missing/invalid, try the next fallback model.
+                if (geminiRes.status === 404 || geminiRes.status === 400) continue;
+                console.error("Gemini API error:", geminiRes.status, errBody);
+                return NextResponse.json({ error: `AI API error: ${geminiRes.status}` }, { status: 500 });
+            }
+
+            const geminiData = await geminiRes.json();
+            responseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (responseText) break;
         }
 
-        const geminiData = await geminiRes.json();
-        const responseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+        if (!responseText) {
+            if (lastError) {
+                console.error("Gemini model fallback exhausted:", lastError);
+                return NextResponse.json(
+                    { error: `AI API error: ${lastError.status}` },
+                    { status: 500 }
+                );
+            }
+            responseText = "I'm sorry, I couldn't generate a response.";
+        }
 
         return NextResponse.json({ message: responseText });
 

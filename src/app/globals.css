@@ -61,10 +61,16 @@
   --radius-xl: 0.5rem;
   --radius-2xl: 0.75rem;
 
-  /* Tile text colours — bright on dark bg */
+  /* Tile colours — bright on dark bg */
   --tile-blue-label: hsl(214 89% 65%);
   --tile-blue-price: hsl(214 89% 75%);
-  --tile-green-text: hsl(149 100% 55%);
+  --tile-blue-bg: linear-gradient(135deg, hsl(214 89% 52% / 0.13) 0%, hsl(214 89% 52% / 0.03) 100%);
+  --tile-blue-border: hsl(214 89% 52% / 0.22);
+  
+  --tile-green-label: hsl(149 100% 55%);
+  --tile-green-price: hsl(149 100% 55%);
+  --tile-green-bg: linear-gradient(135deg, hsl(149 100% 33% / 0.13) 0%, hsl(149 100% 33% / 0.03) 100%);
+  --tile-green-border: hsl(149 100% 33% / 0.22);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -96,10 +102,16 @@
   --gradient-dark: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 20% 98%));
   --gradient-hero: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(0 0% 100%) 100%);
 
-  /* Tile text colours — dark on light bg */
-  --tile-blue-label: hsl(214 89% 42%);
-  --tile-blue-price: hsl(214 89% 35%);
-  --tile-green-text: hsl(149 100% 25%);
+  /* Tile colours — beautiful opaque gradients for light mode */
+  --tile-blue-label: hsl(230 70% 45%);
+  --tile-blue-price: hsl(230 75% 38%);
+  --tile-blue-bg: linear-gradient(135deg, hsl(230 100% 94%) 0%, hsl(0 0% 100%) 100%);
+  --tile-blue-border: hsl(230 100% 90%);
+  
+  --tile-green-label: hsl(12 70% 35%);
+  --tile-green-price: hsl(12 70% 35%);
+  --tile-green-bg: linear-gradient(135deg, hsl(12 100% 92%) 0%, hsl(0 0% 100%) 100%);
+  --tile-green-border: hsl(12 100% 88%);
 }
 
 /* ═══════════════════════════════════════════════════════

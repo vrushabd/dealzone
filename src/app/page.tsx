@@ -189,7 +189,11 @@ export default async function HomePage() {
                                 <Link
                                     key={price}
                                     href={`/products?maxPrice=${price}`}
-                                    className="group relative overflow-hidden rounded-xl border border-[hsl(214_89%_52%/0.22)] bg-gradient-to-br from-[hsl(214_89%_52%/0.13)] via-[hsl(214_89%_52%/0.07)] to-[hsl(214_89%_52%/0.03)] hover:border-[hsl(214_89%_52%/0.50)] hover:from-[hsl(214_89%_52%/0.20)] hover:to-[hsl(214_89%_52%/0.09)] transition-all duration-300 p-5 sm:p-7 text-center hover:-translate-y-1 hover:shadow-[0_10px_36px_hsl(214_89%_52%/0.20)] cursor-pointer"
+                                    className="group relative overflow-hidden rounded-xl border transition-all duration-300 p-5 sm:p-7 text-center hover:-translate-y-1 hover:shadow-[0_10px_36px_hsl(214_89%_52%/0.20)] cursor-pointer"
+                                    style={{
+                                        background: "var(--tile-blue-bg)",
+                                        borderColor: "var(--tile-blue-border)"
+                                    }}
                                 >
                                     <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-blue-label)] mb-2">
                                         DEALS UNDER
@@ -223,15 +227,19 @@ export default async function HomePage() {
                                 <Link
                                     key={pct}
                                     href={`/products?minDiscount=${pct}`}
-                                    className="group relative overflow-hidden rounded-xl border border-[hsl(149_100%_33%/0.22)] bg-gradient-to-br from-[hsl(149_100%_33%/0.13)] via-[hsl(149_100%_33%/0.07)] to-[hsl(149_100%_33%/0.03)] hover:border-[hsl(149_100%_33%/0.50)] hover:from-[hsl(149_100%_33%/0.20)] hover:to-[hsl(149_100%_33%/0.09)] transition-all duration-300 p-5 sm:p-7 text-center hover:-translate-y-1 hover:shadow-[0_10px_36px_hsl(149_100%_33%/0.20)] cursor-pointer"
+                                    className="group relative overflow-hidden rounded-xl border transition-all duration-300 p-5 sm:p-7 text-center hover:-translate-y-1 hover:shadow-[0_10px_36px_hsl(12_100%_50%/0.15)] cursor-pointer"
+                                    style={{
+                                        background: "var(--tile-green-bg)",
+                                        borderColor: "var(--tile-green-border)"
+                                    }}
                                 >
-                                    <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-green-text)] mb-1">
+                                    <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-green-label)] mb-1">
                                         Min.
                                     </div>
-                                    <div className="text-3xl sm:text-4xl font-extrabold text-[var(--tile-green-text)] leading-none">
+                                    <div className="text-3xl sm:text-4xl font-extrabold text-[var(--tile-green-price)] leading-none">
                                         {pct}%
                                     </div>
-                                    <div className="text-sm font-bold text-[var(--tile-green-text)] mt-1">
+                                    <div className="text-sm font-bold text-[var(--tile-green-label)] mt-1">
                                         off
                                     </div>
                                     {/* Hover shine */}

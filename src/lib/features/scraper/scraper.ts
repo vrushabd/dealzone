@@ -576,33 +576,50 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     }
     const images = Array.from(imagesSet).filter(Boolean).slice(0, 8);
 
-    // Category from breadcrumbs — try multiple selectors + URL fallback
-    const catEls1 = root.querySelectorAll('._2whKao');
-    const catEls2 = root.querySelectorAll('._1HEO9G');
-    const catEls3 = root.querySelectorAll('a.dvEPBh');
-    const catEls4 = root.querySelectorAll('.l7Mx8l a');
-    const category = (
-        (catEls4.length > 0 ? catEls4[catEls4.length - 2]?.text?.trim() : null) ||
-        (catEls3.length > 0 ? catEls3[catEls3.length - 1]?.text?.trim() : null) ||
-        (catEls1.length > 0 ? catEls1[catEls1.length - 1]?.text?.trim() : null) ||
-        (catEls2.length > 0 ? catEls2[catEls2.length - 1]?.text?.trim() : null) ||
-        // URL-based fallback
-        (() => {
-            try {
-                const urlLower = url.toLowerCase();
-                if (urlLower.includes('mobile') || urlLower.includes('iphone') || urlLower.includes('smartphone')) return 'Smartphones';
-                if (urlLower.includes('laptop')) return 'Laptops';
-                if (urlLower.includes('television') || urlLower.includes('-tv-')) return 'Televisions';
-                if (urlLower.includes('headphone') || urlLower.includes('earphone') || urlLower.includes('earbuds')) return 'Headphones';
-                if (urlLower.includes('tablet')) return 'Tablets';
-                if (urlLower.includes('camera')) return 'Cameras';
-                if (urlLower.includes('watch')) return 'Smartwatches';
-                if (urlLower.includes('shoe') || urlLower.includes('sneaker')) return 'Footwear';
-                if (urlLower.includes('shirt') || urlLower.includes('dress') || urlLower.includes('kurta')) return 'Clothing';
-            } catch {}
-            return '';
-        })()
-    )?.trim() || '';
+    // Category parsing — prefer internal tracking JSON over fragile DOM breadcrumbs
+    let category = '';
+    if (html) {
+        const catMatch = html.match(/"analyticsData"\s*:\s*\{[^}]*"category"\s*:\s*"([^"]+)"/);
+        if (catMatch) {
+            category = catMatch[1].replace(/\\/g, '');
+        }
+        if (!category) {
+             const pathMatch = html.match(/"categoryPath"\s*:\s*"([^"]+)"/);
+             if (pathMatch) {
+                 const parts = pathMatch[1].split('>');
+                 category = parts[parts.length - 1]?.trim()?.replace(/\\/g, '');
+             }
+        }
+    }
+
+    if (!category) {
+        const catEls1 = root.querySelectorAll('._2whKao');
+        const catEls2 = root.querySelectorAll('._1HEO9G');
+        const catEls3 = root.querySelectorAll('a.dvEPBh');
+        const catEls4 = root.querySelectorAll('.l7Mx8l a');
+        category = (
+            (catEls4.length > 0 ? catEls4[catEls4.length - 2]?.text?.trim() : null) ||
+            (catEls3.length > 0 ? catEls3[catEls3.length - 1]?.text?.trim() : null) ||
+            (catEls1.length > 0 ? catEls1[catEls1.length - 1]?.text?.trim() : null) ||
+            (catEls2.length > 0 ? catEls2[catEls2.length - 1]?.text?.trim() : null) ||
+            // URL-based fallback
+            (() => {
+                try {
+                    const urlLower = url.toLowerCase();
+                    if (urlLower.includes('mobile') || urlLower.includes('iphone') || urlLower.includes('smartphone')) return 'Smartphones';
+                    if (urlLower.includes('laptop')) return 'Laptops';
+                    if (urlLower.includes('television') || urlLower.includes('-tv-')) return 'Televisions';
+                    if (urlLower.includes('headphone') || urlLower.includes('earphone') || urlLower.includes('earbuds')) return 'Headphones';
+                    if (urlLower.includes('tablet')) return 'Tablets';
+                    if (urlLower.includes('camera')) return 'Cameras';
+                    if (urlLower.includes('watch')) return 'Smartwatches';
+                    if (urlLower.includes('shoe') || urlLower.includes('sneaker')) return 'Footwear';
+                    if (urlLower.includes('shirt') || urlLower.includes('dress') || urlLower.includes('kurta')) return 'Clothing';
+                } catch {}
+                return '';
+            })()
+        )?.trim() || '';
+    }
 
     // Rating
     const ratingStr = (

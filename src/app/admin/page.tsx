@@ -17,44 +17,59 @@ export default async function AdminDashboard() {
     const startOfWeek = new Date(new Date().setDate(new Date().getDate() - 7));
     const startOfMonth = new Date(new Date().setMonth(new Date().getMonth() - 1));
 
-    // Split queries to avoid hitting EMAXCONNSESSION (15 limit)
-    const stats_counts = await Promise.all([
-        prisma.product.count(),
-        prisma.post.count(),
-        prisma.category.count(),
-        prisma.product.count({ where: { featured: true } }),
-        prisma.affiliateClick.count(),
-    ]);
+    // Split queries to avoid hitting EMAXCONNSESSION (15 limit) and add error handling
+    let productCount = 0, postCount = 0, categoryCount = 0, featuredCount = 0, totalClicks = 0;
+    try {
+        const stats_counts = await Promise.all([
+            prisma.product.count(),
+            prisma.post.count(),
+            prisma.category.count(),
+            prisma.product.count({ where: { featured: true } }),
+            prisma.affiliateClick.count(),
+        ]);
+        [productCount, postCount, categoryCount, featuredCount, totalClicks] = stats_counts;
+    } catch (e) {
+        console.error("Dashboard stats error:", e);
+    }
 
-    const views_counts = await Promise.all([
-        prisma.pageView.count({ where: { timestamp: { gte: startOfToday } } }),
-        prisma.pageView.count({ where: { timestamp: { gte: startOfWeek } } }),
-        prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
-        prisma.pageView.groupBy({
-            by: ['sessionId'],
-            where: { timestamp: { gte: fifteenMinutesAgo } },
-        }).then(res => res.length),
-    ]);
+    let dailyViews = 0, weeklyViews = 0, monthlyViews = 0, onlineUsers = 0;
+    try {
+        const views_counts = await Promise.all([
+            prisma.pageView.count({ where: { timestamp: { gte: startOfToday } } }),
+            prisma.pageView.count({ where: { timestamp: { gte: startOfWeek } } }),
+            prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
+            prisma.pageView.groupBy({
+                by: ['sessionId'],
+                where: { timestamp: { gte: fifteenMinutesAgo } },
+            }).then(res => res.length),
+        ]);
+        [dailyViews, weeklyViews, monthlyViews, onlineUsers] = views_counts;
+    } catch (e) {
+        console.error("Dashboard views error:", e);
+    }
 
-    const [recentProducts, trendingProducts] = await Promise.all([
-        prisma.product.findMany({
-            take: 5,
-            orderBy: { createdAt: "desc" },
-            include: { category: true },
-        }),
-        prisma.product.findMany({
-            where: { affiliateClicks: { some: {} } },
-            take: 5,
-            orderBy: { affiliateClicks: { _count: 'desc' } },
-            include: { 
-                _count: { select: { affiliateClicks: true } },
-                category: true 
-            }
-        })
-    ]);
-
-    const [productCount, postCount, categoryCount, featuredCount, totalClicks] = stats_counts;
-    const [dailyViews, weeklyViews, monthlyViews, onlineUsers] = views_counts;
+    let recentProducts: any[] = [], trendingProducts: any[] = [];
+    try {
+        const products_data = await Promise.all([
+            prisma.product.findMany({
+                take: 5,
+                orderBy: { createdAt: "desc" },
+                include: { category: true },
+            }),
+            prisma.product.findMany({
+                where: { affiliateClicks: { some: {} } },
+                take: 5,
+                orderBy: { affiliateClicks: { _count: 'desc' } },
+                include: { 
+                    _count: { select: { affiliateClicks: true } },
+                    category: true 
+                }
+            })
+        ]);
+        [recentProducts, trendingProducts] = products_data;
+    } catch (e) {
+        console.error("Dashboard products error:", e);
+    }
 
     const stats = [
         { label: "Total Products", value: productCount, icon: ShoppingBag, href: "/admin/products", color: "orange" },

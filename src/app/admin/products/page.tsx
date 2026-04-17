@@ -9,7 +9,7 @@ interface Product {
     amazonLink?: string | null; flipkartLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
     seller?: string | null; rating?: number | null;
-    featured: boolean; category?: { name: string } | null;
+    featured: boolean; categoryId?: string | null; category?: { name: string } | null;
 }
 
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {

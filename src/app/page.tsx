@@ -158,7 +158,10 @@ export default async function HomePage() {
                     {/* ── Hot Deals — Price Tier Tiles ─────────────────── */}
                     <section>
                         <div className="text-center mb-8">
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
+                            <h2 
+                                className="text-2xl sm:text-3xl font-extrabold"
+                                style={{ color: "var(--text-primary)" }}
+                            >
                                 Hot Deals
                             </h2>
                             <div className="flex items-center justify-center gap-1.5 mt-2">
@@ -180,10 +183,16 @@ export default async function HomePage() {
                                         borderColor: "var(--tile-blue-border)"
                                     }}
                                 >
-                                    <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-blue-label)] mb-2">
+                                    <div 
+                                        className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] mb-2"
+                                        style={{ color: "var(--tile-blue-label)" }}
+                                    >
                                         DEALS UNDER
                                     </div>
-                                    <div className="text-2xl sm:text-3xl font-extrabold text-[var(--tile-blue-price)] leading-none">
+                                    <div 
+                                        className="text-2xl sm:text-3xl font-extrabold leading-none"
+                                        style={{ color: "var(--tile-blue-price)" }}
+                                    >
                                         ₹{price.toLocaleString("en-IN")}
                                     </div>
                                     {/* Hover shine */}
@@ -196,7 +205,10 @@ export default async function HomePage() {
                     {/* ── Best Discounts — % Tier Tiles ────────────────── */}
                     <section>
                         <div className="text-center mb-8">
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
+                            <h2 
+                                className="text-2xl sm:text-3xl font-extrabold"
+                                style={{ color: "var(--text-primary)" }}
+                            >
                                 Best Discounts
                             </h2>
                             <div className="flex items-center justify-center gap-1.5 mt-2">
@@ -218,13 +230,22 @@ export default async function HomePage() {
                                         borderColor: "var(--tile-green-border)"
                                     }}
                                 >
-                                    <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-green-label)] mb-1">
+                                    <div 
+                                        className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] mb-1"
+                                        style={{ color: "var(--tile-green-label)" }}
+                                    >
                                         Min.
                                     </div>
-                                    <div className="text-3xl sm:text-4xl font-extrabold text-[var(--tile-green-price)] leading-none">
+                                    <div 
+                                        className="text-3xl sm:text-4xl font-extrabold leading-none"
+                                        style={{ color: "var(--tile-green-price)" }}
+                                    >
                                         {pct}%
                                     </div>
-                                    <div className="text-sm font-bold text-[var(--tile-green-label)] mt-1">
+                                    <div 
+                                        className="text-sm font-bold mt-1"
+                                        style={{ color: "var(--tile-green-label)" }}
+                                    >
                                         off
                                     </div>
                                     {/* Hover shine */}

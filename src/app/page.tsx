@@ -114,12 +114,12 @@ export default async function HomePage() {
 
                 {/* ── Quick Links Bar ─────────────────────────────────── */}
                 <div className="bg-[var(--bg-surface)] border-b border-[var(--border)]">
-                    <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
+                    <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-start sm:justify-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar">
                         {QUICK_LINKS.map((link) => (
                             <Link
                                 key={link.label}
                                 href={link.href}
-                                className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[hsl(214_89%_55%)] font-semibold transition-colors duration-200 border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.3)] rounded-full px-4 py-1.5 whitespace-nowrap"
+                                className="flex flex-shrink-0 items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[hsl(214_89%_55%)] font-semibold transition-colors duration-200 border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.3)] rounded-full px-4 py-1.5 whitespace-nowrap"
                             >
                                 <ExternalLink size={11} />
                                 {link.label}

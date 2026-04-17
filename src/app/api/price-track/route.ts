@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { scrapeProduct } from '@/lib/features/scraper/scraper';
 
+const productForTrackingSelect = {
+    id: true,
+    title: true,
+    slug: true,
+    image: true,
+    price: true,
+    originalPrice: true,
+    originalUrl: true,
+    amazonLink: true,
+    flipkartLink: true,
+    priceHistory: {
+        select: { id: true },
+        orderBy: { timestamp: 'asc' as const },
+    },
+};
+
 export async function POST(req: NextRequest) {
     try {
         const { url } = await req.json();
@@ -22,7 +38,7 @@ export async function POST(req: NextRequest) {
         // ── Phase 1: DB lookup (exact URL match only to avoid wrong-product data) ──
         const exactMatch = await prisma.product.findFirst({
             where: { originalUrl: normalizedUrl },
-            include: { priceHistory: { orderBy: { timestamp: 'asc' } } },
+            select: productForTrackingSelect,
         });
 
         // ── Phase 2: Scrape current price ──────────────────────────────────────────
@@ -96,7 +112,7 @@ export async function POST(req: NextRequest) {
                     amazonLink:    platform === 'amazon'   ? normalizedUrl : null,
                     isPublic:      false,
                 },
-                include: { priceHistory: true },
+                select: productForTrackingSelect,
             });
         } else if (product.price === 0 || product.priceHistory.length === 0) {
             // Existing product with unusable state — heal it
@@ -108,7 +124,7 @@ export async function POST(req: NextRequest) {
                     // Only update image if scraper returned one (don't overwrite with null)
                     ...(effectiveImage ? { image: effectiveImage } : {}),
                 },
-                include: { priceHistory: true },
+                select: productForTrackingSelect,
             });
         } else if (!needsDemoData && effectivePrice > 0) {
             // Live scrape succeeded AND price changed — keep product data fresh

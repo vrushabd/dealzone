@@ -60,6 +60,11 @@
   --radius-lg: 0.5rem;
   --radius-xl: 0.5rem;
   --radius-2xl: 0.75rem;
+
+  /* Tile text colours — bright on dark bg */
+  --tile-blue-label: hsl(214 89% 65%);
+  --tile-blue-price: hsl(214 89% 75%);
+  --tile-green-text: hsl(149 100% 55%);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -90,6 +95,11 @@
 
   --gradient-dark: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 20% 98%));
   --gradient-hero: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(0 0% 100%) 100%);
+
+  /* Tile text colours — dark on light bg */
+  --tile-blue-label: hsl(214 89% 42%);
+  --tile-blue-price: hsl(214 89% 35%);
+  --tile-green-text: hsl(149 100% 25%);
 }
 
 /* ═══════════════════════════════════════════════════════

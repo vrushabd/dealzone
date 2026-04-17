@@ -1,281 +1,361 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
-import {
-    ArrowRight, Zap, TrendingUp, Star, Tag,
-    ShoppingBag, Sparkles, Clock
-} from "lucide-react";
+import HeroSearch from "@/components/home/HeroSearch";
 import CategoryIcon from "@/components/ui/CategoryIcon";
+import {
+    ArrowRight, Zap, TrendingUp, Tag,
+    Sparkles, ExternalLink, ShoppingBag,
+} from "lucide-react";
 
 export const metadata: Metadata = {
     title: "DealZone – Best Amazon & Flipkart Deals",
-    description: "Discover the best deals and discounts from Amazon & Flipkart. Handpicked deals updated daily.",
+    description: "Track real price drops, compare across Amazon & Flipkart, and shop smarter every day.",
 };
 
-// Keep homepage fairly fresh so deletions show quickly.
 export const revalidate = 5;
 
 const productCardSelect = {
-    id: true,
-    title: true,
-    slug: true,
-    description: true,
-    image: true,
-    price: true,
-    originalPrice: true,
-    discount: true,
-    amazonLink: true,
-    flipkartLink: true,
-    cashbackAmazon: true,
-    cashbackFlipkart: true,
-    cashbackPaytm: true,
-    cashbackPhonePe: true,
+    id: true, title: true, slug: true, description: true, image: true,
+    price: true, originalPrice: true, discount: true,
+    amazonLink: true, flipkartLink: true,
+    cashbackAmazon: true, cashbackFlipkart: true,
+    cashbackPaytm: true, cashbackPhonePe: true,
     category: { select: { name: true, slug: true } },
 };
 
+const DEAL_TIERS = [99, 199, 299, 399, 499, 599, 799, 999];
+const DISCOUNT_TIERS = [40, 50, 60, 70];
+
+const QUICK_LINKS = [
+    { href: "/price-tracker", label: "Amazon Price History Tracker" },
+    { href: "/price-tracker", label: "Flipkart Price History Tracker" },
+    { href: "/compare",       label: "Price Comparison Tool" },
+];
+
 export default async function HomePage() {
-    const [featuredProducts, categories, recentPosts] = await Promise.all([
+    const [latestProducts, categories] = await Promise.all([
         prisma.product.findMany({
-            where: { featured: true, isPublic: true },
+            where: { isPublic: true },
             select: productCardSelect,
             orderBy: { createdAt: "desc" },
-            take: 8,
+            take: 10,
         }),
         prisma.category.findMany({
-            include: { _count: { select: { products: true } } },
-            take: 6,
-        }),
-        prisma.post.findMany({
-            where: { published: true },
-            orderBy: { createdAt: "desc" },
-            take: 3,
+            include: {
+                _count: { select: { products: { where: { isPublic: true } } } },
+                products: {
+                    where: { isPublic: true, image: { not: null } },
+                    select: { image: true, price: true },
+                    orderBy: { price: "asc" },
+                    take: 1,
+                },
+            },
+            take: 9,
         }),
     ]).catch((err) => {
         console.error("❌ Prisma fetch error on homepage:", err.message);
-        return [[], [], []];
+        return [[], []];
     });
-
-    const latestProducts = await prisma.product.findMany({
-        where: { featured: false, isPublic: true },
-        select: productCardSelect,
-        orderBy: { createdAt: "desc" },
-        take: 8,
-    }).catch(() => []);
 
     return (
         <>
             <Navbar />
-            <main className="bg-[var(--bg-base)] pb-20">
+            <main className="bg-[var(--bg-base)]">
 
-                {/* ── Page Header ─────────────────────────────── */}
-                <section className="border-b border-[var(--border)] bg-[var(--bg-surface)]">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-                                <Zap size={18} className="text-[hsl(214_89%_52%)]" fill="currentColor" />
-                                Today&apos;s Top Deals
-                            </h1>
-                            <div className="inline-flex items-center gap-1.5 bg-[hsl(214_89%_52%/0.08)] border border-[hsl(214_89%_52%/0.20)] rounded-full px-2.5 py-0.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[hsl(214_89%_52%)] animate-[pulseDot_1.5s_ease-in-out_infinite]" />
-                                <span className="text-[10px] font-semibold text-[hsl(214_89%_55%)] uppercase tracking-wider">Updated Daily</span>
-                            </div>
+                {/* ── Hero Banner ─────────────────────────────────────── */}
+                <section
+                    className="relative overflow-hidden"
+                    style={{
+                        background:
+                            "linear-gradient(135deg, hsl(214deg 89% 18%) 0%, hsl(214deg 89% 32%) 55%, hsl(214deg 89% 42%) 100%)",
+                    }}
+                >
+                    {/* Ambient glow orbs */}
+                    <div
+                        className="pointer-events-none absolute -top-24 right-0 w-[28rem] h-[28rem] rounded-full opacity-[0.10]"
+                        style={{ background: "radial-gradient(circle, hsl(149 100% 55%), transparent 70%)" }}
+                    />
+                    <div
+                        className="pointer-events-none absolute bottom-0 -left-16 w-80 h-80 rounded-full opacity-[0.07]"
+                        style={{ background: "radial-gradient(circle, hsl(200 100% 70%), transparent 70%)" }}
+                    />
+
+                    {/* Floating decorative icons */}
+                    {[
+                        { Icon: ShoppingBag, top: "top-10 left-10",  delay: "0s",   size: 52 },
+                        { Icon: Zap,         top: "top-14 right-16", delay: "1.5s", size: 44 },
+                        { Icon: Tag,         top: "bottom-8 right-28",delay: "2.5s",size: 38 },
+                        { Icon: TrendingUp,  top: "bottom-6 left-24",delay: "0.8s", size: 38 },
+                    ].map(({ Icon, top, delay, size }) => (
+                        <div
+                            key={delay}
+                            className={`pointer-events-none absolute ${top} opacity-[0.10] text-white animate-float hidden lg:block`}
+                            style={{ animationDelay: delay }}
+                        >
+                            <Icon size={size} />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Link
-                                href="/products"
-                                className="btn-primary shine-on-hover px-4 py-2 text-xs"
-                            >
-                                <ShoppingBag size={13} />
-                                All Deals
-                            </Link>
-                            <Link
-                                href="/coupons"
-                                className="inline-flex items-center gap-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-xs font-semibold px-4 py-2 rounded-md transition-all duration-200"
-                            >
-                                <Tag size={12} className="text-[hsl(214_89%_55%)]" />
-                                Coupons
-                            </Link>
+                    ))}
+
+                    {/* Hero content */}
+                    <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
+                        {/* Label pill */}
+                        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6">
+                            <Sparkles size={11} className="text-[hsl(149_100%_65%)]" />
+                            <span className="text-white/75 text-xs font-semibold tracking-widest uppercase">
+                                Price History &amp; Deal Tracker
+                            </span>
                         </div>
+
+                        {/* Headline */}
+                        <h1 className="text-4xl sm:text-6xl font-extrabold text-white leading-[1.1] mb-4 tracking-tight">
+                            Find{" "}
+                            <span className="text-[hsl(149_100%_62%)]">Real Deals</span>
+                            <br />
+                            Skip the Fake Ones
+                        </h1>
+                        <p className="text-white/55 text-sm sm:text-base mb-10 max-w-lg mx-auto leading-relaxed">
+                            Track genuine price drops, compare across stores, and shop smarter every day
+                        </p>
+
+                        {/* Search bar */}
+                        <HeroSearch />
                     </div>
                 </section>
 
-                {/* ── Category Bar ────────────────────────────── */}
-                <section className="bg-[var(--bg-base)]/95 border-b border-[var(--border)] sticky top-14 z-40 backdrop-blur-xl">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-x-auto no-scrollbar">
-                        <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap flex-shrink-0">
+                {/* ── Quick Links Bar ─────────────────────────────────── */}
+                <div className="bg-[var(--bg-surface)] border-b border-[var(--border)]">
+                    <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
+                        {QUICK_LINKS.map((link) => (
+                            <Link
+                                key={link.label}
+                                href={link.href}
+                                className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[hsl(214_89%_55%)] font-semibold transition-colors duration-200 border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.3)] rounded-full px-4 py-1.5 whitespace-nowrap"
+                            >
+                                <ExternalLink size={11} />
+                                {link.label}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ── Category Strip (sticky) ──────────────────────────── */}
+                <div className="bg-[var(--bg-base)]/95 border-b border-[var(--border)] sticky top-14 z-40 backdrop-blur-xl">
+                    <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                        <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap flex-shrink-0 pr-1">
                             Browse:
                         </span>
                         {(categories as any[]).map((cat) => (
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
-                                className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(24_95%_53%/0.1)] border border-transparent hover:border-[hsl(214_89%_52%/0.20)] flex-shrink-0"
+                                className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-200 py-1.5 px-3 rounded-full hover:bg-[hsl(214_89%_52%/0.10)] border border-transparent hover:border-[hsl(214_89%_52%/0.20)] flex-shrink-0"
                             >
                                 <CategoryIcon slug={cat.slug} variant="bar" />
-                                <span>{cat.name}</span>
-                                {cat._count?.products > 0 && (
+                                {cat.name}
+                                {(cat as any)._count?.products > 0 && (
                                     <span className="text-[9px] text-[var(--text-muted)]">
-                                        ({cat._count.products})
+                                        ({(cat as any)._count.products})
                                     </span>
                                 )}
                             </Link>
                         ))}
                     </div>
-                </section>
+                </div>
 
-                {/* ── Main Content ─────────────────────────────── */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+                {/* ── Main page content ───────────────────────────────── */}
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
 
-                        {/* Main Feed — full width on mobile, 3 cols on desktop */}
-                        <div className="lg:col-span-3 space-y-10 order-1 lg:order-1">
-
-                            {/* Featured */}
-                            {(featuredProducts as any[]).length > 0 && (
-                                <section>
-                                    <div className="flex items-center justify-between mb-5">
-                                        <h2 className="section-title">
-                                            <Star size={16} className="text-yellow-400 ml-2" fill="currentColor" />
-                                            Featured Highlights
-                                        </h2>
-                                        <Link
-                                            href="/products?featured=true"
-                                            className="flex items-center gap-1 text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] font-medium transition-colors"
-                                        >
-                                            See all <ArrowRight size={12} />
-                                        </Link>
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-children">
-                                        {(featuredProducts as any[]).map((product) => (
-                                            <div key={product.id} className="animate-fade-in-up">
-                                                <ProductCard product={product} />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Just Added */}
-                            <section>
-                                <div className="flex items-center justify-between mb-5">
-                                    <h2 className="section-title">
-                                        <TrendingUp size={16} className="text-[hsl(214_89%_52%)] ml-2" />
-                                        Just Added
-                                    </h2>
-                                    <Link
-                                        href="/products"
-                                        className="flex items-center gap-1 text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] font-medium transition-colors"
-                                    >
-                                        All deals <ArrowRight size={12} />
-                                    </Link>
-                                </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-children">
-                                    {(latestProducts as any[]).map((product) => (
-                                        <div key={product.id} className="animate-fade-in-up">
-                                            <ProductCard product={product} />
-                                        </div>
-                                    ))}
-                                    {latestProducts.length === 0 && featuredProducts.length === 0 && (
-                                        <div className="col-span-full py-24 text-center border-2 border-dashed border-[var(--border)] rounded-lg">
-                                            <div className="w-16 h-16 bg-[var(--bg-elevated)] rounded-md flex items-center justify-center mx-auto mb-4">
-                                                <Zap size={32} className="text-[hsl(224_20%_22%)]" />
-                                            </div>
-                                            <h3 className="text-[var(--text-muted)] font-semibold text-sm">
-                                                New deals incoming...
-                                            </h3>
-                                            <p className="text-[var(--text-muted)] text-xs mt-1">
-                                                Run <code className="bg-[var(--bg-elevated)] px-1 rounded text-[hsl(214_89%_55%)]">npm run seed</code> to populate
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
+                    {/* ── Hot Deals — Price Tier Tiles ─────────────────── */}
+                    <section>
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
+                                Hot Deals
+                            </h2>
+                            <div className="flex items-center justify-center gap-1.5 mt-2">
+                                <Sparkles size={11} className="text-[hsl(214_89%_55%)]" />
+                                <span className="text-xs text-[var(--text-muted)]">
+                                    Powered by Smart Deal Scanner
+                                </span>
+                            </div>
                         </div>
 
-                        {/* Sidebar — below feed on mobile, right on desktop */}
-                        <aside className="space-y-4 order-2 lg:order-2">
-
-                            {/* Blog / Shopping Tips */}
-                            <div className="glass rounded-md p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
-                                <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)] mb-4">
-                                    <Sparkles size={14} className="text-[hsl(214_89%_55%)]" />
-                                    Shopping Tips
-                                </h3>
-                                <div className="space-y-4">
-                                    {(recentPosts as any[]).map((post) => (
-                                        <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
-                                            <h4 className="text-xs font-medium text-[var(--text-secondary)] group-hover:text-[hsl(214_89%_55%)] line-clamp-2 transition-colors leading-snug">
-                                                {post.title}
-                                            </h4>
-                                            <div className="flex items-center gap-1 text-[9px] text-[var(--text-muted)] mt-1.5">
-                                                <Clock size={8} />
-                                                {new Date(post.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                                            </div>
-                                        </Link>
-                                    ))}
-                                    {recentPosts.length === 0 && (
-                                        <p className="text-xs text-[var(--text-muted)]">No posts yet.</p>
-                                    )}
-                                </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                            {DEAL_TIERS.map((price) => (
                                 <Link
-                                    href="/blog"
-                                    className="flex items-center justify-center gap-1 text-xs text-[hsl(214_89%_52%)] font-bold mt-5 hover:text-[hsl(214_89%_55%)] transition-colors"
+                                    key={price}
+                                    href={`/products?maxPrice=${price}`}
+                                    className="group relative overflow-hidden rounded-xl border border-[hsl(214_89%_52%/0.22)] bg-gradient-to-br from-[hsl(214_89%_52%/0.13)] via-[hsl(214_89%_52%/0.07)] to-[hsl(214_89%_52%/0.03)] hover:border-[hsl(214_89%_52%/0.50)] hover:from-[hsl(214_89%_52%/0.20)] hover:to-[hsl(214_89%_52%/0.09)] transition-all duration-300 p-5 sm:p-7 text-center hover:-translate-y-1 hover:shadow-[0_10px_36px_hsl(214_89%_52%/0.20)] cursor-pointer"
                                 >
-                                    Visit Blog <ArrowRight size={11} />
+                                    <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-blue-label)] mb-2">
+                                        DEALS UNDER
+                                    </div>
+                                    <div className="text-2xl sm:text-3xl font-extrabold text-[var(--tile-blue-price)] leading-none">
+                                        ₹{price.toLocaleString("en-IN")}
+                                    </div>
+                                    {/* Hover shine */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                                 </Link>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* ── Best Discounts — % Tier Tiles ────────────────── */}
+                    <section>
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
+                                Best Discounts
+                            </h2>
+                            <div className="flex items-center justify-center gap-1.5 mt-2">
+                                <Sparkles size={11} className="text-[hsl(149_100%_40%)]" />
+                                <span className="text-xs text-[var(--text-muted)]">
+                                    Powered by Smart Deal Scanner
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                            {DISCOUNT_TIERS.map((pct) => (
+                                <Link
+                                    key={pct}
+                                    href={`/products?minDiscount=${pct}`}
+                                    className="group relative overflow-hidden rounded-xl border border-[hsl(149_100%_33%/0.22)] bg-gradient-to-br from-[hsl(149_100%_33%/0.13)] via-[hsl(149_100%_33%/0.07)] to-[hsl(149_100%_33%/0.03)] hover:border-[hsl(149_100%_33%/0.50)] hover:from-[hsl(149_100%_33%/0.20)] hover:to-[hsl(149_100%_33%/0.09)] transition-all duration-300 p-5 sm:p-7 text-center hover:-translate-y-1 hover:shadow-[0_10px_36px_hsl(149_100%_33%/0.20)] cursor-pointer"
+                                >
+                                    <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--tile-green-text)] mb-1">
+                                        Min.
+                                    </div>
+                                    <div className="text-3xl sm:text-4xl font-extrabold text-[var(--tile-green-text)] leading-none">
+                                        {pct}%
+                                    </div>
+                                    <div className="text-sm font-bold text-[var(--tile-green-text)] mt-1">
+                                        off
+                                    </div>
+                                    {/* Hover shine */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* ── Just Added — Products Grid ───────────────────── */}
+                    <section>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="section-title">
+                                <TrendingUp size={16} className="text-[hsl(214_89%_52%)]" />
+                                Just Added
+                            </h2>
+                            <Link
+                                href="/products"
+                                className="flex items-center gap-1 text-xs text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_65%)] font-semibold transition-colors"
+                            >
+                                All deals <ArrowRight size={12} />
+                            </Link>
+                        </div>
+
+                        {(latestProducts as any[]).length > 0 ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 stagger-children">
+                                {(latestProducts as any[]).map((product) => (
+                                    <div key={product.id} className="animate-fade-in-up">
+                                        <ProductCard product={product} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-20 text-center border-2 border-dashed border-[var(--border)] rounded-xl">
+                                <Zap size={32} className="text-[var(--text-muted)] mx-auto mb-3" />
+                                <p className="text-[var(--text-muted)] text-sm font-medium">
+                                    New deals incoming...
+                                </p>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* ── Shop by Categories ───────────────────────────── */}
+                    {(categories as any[]).length > 0 && (
+                        <section>
+                            <div className="text-center mb-8">
+                                <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
+                                    Shop by Categories
+                                </h2>
+                                <div className="flex items-center justify-center gap-1.5 mt-2">
+                                    <Sparkles size={11} className="text-[hsl(214_89%_55%)]" />
+                                    <span className="text-xs text-[var(--text-muted)]">
+                                        Powered by Smart Deal Scanner
+                                    </span>
+                                </div>
                             </div>
 
-                            {/* Top Categories */}
-                            <div className="glass rounded-md p-5 shadow-[0_4px_24px_hsl(224_44%_0%/0.4)]">
-                                <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)] mb-4">
-                                    <Tag size={14} className="text-[hsl(214_89%_55%)]" />
-                                    Top Categories
-                                </h3>
-                                <div className="grid grid-cols-2 gap-2.5">
-                                    {(categories as any[]).map((cat) => (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {(categories as any[]).map((cat) => {
+                                    const cheapest = (cat as any).products?.[0];
+                                    return (
                                         <Link
                                             key={cat.id}
                                             href={`/categories/${cat.slug}`}
-                                            className="group bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.30)] rounded-md p-3 text-center transition-all duration-200"
+                                            className="group flex items-center justify-between bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border)] hover:border-[hsl(214_89%_52%/0.35)] rounded-xl p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] overflow-hidden gap-4"
                                         >
-                                            <CategoryIcon slug={cat.slug} variant="card" />
-                                            <div className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase tracking-tight transition-colors">
-                                                {cat.name}
-                                            </div>
-                                            {cat._count?.products > 0 && (
-                                                <div className="text-[9px] text-[var(--text-muted)] mt-0.5">
-                                                    {cat._count.products} deals
+                                            {/* Text info */}
+                                            <div className="flex-1 min-w-0">
+                                                {cheapest?.price && (
+                                                    <div className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-0.5">
+                                                        Starting from
+                                                    </div>
+                                                )}
+                                                {cheapest?.price && (
+                                                    <div className="text-xl font-extrabold text-[var(--text-primary)] leading-tight">
+                                                        ₹{cheapest.price.toLocaleString("en-IN")}
+                                                    </div>
+                                                )}
+                                                <div
+                                                    className={`font-bold group-hover:text-[hsl(214_89%_52%)] transition-colors truncate ${
+                                                        cheapest?.price
+                                                            ? "text-sm text-[var(--text-secondary)] mt-0.5"
+                                                            : "text-base text-[var(--text-primary)]"
+                                                    }`}
+                                                >
+                                                    {cat.name}
                                                 </div>
-                                            )}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
+                                                {(cat as any)._count?.products > 0 && (
+                                                    <div className="text-xs text-[var(--text-muted)] mt-1">
+                                                        {(cat as any)._count.products} deal
+                                                        {(cat as any)._count.products !== 1 ? "s" : ""} available
+                                                    </div>
+                                                )}
+                                            </div>
 
-                            {/* CTA Banner */}
-                            <div className="glass-brand rounded-md p-5 text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(214_89%_52%)]/5 to-transparent pointer-events-none" />
-                                <div className="relative">
-                                    <div className="w-10 h-10 bg-[hsl(214_89%_52%)]/15 rounded-md flex items-center justify-center mx-auto mb-3">
-                                        <Zap size={20} className="text-[hsl(214_89%_55%)]" fill="currentColor" />
-                                    </div>
-                                    <h4 className="text-[var(--text-primary)] font-bold text-sm mb-1">Never Miss a Deal</h4>
-                                    <p className="text-[var(--text-muted)] text-xs leading-relaxed mb-4">
-                                        Set price alerts on any product and we&apos;ll notify you when it drops.
-                                    </p>
-                                    <Link
-                                        href="/products"
-                                        className="btn-primary shine-on-hover w-full py-2.5 text-xs"
-                                    >
-                                        Set Alert
-                                    </Link>
-                                </div>
+                                            {/* Product image or icon */}
+                                            <div className="flex-shrink-0">
+                                                {cheapest?.image ? (
+                                                    <div className="relative w-20 h-20">
+                                                        <Image
+                                                            src={cheapest.image}
+                                                            alt={cat.name}
+                                                            fill
+                                                            className="object-contain group-hover:scale-105 transition-transform duration-300"
+                                                            sizes="80px"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <CategoryIcon slug={cat.slug} variant="page" />
+                                                )}
+                                            </div>
+
+                                            {/* Arrow indicator */}
+                                            <ArrowRight
+                                                size={16}
+                                                className="text-[var(--text-muted)] group-hover:text-[hsl(214_89%_52%)] group-hover:translate-x-1 transition-all flex-shrink-0"
+                                            />
+                                        </Link>
+                                    );
+                                })}
                             </div>
-                        </aside>
-                    </div>
+                        </section>
+                    )}
+
                 </div>
             </main>
             <Footer />

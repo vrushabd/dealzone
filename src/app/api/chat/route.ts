@@ -9,11 +9,18 @@ const RATE_WINDOW_MS = 60_000; // 1 minute
 const RATE_MAX_REQUESTS = 12;
 const rateBucket = new Map<string, number[]>();
 
-const GEMINI_MODELS = [
-    process.env.GEMINI_MODEL,
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-].filter(Boolean) as string[];
+// Prefer currently supported models first.
+// Keep GEMINI_MODEL as a *last* fallback because envs often point to deprecated names.
+const GEMINI_MODELS = Array.from(
+    new Set(
+        [
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+            'gemini-2.0-flash-lite',
+            process.env.GEMINI_MODEL,
+        ].filter(Boolean)
+    )
+) as string[];
 
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -121,7 +128,7 @@ export async function POST(req: NextRequest) {
             const maxAttempts = 3;
             for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                 const geminiRes = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

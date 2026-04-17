@@ -10,10 +10,7 @@ export default function SyncButton() {
         setStatus("loading");
         setMessage("Starting background sync...");
         try {
-            // Using the default secret for convenience, typically this would be a prompt or env var
-            const res = await fetch("/api/sync", {
-                headers: { "x-sync-secret": "dealzone-sync-key-v1" }
-            });
+            const res = await fetch("/api/admin/sync", { method: "POST" });
             const data = await res.json();
             
             if (res.ok) {
@@ -22,9 +19,9 @@ export default function SyncButton() {
             } else {
                 throw new Error(data.error || "Sync failed");
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             setStatus("error");
-            setMessage(error.message);
+            setMessage(error instanceof Error ? error.message : "Sync failed");
         } finally {
             setTimeout(() => {
                 setStatus("idle");

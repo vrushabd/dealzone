@@ -1,6 +1,11 @@
 const https = require('https');
+require("dotenv").config();
 
-const apiKey = "AIzaSyChUdUYRfRRG2TmBJ4a2cSwW0L3AZkX9AA";
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+    console.error("Missing GEMINI_API_KEY in environment.");
+    process.exit(1);
+}
 const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
 
 https.get(url, (res) => {

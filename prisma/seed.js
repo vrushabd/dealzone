@@ -30,12 +30,12 @@ async function main() {
 
   // ── Categories ─────────────────────────────────────────
   const cats = [
-    { name: "Electronics", slug: "electronics", icon: "💻" },
-    { name: "Fashion", slug: "fashion", icon: "👗" },
-    { name: "Home & Kitchen", slug: "home-kitchen", icon: "🏠" },
-    { name: "Beauty", slug: "beauty", icon: "💄" },
-    { name: "Gaming", slug: "gaming", icon: "🎮" },
-    { name: "Books", slug: "books", icon: "📚" },
+    { name: "Electronics", slug: "electronics", icon: "📱" },
+    { name: "Fashion", slug: "fashion", icon: "👕" },
+    { name: "Home & Kitchen", slug: "home-kitchen", icon: "🍳" },
+    { name: "Beauty", slug: "beauty", icon: "✨" },
+    { name: "Gaming", slug: "gaming", icon: "🕹️" },
+    { name: "Books", slug: "books", icon: "📖" },
   ];
   for (const cat of cats) {
     await prisma.category.upsert({

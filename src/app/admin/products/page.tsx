@@ -4,7 +4,7 @@ import { Plus, Pencil, Trash2, ShoppingBag, Search, X, Loader2, Star, ExternalLi
 
 interface Category { id: string; name: string; }
 interface Product {
-    id: string; title: string; slug: string; image?: string | null; description?: string | null;
+    id: string; title: string; slug: string; image?: string | null; images: string[]; description?: string | null;
     price?: number | null; originalPrice?: number | null; discount?: number | null;
     amazonLink?: string | null; flipkartLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
@@ -37,7 +37,7 @@ function ProductForm({
     const [scraped, setScraped] = useState(false);
 
     const [form, setForm] = useState<{
-        title: string; image: string; price: string; originalPrice: string;
+        title: string; image: string; images: string[]; price: string; originalPrice: string;
         discount: string; amazonLink: string; flipkartLink: string;
         featured: boolean; categoryId: string; description: string;
         cashbackAmazon: string; cashbackFlipkart: string;
@@ -45,13 +45,14 @@ function ProductForm({
     }>({
         title: initial?.title || "",
         image: initial?.image || "",
+        images: initial?.images || [],
         price: initial?.price?.toString() || "",
         originalPrice: initial?.originalPrice?.toString() || "",
         discount: initial?.discount?.toString() || "",
         amazonLink: initial?.amazonLink || "",
         flipkartLink: initial?.flipkartLink || "",
         featured: initial?.featured || false,
-        categoryId: "",
+        categoryId: initial?.categoryId || "",
         description: initial?.description || "",
         cashbackAmazon: initial?.cashbackAmazon?.toString() || "",
         cashbackFlipkart: initial?.cashbackFlipkart?.toString() || "",
@@ -93,6 +94,7 @@ function ProductForm({
                 title: data.title || f.title,
                 description: data.description || f.description,
                 image: data.image || f.image,
+                images: Array.from(new Set([...(data.images || []), f.image, data.image])).filter(Boolean) as string[],
                 price: data.price > 0 ? data.price.toString() : f.price,
                 originalPrice: data.originalPrice ? data.originalPrice.toString() : f.originalPrice,
                 discount: data.discount ? data.discount.toString() : f.discount,
@@ -192,6 +194,51 @@ function ProductForm({
                                 placeholder={placeholder} className="input-base" />
                         </div>
                     ))}
+                </div>
+
+                <div className="bg-[var(--bg-elevated)]/30 border border-[var(--border)] rounded-md p-4">
+                    <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Product Gallery</label>
+                    
+                    <div className="grid grid-cols-4 xs:grid-cols-6 gap-3 mb-4">
+                        {form.images.map((img, idx) => (
+                            <div key={idx} className="relative aspect-square border border-[var(--border)] rounded-md overflow-hidden bg-white group/img">
+                                <img src={img} alt="" className="w-full h-full object-contain p-1 mix-blend-multiply" />
+                                <button
+                                    type="button"
+                                    onClick={() => setForm(f => ({ ...f, images: f.images.filter((_, i) => i !== idx) }))}
+                                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity shadow-lg"
+                                >
+                                    <X size={10} />
+                                </button>
+                                {img === form.image && (
+                                    <div className="absolute bottom-0 inset-x-0 bg-blue-500/80 text-[8px] text-white font-bold py-0.5 text-center">PRIMARY</div>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => set("image", img)}
+                                    className="absolute inset-0 bg-black/40 text-white opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-[10px] font-bold"
+                                >
+                                    SET MAIN
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-2">
+                        <input 
+                            value={form.image} 
+                            onChange={(e) => set("image", e.target.value)} 
+                            placeholder="Current primary image URL..." 
+                            className="input-base text-xs flex-1"
+                        />
+                        <button 
+                            type="button" 
+                            onClick={() => { if(form.image) setForm(f => ({ ...f, images: [...new Set([...f.images, f.image])] })) }}
+                            className="text-[var(--brand)] text-[10px] font-bold px-2 hover:underline"
+                        >
+                            ADD TO GALLERY
+                        </button>
+                    </div>
                 </div>
 
                 <div>
@@ -294,10 +341,10 @@ export default function AdminProductsPage() {
                     <div className="divide-y divide-[var(--border)]">
                         {filtered.map((p) => (
                             <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4 hover:bg-[var(--bg-card-hover)] transition-colors group relative">
-                                <div className="w-12 h-12 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                <div className="w-12 h-12 bg-white border border-[var(--border)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden group/img">
                                     {p.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1" />
+                                        <img src={p.image} alt={p.title} className="w-full h-full object-contain p-1 mix-blend-multiply group-hover/img:scale-110 transition-transform" />
                                     ) : (
                                         <ShoppingBag size={18} className="text-gray-600" />
                                     )}

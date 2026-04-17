@@ -44,23 +44,26 @@ export function PriceTracker() {
                     </p>
                 </div>
 
-                <form onSubmit={handleTrack} className="relative group">
-                    <input
-                        type="url"
-                        placeholder="https://www.amazon.in/dp/B08L5TNJHG"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        className="w-full bg-[var(--bg-surface)] border border-[var(--border)] focus:border-[hsl(214_89%_52%/0.50)] rounded-md pl-12 pr-32 py-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none transition-all focus:ring-4 focus:ring-[hsl(214_89%_52%/0.10)]"
-                        required
-                    />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-placeholder)] w-5 h-5 group-focus-within:text-[hsl(214_89%_52%)] transition-colors" />
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white font-bold py-2.5 px-6 rounded-md transition-all flex items-center gap-2 disabled:opacity-50 text-sm"
-                    >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Analyze"}
-                    </button>
+                <form onSubmit={handleTrack} className={`relative group transition-all duration-500 ${loading ? 'scale-[0.99] opacity-80' : ''}`}>
+                    <div className={`absolute -inset-1 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_80%)] rounded-xl blur opacity-0 transition duration-1000 group-hover:opacity-20 ${loading ? 'opacity-30 animate-pulse' : ''}`} />
+                    <div className="relative">
+                        <input
+                            type="url"
+                            placeholder="Paste Amazon or Flipkart link here..."
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            className="w-full bg-[var(--bg-surface)] border border-[var(--border)] focus:border-[hsl(214_89%_52%/0.50)] rounded-xl pl-12 pr-32 py-5 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none transition-all focus:ring-8 focus:ring-[hsl(214_89%_52%/0.05)] shadow-sm"
+                            required
+                        />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-placeholder)] w-5 h-5 group-focus-within:text-[hsl(214_89%_52%)] transition-colors" />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white font-bold py-3 px-8 rounded-lg transition-all flex items-center gap-2 disabled:opacity-50 text-xs uppercase tracking-widest shadow-lg shadow-[hsl(214_89%_52%/0.20)]"
+                        >
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Track Price"}
+                        </button>
+                    </div>
                 </form>
 
                 {error && (
@@ -76,21 +79,28 @@ export function PriceTracker() {
                 <div className="animate-fade-in space-y-6">
                     {/* Product Summary */}
                     <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-xl">
-                        <div className="bg-[var(--bg-card-hover)] w-full md:w-48 aspect-square relative flex-shrink-0 border-b md:border-b-0 md:border-r border-[var(--border)]">
+                        <div className="bg-white w-full md:w-56 aspect-square relative flex-shrink-0 border-b md:border-b-0 md:border-r border-[var(--border)] group/res">
                             {data.product.image ? (
                                 <Image
                                     src={data.product.image}
                                     alt={data.product.title}
                                     fill
-                                    className="object-contain p-4"
+                                    className="object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover/res:scale-105"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center">
                                     <ShoppingCart size={44} className="text-[var(--text-muted)]" />
                                 </div>
                             )}
-                            <div className="absolute top-2 left-2 bg-[var(--bg-card)] border border-[var(--border)] text-[0.65rem] font-bold px-2 py-0.5 rounded uppercase tracking-wider text-[hsl(214_89%_52%)]">
-                                {data.product.platform}
+                            <div className="absolute top-3 left-3 flex gap-1.5">
+                                <div className="bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border)] text-[0.6rem] font-black px-2 py-1 rounded-md uppercase tracking-wider text-[hsl(214_89%_52%)] shadow-sm">
+                                    {data.product.platform}
+                                </div>
+                                {data.category && (
+                                    <div className="bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border)] text-[0.6rem] font-bold px-2 py-1 rounded-md uppercase tracking-wider text-[var(--text-muted)] shadow-sm">
+                                        {data.category}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="p-6 flex flex-col flex-1 justify-center">

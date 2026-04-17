@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
                 slug,
                 description: data.description || null,
                 image: data.image || null,
+                images: data.images || [],
                 price: data.price ? parseFloat(data.price) : null,
                 originalPrice: data.originalPrice ? parseFloat(data.originalPrice) : null,
                 discount: data.discount ? parseFloat(data.discount) : null,

@@ -137,6 +137,13 @@ export default function ProductCard({ product }: { product: Product }) {
                     </div>
                 )}
 
+                {/* Multi-image indicator badge */}
+                {(product as any).images?.length > 1 && (
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-[var(--brand)] text-white text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-lg pointer-events-none z-20">
+                        HD Gallery
+                    </div>
+                )}
+
                 {/* Price Alert Overlay */}
                 {isAlertOpen && (
                     <div className="absolute inset-0 glass-strong z-20 p-4 flex flex-col justify-center animate-scale-in rounded-none">

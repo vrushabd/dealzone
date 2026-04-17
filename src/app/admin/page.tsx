@@ -9,6 +9,18 @@ import {
 
 import SyncButton from "@/components/admin/SyncButton";
 
+const productListSelect = {
+    id: true,
+    title: true,
+    slug: true,
+    image: true,
+    price: true,
+    featured: true,
+    category: {
+        select: { name: true },
+    },
+};
+
 export default async function AdminDashboard() {
     const session = await getServerSession(authOptions);
     const now = new Date();
@@ -54,7 +66,7 @@ export default async function AdminDashboard() {
             prisma.product.findMany({
                 take: 5,
                 orderBy: { createdAt: "desc" },
-                include: { category: true },
+                select: productListSelect,
             }),
             prisma.product.findMany({
                 where: { affiliateClicks: { some: {} } },
@@ -62,7 +74,7 @@ export default async function AdminDashboard() {
                 orderBy: { affiliateClicks: { _count: 'desc' } },
                 include: { 
                     _count: { select: { affiliateClicks: true } },
-                    category: true 
+                    category: { select: { name: true } },
                 }
             })
         ]);

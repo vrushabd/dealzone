@@ -134,12 +134,26 @@ function LinkGenerator() {
 export default function AffiliateDashboard() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
 
     useEffect(() => {
         fetch('/api/products')
             .then(res => res.json())
-            .then(data => { setProducts(data); setLoading(false); })
-            .catch(err => { console.error(err); setLoading(false); });
+            .then(data => {
+                if (!Array.isArray(data)) {
+                    setLoadError(data?.error || 'Failed to load products');
+                    setProducts([]);
+                } else {
+                    setProducts(data);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoadError('Failed to load products');
+                setProducts([]);
+                setLoading(false);
+            });
     }, []);
 
     const totalClicks = products.reduce((sum, p) => sum + (p.clickCount || 0), 0);
@@ -187,6 +201,11 @@ export default function AffiliateDashboard() {
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-12 flex items-center justify-center gap-3">
                     <Loader2 className="animate-spin text-[var(--brand)]" size={24} />
                     <span className="text-[var(--text-secondary)] text-sm">Loading products...</span>
+                </div>
+            ) : loadError ? (
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-10 text-center">
+                    <p className="text-sm text-[var(--text-muted)]">{loadError}</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-2">This usually means the products API failed on the server.</p>
                 </div>
             ) : (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">

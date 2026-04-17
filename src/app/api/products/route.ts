@@ -4,6 +4,29 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import slugify from "slugify";
 
+const productApiSelect = {
+    id: true,
+    title: true,
+    slug: true,
+    description: true,
+    image: true,
+    price: true,
+    originalPrice: true,
+    discount: true,
+    amazonLink: true,
+    flipkartLink: true,
+    featured: true,
+    categoryId: true,
+    cashbackAmazon: true,
+    cashbackFlipkart: true,
+    seller: true,
+    rating: true,
+    createdAt: true,
+    updatedAt: true,
+    category: { select: { id: true, name: true, slug: true, icon: true } },
+    _count: { select: { affiliateClicks: true } },
+};
+
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
@@ -24,10 +47,7 @@ export async function GET(req: NextRequest) {
         const products = await prisma.product.findMany({
             where,
             orderBy: { createdAt: 'desc' },
-            include: {
-                category: true,
-                _count: { select: { affiliateClicks: true } }
-            }
+            select: productApiSelect,
         });
 
         const results = products.map(p => ({
@@ -62,7 +82,6 @@ export async function POST(request: NextRequest) {
                 slug,
                 description: data.description || null,
                 image: data.image || null,
-                images: data.images || [],
                 price: data.price ? parseFloat(data.price) : null,
                 originalPrice: data.originalPrice ? parseFloat(data.originalPrice) : null,
                 discount: data.discount ? parseFloat(data.discount) : null,
@@ -85,7 +104,11 @@ export async function POST(request: NextRequest) {
                 bankOffers: data.bankOffers && Array.isArray(data.bankOffers) ? data.bankOffers : [],
                 deliveryInfo: data.deliveryInfo || null,
             },
-            include: { category: true, reviews: true },
+            include: {
+                category: true,
+                reviews: true,
+                _count: { select: { affiliateClicks: true } },
+            },
         });
 
         // Record initial price point for history tracking
@@ -100,7 +123,11 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        return NextResponse.json(product);
+        return NextResponse.json({
+            ...product,
+            clickCount: product._count.affiliateClicks,
+            affiliateUrl: `/api/redirect/${product.id}`,
+        });
     } catch (error: unknown) {
         console.error('Create product error:', error);
         const msg = error instanceof Error ? error.message : "Failed to create product";

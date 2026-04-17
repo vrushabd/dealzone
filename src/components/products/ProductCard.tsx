@@ -94,7 +94,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <article className="group/card relative flex flex-col bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(214_89%_52%/0.30)] hover:shadow-[var(--shadow-elevated)]">
 
             {/* Image — portrait on mobile, landscape on desktop */}
-            <div className="relative aspect-[4/5] sm:aspect-[1/1] bg-[var(--bg-card-hover)] overflow-hidden">
+            <div className="relative aspect-[4/5] sm:aspect-[5/4] bg-[var(--bg-card-hover)] overflow-hidden">
                 <Link href={`/products/${product.slug}`} className="block w-full h-full">
                     {product.image ? (
                         <Image

@@ -102,26 +102,11 @@ export default async function HomePage() {
                     ))}
 
                     {/* Hero content */}
-                    <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-center">
-                        {/* Label pill */}
-                        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6">
-                            <Sparkles size={11} className="text-[hsl(149_100%_65%)]" />
-                            <span className="text-white/75 text-xs font-semibold tracking-widest uppercase">
-                                Price History &amp; Deal Tracker
-                            </span>
-                        </div>
-
-                        {/* Headline */}
-                        <h1 className="text-4xl sm:text-6xl font-extrabold text-white leading-[1.1] mb-4 tracking-tight">
-                            Find{" "}
-                            <span className="text-[hsl(149_100%_62%)]">Real Deals</span>
-                            <br />
-                            Skip the Fake Ones
+                    <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center flex flex-col items-center justify-center">
+                        <h1 className="sr-only">
+                            DealZone - Find Real Deals and Skip the Fake Ones
                         </h1>
-                        <p className="text-white/55 text-sm sm:text-base mb-10 max-w-lg mx-auto leading-relaxed">
-                            Track genuine price drops, compare across stores, and shop smarter every day
-                        </p>
-
+                        
                         {/* Search bar */}
                         <HeroSearch />
                     </div>

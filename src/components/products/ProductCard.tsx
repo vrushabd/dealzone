@@ -95,7 +95,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
             {/* Image — portrait on mobile, landscape on desktop */}
             <div className="relative aspect-[4/5] sm:aspect-[5/4] bg-[var(--bg-card-hover)] overflow-hidden">
-                <Link href={`/products/${product.slug}`} className="block w-full h-full">
+                <Link href={`/products/${product.slug}`} className="relative block w-full h-full">
                     {product.image ? (
                         <Image
                             src={product.image}

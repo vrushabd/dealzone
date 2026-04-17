@@ -537,13 +537,15 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     }
 
     // Image — priority order
-    let image = (
-        mainContainer.querySelector('._95YkrM img')?.getAttribute('src')  ||
-        mainContainer.querySelector('._396cs4')?.getAttribute('src')      ||
-        mainContainer.querySelector('._2r_T1I')?.getAttribute('src')      ||
-        root.querySelector('img._2r_T1I')?.getAttribute('src')   ||
-        root.querySelector('img[src*="rukminim"]')?.getAttribute('src') || ''
-    );
+    const isValidFlipkartImage = (u?: string | null) => u && u.startsWith('http') && !u.includes('.svg') && !u.includes('.gif') && !u.includes('/promos/') && !u.includes('placeholder');
+
+    let image = [
+        mainContainer.querySelector('._95YkrM img')?.getAttribute('src'),
+        mainContainer.querySelector('._396cs4')?.getAttribute('src'),
+        mainContainer.querySelector('._2r_T1I')?.getAttribute('src'),
+        root.querySelector('img._2r_T1I')?.getAttribute('src'),
+        root.querySelector('img[src*="rukminim"]')?.getAttribute('src')
+    ].find(isValidFlipkartImage) || '';
 
     // If image is still empty, look in HTML for cloudfront/rukminim URLs
     if (!image && html) {
@@ -561,11 +563,13 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     if (html) {
         try {
             // Find rukminim links inside the JSON state or raw page
-            const matches = html.match(/"(https:\/\/rukminim[^"]+?\.(?:jpg|jpeg|png|webp)\?q=\d+)"/g);
+            const matches = html.match(/"(https:\/\/rukminim[^"]+?\.(?:jpg|jpeg|png|webp)[^"]*)"/g);
             if (matches) {
                 matches.forEach(m => {
                     const cleanUrl = m.replace(/"/g, '');
-                    imagesSet.add(upscaleImageUrl(cleanUrl, 'flipkart'));
+                    if (isValidFlipkartImage(cleanUrl)) {
+                        imagesSet.add(upscaleImageUrl(cleanUrl, 'flipkart'));
+                    }
                 });
             }
         } catch {}
@@ -607,7 +611,13 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
         mainContainer.querySelector('._2d4LTz')?.text?.trim() ||
         root.querySelector('div.row-fluid-seo [itemprop="ratingValue"]')?.text?.trim() || ''
     ).replace(/[^0-9.]/g, '');
-    const rating = ratingStr ? parseFloat(ratingStr) : undefined;
+    let rating = ratingStr ? parseFloat(ratingStr) : undefined;
+    
+    // Fallback: look for averageRating in raw html json state
+    if (!rating && html) {
+        const ratingMatch = html.match(/"averageRating":\s*"?([\d.]+)"?/);
+        if (ratingMatch) rating = parseFloat(ratingMatch[1]);
+    }
 
     // Description extraction
     let description = mainContainer.querySelector('._1mXcCf')?.text?.trim() || '';
@@ -679,11 +689,13 @@ function parseFlipkartMobile(root: any, url: string): ScrapedProduct {
     ).replace(/[,₹\s]/g, '');
     const price = parseFloat(priceStr) || 0;
 
-    const image = (
-        root.querySelector('._2r_T1I')?.getAttribute('src') ||
-        root.querySelector('img[src*="rukminim"]')?.getAttribute('src') ||
-        root.querySelector('img._2amPTt')?.getAttribute('src') || ''
-    );
+    const isValidFlipkartImage = (u?: string | null) => u && u.startsWith('http') && !u.includes('.svg') && !u.includes('.gif') && !u.includes('/promos/') && !u.includes('placeholder');
+
+    const image = [
+        root.querySelector('._2r_T1I')?.getAttribute('src'),
+        root.querySelector('img[src*="rukminim"]')?.getAttribute('src'),
+        root.querySelector('img._2amPTt')?.getAttribute('src')
+    ].find(isValidFlipkartImage) || '';
 
     return { title, price, image, platform: 'flipkart', url };
 }

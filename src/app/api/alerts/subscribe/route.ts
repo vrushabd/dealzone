@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createEmailPriceAlert } from "@/lib/features/alerts/service";
 
 export async function POST(req: Request) {
     try {
@@ -9,16 +9,17 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // @ts-ignore - Prisma types may be stale
-        const alert = await prisma.priceAlert.create({
-            data: {
-                email,
-                targetPrice: parseFloat(targetPrice),
-                productId,
-            },
+        const result = await createEmailPriceAlert({
+            email,
+            targetPrice,
+            productId,
         });
 
-        return NextResponse.json({ success: true, alert });
+        if (!result.ok) {
+            return NextResponse.json({ error: result.error }, { status: result.status });
+        }
+
+        return NextResponse.json({ success: true, alert: result.alert });
     } catch (error) {
         console.error("Alert subscription error:", error);
         return NextResponse.json({ error: "Failed to set alert" }, { status: 500 });

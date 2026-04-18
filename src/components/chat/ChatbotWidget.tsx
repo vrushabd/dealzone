@@ -100,7 +100,11 @@ export default function ChatbotWidget() {
 
         const withLinks = escaped.replace(
             /\[(.*?)\]\((.*?)\)/g,
-            `<a href="$2" class="text-[hsl(214_89%_65%)] underline underline-offset-2 break-words">$1</a>`
+            (match, label, url) => {
+                const isSafe = url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/') || url.startsWith('#');
+                if (!isSafe) return label; // Return just the label as plain text if URL is suspicious
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-[hsl(214_89%_65%)] underline underline-offset-2 break-words">${label}</a>`;
+            }
         );
 
         return withLinks

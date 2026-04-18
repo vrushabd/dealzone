@@ -10,6 +10,7 @@ const productApiSelect = {
     slug: true,
     description: true,
     image: true,
+    images: true,
     price: true,
     originalPrice: true,
     discount: true,
@@ -34,7 +35,14 @@ export async function GET(req: NextRequest) {
         const category = searchParams.get('category') || '';
         const featured = searchParams.get('featured') === 'true';
 
+        const session = await getServerSession(authOptions);
+        const isAdmin = !!session;
+
         const where: any = {};
+        if (!isAdmin) {
+            where.isPublic = true;
+        }
+
         if (search) {
             where.OR = [
                 { title: { contains: search, mode: 'insensitive' } },
@@ -82,6 +90,7 @@ export async function POST(request: NextRequest) {
                 slug,
                 description: data.description || null,
                 image: data.image || null,
+                images: Array.isArray(data.images) ? data.images : [],
                 price: data.price ? parseFloat(data.price) : null,
                 originalPrice: data.originalPrice ? parseFloat(data.originalPrice) : null,
                 discount: data.discount ? parseFloat(data.discount) : null,
@@ -136,5 +145,4 @@ export async function POST(request: NextRequest) {
         console.log(`Product creation attempt finished`);
     }
 }
-
 

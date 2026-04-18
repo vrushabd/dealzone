@@ -7,13 +7,15 @@ import slugify from "slugify";
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
-        const publishedOnly = searchParams.get("published");
         const search = searchParams.get("search");
         const limit = searchParams.get("limit");
 
+        const session = await getServerSession(authOptions);
+        const isAdmin = !!session;
+
         const posts = await prisma.post.findMany({
             where: {
-                ...(publishedOnly === "true" && { published: true }),
+                ...(!isAdmin && { published: true }),
                 ...(search && {
                     OR: [{ title: { contains: search } }, { excerpt: { contains: search } }],
                 }),

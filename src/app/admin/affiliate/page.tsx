@@ -18,28 +18,22 @@ function LinkGenerator() {
         if (!url.trim()) return;
         setLoading(true); setError(''); setResult(null);
         try {
-            // Build affiliate URL client-side using the same logic as the server
-            const u = url.trim();
-            let affiliateUrl = '';
-            let platform = '';
+            const res = await fetch('/api/admin/affiliate/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url.trim() }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error || 'Failed to generate affiliate link');
 
-            if (u.includes('amazon.in') || u.includes('amzn.to') || u.includes('amazon.com')) {
-                // Extract ASIN
-                const asinMatch = u.match(/\/dp\/([A-Z0-9]{10})/) || u.match(/\/gp\/product\/([A-Z0-9]{10})/) || u.match(/\/([A-Z0-9]{10})(?:[/?]|$)/);
-                const asin = asinMatch?.[1];
-                if (!asin) throw new Error('Could not extract ASIN from this Amazon URL. Make sure it is a product page (e.g. amazon.in/dp/XXXXXXXXXX).');
-                affiliateUrl = `https://www.amazon.in/dp/${asin}?tag=dealzone-21`;
-                platform = 'amazon';
-            } else if (u.includes('flipkart.com')) {
-                const separator = u.includes('?') ? '&' : '?';
-                affiliateUrl = `${u}${separator}affid=dealzoneaff`;
-                platform = 'flipkart';
-            } else {
-                throw new Error('Only Amazon India and Flipkart URLs are supported.');
+            const affiliateUrl = data.affiliateUrl;
+            const platform = data.platform;
+            if (!affiliateUrl || !platform) {
+                throw new Error('Affiliate link generation returned an incomplete response.');
             }
             setResult({ affiliateUrl, platform });
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : 'Failed to generate affiliate link');
         } finally {
             setLoading(false);
         }
@@ -92,7 +86,7 @@ function LinkGenerator() {
                 <span className="text-[10px] text-[var(--text-muted)]">Supports:</span>
                 <span className="text-[10px] font-semibold text-[var(--warning)] bg-[var(--warning)]/10 border border-[var(--warning)]/20 px-2 py-0.5 rounded-full">amazon.in</span>
                 <span className="text-[10px] font-semibold text-[var(--brand)] bg-[var(--brand)]/10 border border-[var(--brand)]/20 px-2 py-0.5 rounded-full">flipkart.com</span>
-                <span className="text-[10px] text-[var(--text-muted)] ml-2">Tag: <code className="text-[var(--brand)] font-bold">dealzone-21</code></span>
+                <span className="text-[10px] text-[var(--text-muted)] ml-2">Uses your server-side affiliate IDs</span>
             </div>
 
             {/* Error */}

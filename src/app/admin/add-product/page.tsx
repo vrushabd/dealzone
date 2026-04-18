@@ -52,7 +52,7 @@ export default function AddViaUrlPage() {
                 discount: data.product.discount,
                 image: data.product.image,
                 platform: data.product.amazonLink ? "amazon" : data.product.flipkartLink ? "flipkart" : "unknown",
-                affiliateUrl: data.product.affiliateUrl,
+                affiliateUrl: data.product.affiliateUrl || data.product.amazonLink || data.product.flipkartLink,
                 slug: data.product.slug,
             });
             setSaved(true);

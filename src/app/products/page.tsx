@@ -37,7 +37,11 @@ export default async function ProductsPage({
     searchParams: Promise<{ category?: string; featured?: string; sort?: string; maxPrice?: string; minDiscount?: string }>;
 }) {
     const sp = await searchParams;
-    const { category, featured, sort, maxPrice, minDiscount } = sp;
+    const category = Array.isArray(sp.category) ? sp.category[0] : sp.category;
+    const featured = Array.isArray(sp.featured) ? sp.featured[0] : sp.featured;
+    const sort = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
+    const maxPrice = Array.isArray(sp.maxPrice) ? sp.maxPrice[0] : sp.maxPrice;
+    const minDiscount = Array.isArray(sp.minDiscount) ? sp.minDiscount[0] : sp.minDiscount;
 
     const maxPriceVal = maxPrice ? parseFloat(maxPrice) : undefined;
     const minDiscountVal = minDiscount ? parseFloat(minDiscount) : undefined;

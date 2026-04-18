@@ -4,7 +4,7 @@ import { Plus, Pencil, Trash2, BookOpen, Search, X, Loader2, Eye, EyeOff } from 
 
 interface Post {
     id: string; title: string; slug: string; excerpt?: string | null;
-    published: boolean; createdAt: string; image?: string | null;
+    content: string; published: boolean; createdAt: string; image?: string | null;
 }
 
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
@@ -23,7 +23,7 @@ function PostForm({ initial, onSave, onClose }: { initial?: Post | null; onSave:
     const [form, setForm] = useState({
         title: initial?.title || "",
         excerpt: initial?.excerpt || "",
-        content: "",
+        content: initial?.content || "",
         image: initial?.image || "",
         published: initial?.published || false,
     });

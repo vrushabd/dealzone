@@ -5,9 +5,15 @@ const BASE = process.env.NEXTAUTH_URL || "https://dealzone.onrender.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [products, categories, posts] = await Promise.all([
-        prisma.product.findMany({ select: { slug: true, updatedAt: true } }),
-        prisma.category.findMany({ select: { slug: true } }),          // Category has no updatedAt
-        prisma.post.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
+        prisma.product.findMany({ 
+            where: { isPublic: true },
+            select: { slug: true, updatedAt: true } 
+        }),
+        prisma.category.findMany({ select: { slug: true } }),
+        prisma.post.findMany({ 
+            where: { published: true }, 
+            select: { slug: true, updatedAt: true } 
+        }),
     ]).catch(() => [[], [], []]);
 
     const staticRoutes: MetadataRoute.Sitemap = [

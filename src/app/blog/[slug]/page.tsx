@@ -13,7 +13,7 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
-    const post = await prisma.post.findUnique({ where: { slug } });
+    const post = await prisma.post.findUnique({ where: { slug, published: true } });
     if (!post) return { title: "Post Not Found" };
     return {
         title: post.title,

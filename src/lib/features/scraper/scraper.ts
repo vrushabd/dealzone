@@ -185,11 +185,27 @@ async function fetchHtml(url: string, headers: Record<string, string>): Promise<
 // ────────────────────────────────────────────────────────────────
 // Main Entry Point
 // ────────────────────────────────────────────────────────────────
-export async function scrapeProduct(url: string): Promise<ScrapedProduct | null> {
+export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | null> {
+    let url: string;
+    let hostname: string;
+    try {
+        const parsed = new URL(rawUrl);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+        url = parsed.toString();
+        hostname = parsed.hostname.toLowerCase();
+    } catch {
+        return null; // Invalid URL
+    }
+
+    const ALLOWED_HOSTS = ['www.amazon.in', 'www.flipkart.com', 'm.flipkart.com', 'www.myntra.com', 'myntra.com', 'amazon.in', 'flipkart.com'];
+    if (!ALLOWED_HOSTS.includes(hostname)) {
+        return null; // Strict SSRF and domain check failed
+    }
+
     const platform: ScrapedProduct['platform'] =
-        url.includes('amazon') ? 'amazon' :
-        url.includes('flipkart') ? 'flipkart' :
-        url.includes('myntra') ? 'myntra' : 'unknown';
+        hostname.includes('amazon') ? 'amazon' :
+        hostname.includes('flipkart') ? 'flipkart' :
+        hostname.includes('myntra') ? 'myntra' : 'unknown';
 
     if (platform === 'unknown') return null;
 
@@ -197,7 +213,7 @@ export async function scrapeProduct(url: string): Promise<ScrapedProduct | null>
                             platform === 'flipkart' ? FLIPKART_HEADERS : BASE_HEADERS;
 
     // ── Strategy 1: Desktop fetch ─────────────────────────────────
-    let html = await fetchHtml(url, { ...platformHeaders, 'User-Agent': AMAZON_HEADERS['User-Agent'] });
+    const html = await fetchHtml(url, platformHeaders);
     let result: ScrapedProduct | null = null;
 
     if (html) {

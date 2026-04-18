@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { scrapeProduct } from '@/lib/features/scraper/scraper';
-import { sendPriceDropEmail } from '@/lib/features/email/sender';
+import { triggerPriceDropAlerts } from '@/lib/features/alerts/service';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('x-sync-secret');
-    const secret = process.env.SYNC_SECRET || 'dealzone-sync-key-v1';
+    const secret = process.env.SYNC_SECRET;
+
+    if (!secret) {
+        return NextResponse.json({ error: 'Missing SYNC_SECRET on server.' }, { status: 500 });
+    }
 
     if (authHeader !== secret) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,6 +48,9 @@ export async function GET(req: NextRequest) {
             total: products.length,
             updated: 0,
             failed: 0,
+            alertsAttempted: 0,
+            alertsSent: 0,
+            alertsFailed: 0,
         };
 
         // We process them sequentially to avoid overwhelming the scraper / getting rate limited
@@ -109,41 +116,18 @@ export async function GET(req: NextRequest) {
                             data: { price: scraped.price }
                         });
                     }
-                    // --- Price Drop Alert Notifications ---
-                    // If the price has dropped, check if any user's target has been met
-                    if (scraped.price < (product.price ?? Infinity)) {
-                        const triggeredAlerts = await prisma.priceAlert.findMany({
-                            where: {
-                                productId: product.id,
-                                isActive: true,
-                                email: { not: null },
-                                targetPrice: { gte: scraped.price },
-                            }
-                        });
+                    const alertResults = await triggerPriceDropAlerts({
+                        productId: product.id,
+                        productTitle: product.title,
+                        productSlug: product.slug,
+                        productImage: scraped.image || product.image,
+                        oldPrice: product.price,
+                        newPrice: scraped.price,
+                    });
 
-                        for (const alert of triggeredAlerts) {
-                            if (!alert.email) continue;
-                            try {
-                                await sendPriceDropEmail({
-                                    userEmail: alert.email,
-                                    productTitle: product.title,
-                                    productSlug: product.slug,
-                                    productImage: product.image,
-                                    oldPrice: product.price!,
-                                    newPrice: scraped.price,
-                                    targetPrice: alert.targetPrice,
-                                });
-                                // Deactivate alert so user isn't spammed again
-                                await prisma.priceAlert.update({
-                                    where: { id: alert.id },
-                                    data: { isActive: false }
-                                });
-                            } catch (emailErr) {
-                                console.error(`Failed to send alert email for alert ${alert.id}:`, emailErr);
-                            }
-                        }
-                    }
-                    // --- End Alert Notifications ---
+                    results.alertsAttempted += alertResults.attempted;
+                    results.alertsSent += alertResults.sent;
+                    results.alertsFailed += alertResults.failed;
 
                     results.updated++;
                 } else {

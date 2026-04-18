@@ -13,4 +13,4 @@ jobs:
       - name: Call API Route to Sync Prices
         run: |
           curl -X GET 'https://dealzone.onrender.com/api/sync' \
-          -H "x-sync-secret: ${{ secrets.CRON_SYNC_SECRET || 'dealzone-sync-key-v1' }}"
+          -H "x-sync-secret: ${{ secrets.CRON_SYNC_SECRET }}"

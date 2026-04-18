@@ -83,6 +83,19 @@ function normalizeText(value: string | null | undefined): string {
     return value?.replace(/\s+/g, ' ').trim() || '';
 }
 
+function normalizeProductTitle(value: string | null | undefined): string {
+    const normalized = normalizeText(value);
+    if (!normalized) return '';
+
+    return normalizeText(
+        normalized
+            .replace(/\(\s*[^)]*\.\.\.\s*more\)?$/i, '')
+            .replace(/\.\.\.\s*more$/i, '')
+            .replace(/\s*\bmore$/i, '')
+            .replace(/\s+\(\s*$/g, '')
+    );
+}
+
 function normalizePrice(value: unknown): number | undefined {
     if (typeof value === 'number') {
         return Number.isFinite(value) && value > 0 ? value : undefined;
@@ -209,6 +222,7 @@ function isLikelyProductImage(url: string, platform: ScrapedProduct['platform'])
         'sprite',
         'prod-fk-cms-brand-images',
         '/cms-rpd-img/',
+        '/blobio/',
         '/promos/',
         '/icons/',
         '/favicon',
@@ -245,7 +259,8 @@ function isLikelyProductImage(url: string, platform: ScrapedProduct['platform'])
 
 function dedupeImages(
     images: Array<string | null | undefined>,
-    platform: ScrapedProduct['platform']
+    platform: ScrapedProduct['platform'],
+    limit = 8
 ): string[] {
     const unique = new Set<string>();
 
@@ -261,7 +276,7 @@ function dedupeImages(
         }
     }
 
-    return Array.from(unique).slice(0, 8);
+    return Array.from(unique).slice(0, limit);
 }
 
 function titleFromSlug(url: string): string {
@@ -367,12 +382,14 @@ function hasMeaningfulProductData(product: ScrapedProduct | null): boolean {
 function sanitizeScrapedProduct(product: ScrapedProduct | null): ScrapedProduct | null {
     if (!product) return null;
 
-    const title = isMeaningfulTitle(product.title, product.platform)
-        ? normalizeText(product.title)
+    const normalizedTitle = normalizeProductTitle(product.title);
+    const title = isMeaningfulTitle(normalizedTitle, product.platform)
+        ? normalizedTitle
         : '';
     const imageList = dedupeImages(
         [product.image, ...(product.images || [])],
-        product.platform
+        product.platform,
+        4
     );
     const image = imageList[0] || '';
     const price = normalizePrice(product.price) || 0;
@@ -431,7 +448,7 @@ function applyStructuredData(
     }
 
     const product: ScrapedProduct = {
-        title: base?.title || structured.title || '',
+        title: normalizeProductTitle(base?.title || structured.title || ''),
         price: base?.price || structured.price || 0,
         originalPrice: base?.originalPrice || structured.originalPrice,
         discount: base?.discount,
@@ -441,7 +458,7 @@ function applyStructuredData(
             base?.image,
             ...(structured.images || []),
             structured.image,
-        ], platform),
+        ], platform, 4),
         seller: base?.seller,
         rating: base?.rating || structured.rating,
         availability: base?.availability || structured.availability,
@@ -514,7 +531,7 @@ function parseJsonLd(html: string, platform: ScrapedProduct['platform']): Struct
                 const aggregateRating = isRecord(product['aggregateRating']) ? product['aggregateRating'] : undefined;
 
                 return {
-                    title: typeof product['name'] === 'string' ? normalizeText(product['name']) : undefined,
+                    title: typeof product['name'] === 'string' ? normalizeProductTitle(product['name']) : undefined,
                     image: images[0],
                     images,
                     price: normalizePrice(isRecord(offer) ? offer['price'] : undefined),
@@ -562,7 +579,7 @@ function parseFlipkartWindowState(html: string): StructuredDataProduct {
 
         return {
             title: typeof productDescription?.completeProductName === 'string'
-                ? normalizeText(productDescription.completeProductName)
+                ? normalizeProductTitle(productDescription.completeProductName)
                 : undefined,
             image: images[0],
             images,
@@ -579,7 +596,7 @@ function parseOpenGraph(root: HTMLElement, platform: ScrapedProduct['platform'])
         root.querySelector(`meta[property="og:${name}"]`)?.getAttribute('content') ||
         root.querySelector(`meta[name="og:${name}"]`)?.getAttribute('content') || '';
 
-    const title = normalizeText(og('title') || root.querySelector('title')?.text || '');
+    const title = normalizeProductTitle(og('title') || root.querySelector('title')?.text || '');
     const image = toAbsoluteImageUrl(og('image') || '', platform);
     const price = normalizePrice(og('price:amount'));
 
@@ -932,7 +949,7 @@ function parseAmazon(root: HTMLElement, url: string): ScrapedProduct {
     );
 
     return {
-        title,
+        title: normalizeProductTitle(title),
         price,
         originalPrice,
         discount,
@@ -952,7 +969,7 @@ function parseAmazon(root: HTMLElement, url: string): ScrapedProduct {
 function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedProduct {
     const mainContainer = root.querySelector('.aMaAEs') || root.querySelector('.DOjaZg') || root;
 
-    const title = normalizeText(
+    const title = normalizeProductTitle(
         mainContainer.querySelector('.VU-Z7x')?.text ||
         mainContainer.querySelector('h1.yhB1nd')?.text ||
         mainContainer.querySelector('.B_NuCI')?.text ||
@@ -1023,7 +1040,7 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
         image,
         ...(html?.match(/"(https:\/\/rukminim[^"]+?\.(?:jpg|jpeg|png|webp)[^"]*)"/g) || [])
             .map((value) => value.replace(/"/g, '')),
-    ], 'flipkart');
+    ], 'flipkart', 4);
 
     let category = '';
     if (html) {
@@ -1092,7 +1109,7 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
     );
 
     return {
-        title,
+        title: normalizeProductTitle(title),
         price,
         originalPrice,
         discount,
@@ -1110,7 +1127,7 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
 }
 
 function parseFlipkartMobile(root: HTMLElement, url: string): ScrapedProduct {
-    const title = normalizeText(
+    const title = normalizeProductTitle(
         root.querySelector('.x4eQg')?.text ||
         root.querySelector('h1')?.text ||
         root.querySelector('._9roun')?.text ||
@@ -1132,7 +1149,7 @@ function parseFlipkartMobile(root: HTMLElement, url: string): ScrapedProduct {
 }
 
 function parseMyntra(root: HTMLElement, url: string, html?: string): ScrapedProduct {
-    const title = normalizeText([
+    const title = normalizeProductTitle([
         root.querySelector('.pdp-title')?.text,
         root.querySelector('.pdp-name')?.text,
     ].filter(Boolean).join(' '));

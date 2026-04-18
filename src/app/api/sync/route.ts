@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { scrapeProduct } from '@/lib/features/scraper/scraper';
+import { scrapeProduct, type ScrapedProduct } from '@/lib/features/scraper/scraper';
 import { triggerPriceDropAlerts } from '@/lib/features/alerts/service';
 
 export const dynamic = 'force-dynamic';
+
+type ScrapedReview = NonNullable<ScrapedProduct['reviews']>[number];
 
 /**
  * GET /api/sync
@@ -64,7 +67,7 @@ export async function GET(req: NextRequest) {
                     const platform = url.includes('amazon') ? 'amazon' : 'flipkart';
                     
                     // Update main product record
-                    const updateData: any = {
+                    const updateData: Prisma.ProductUpdateInput = {
                         price: scraped.price,
                         originalPrice: scraped.originalPrice || product.originalPrice,
                         image: scraped.image || product.image,
@@ -72,11 +75,11 @@ export async function GET(req: NextRequest) {
                     };
                     if (scraped.description) updateData.description = scraped.description;
                     if (scraped.seller) updateData.seller = scraped.seller;
-                    if (scraped.rating) updateData.rating = scraped.rating;
+                    if (typeof scraped.rating === 'number') updateData.rating = scraped.rating;
                     if (scraped.reviews && scraped.reviews.length > 0) {
                         updateData.reviews = {
                             deleteMany: {},
-                            create: scraped.reviews.map((r: any) => ({
+                            create: scraped.reviews.map((r: ScrapedReview) => ({
                                 rating: r.rating,
                                 title: r.title,
                                 comment: r.comment,

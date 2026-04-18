@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import {
-    ShoppingBag, BookOpen, Tag, TrendingUp,
+    ShoppingBag, TrendingUp,
     Plus, ArrowRight, Star, Users, Monitor, BarChart3, Activity
 } from "lucide-react";
 
@@ -24,8 +25,29 @@ const productListSelect = {
     },
 };
 
+type RecentProduct = {
+    id: string;
+    title: string;
+    slug: string;
+    image: string | null;
+    price: number | null;
+    featured: boolean;
+    category: { name: string } | null;
+};
+
+type TrendingProduct = {
+    id: string;
+    title: string;
+    category: { name: string } | null;
+    _count: { affiliateClicks: number };
+};
+
 export default async function AdminDashboard() {
     const session = await getServerSession(authOptions);
+    if (!session) {
+        redirect("/admin/login");
+    }
+
     const now = new Date();
     const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
     const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
@@ -33,16 +55,14 @@ export default async function AdminDashboard() {
     const startOfMonth = new Date(new Date().setMonth(new Date().getMonth() - 1));
 
     // Split queries to avoid hitting EMAXCONNSESSION (15 limit) and add error handling
-    let productCount = 0, postCount = 0, categoryCount = 0, featuredCount = 0, totalClicks = 0;
+    let productCount = 0, featuredCount = 0, totalClicks = 0;
     try {
         const stats_counts = await Promise.all([
             prisma.product.count(),
-            prisma.post.count(),
-            prisma.category.count(),
             prisma.product.count({ where: { featured: true } }),
             prisma.affiliateClick.count(),
         ]);
-        [productCount, postCount, categoryCount, featuredCount, totalClicks] = stats_counts;
+        [productCount, featuredCount, totalClicks] = stats_counts;
     } catch (e) {
         console.error("Dashboard stats error:", e);
     }
@@ -63,7 +83,7 @@ export default async function AdminDashboard() {
         console.error("Dashboard views error:", e);
     }
 
-    let recentProducts: any[] = [], trendingProducts: any[] = [];
+    let recentProducts: RecentProduct[] = [], trendingProducts: TrendingProduct[] = [];
     try {
         const products_data = await Promise.all([
             prisma.product.findMany({
@@ -107,7 +127,7 @@ export default async function AdminDashboard() {
                 <h1 className="text-2xl font-bold text-[var(--text-primary)]">
                     Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"} 👋
                 </h1>
-                <p className="text-[var(--text-secondary)] mt-1">Here's what's happening with your store.</p>
+                <p className="text-[var(--text-secondary)] mt-1">Here is what is happening with your store.</p>
             </div>
 
             {/* Stats Grid */}
@@ -153,10 +173,10 @@ export default async function AdminDashboard() {
             {/* Quick Actions */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
                 {[
-                    { href: "/admin/products", label: "Add Product", icon: ShoppingBag, desc: "Upload new affiliate deal" },
-                    { href: "/admin/posts", label: "New Post", icon: BookOpen, desc: "Write a blog post" },
-                    { href: "/admin/categories", label: "Add Category", icon: Tag, desc: "Organise your products" },
-                ].map(({ href, label, icon: Icon, desc }) => (
+                    { href: "/admin/products", label: "Add Product", desc: "Upload new affiliate deal" },
+                    { href: "/admin/posts", label: "New Post", desc: "Write a blog post" },
+                    { href: "/admin/categories", label: "Add Category", desc: "Organise your products" },
+                ].map(({ href, label, desc }) => (
                     <Link
                         key={href}
                         href={href}
@@ -243,14 +263,14 @@ export default async function AdminDashboard() {
                                         <div className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-2">
                                             {p.category?.name} • 
                                             <span className="inline-flex items-center gap-1 text-[var(--brand)] font-bold">
-                                                 <Activity size={10} /> {(p as any)._count.affiliateClicks} CLICKS
+                                                 <Activity size={10} /> {p._count.affiliateClicks} CLICKS
                                             </span>
                                         </div>
                                     </div>
                                     <div className="w-16 h-1 w-16 bg-[var(--bg-elevated)] rounded-full overflow-hidden relative">
                                         <div 
                                             className="absolute inset-y-0 left-0 bg-[var(--brand)] rounded-full" 
-                                            style={{ width: `${Math.min(100, ((p as any)._count.affiliateClicks / Math.max(1, totalClicks)) * 400)}%` }}
+                                            style={{ width: `${Math.min(100, (p._count.affiliateClicks / Math.max(1, totalClicks)) * 400)}%` }}
                                         />
                                     </div>
                                 </div>

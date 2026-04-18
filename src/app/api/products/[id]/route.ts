@@ -28,6 +28,13 @@ const productDetailSelect = {
     reviews: true,
 };
 
+type ProductReviewPayload = {
+    rating: number;
+    title?: string | null;
+    comment: string;
+    author?: string | null;
+};
+
 // GET single product by id
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -73,7 +80,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 rating: data.rating ? parseFloat(data.rating) : null,
                 reviews: data.reviews && Array.isArray(data.reviews) ? {
                     deleteMany: {},
-                    create: data.reviews.map((r: any) => ({
+                    create: data.reviews.map((r: ProductReviewPayload) => ({
                         rating: r.rating,
                         title: r.title,
                         comment: r.comment,

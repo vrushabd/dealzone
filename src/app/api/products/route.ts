@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -28,6 +29,13 @@ const productApiSelect = {
     _count: { select: { affiliateClicks: true } },
 };
 
+type ProductReviewPayload = {
+    rating: number;
+    title?: string | null;
+    comment: string;
+    author?: string | null;
+};
+
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
@@ -38,7 +46,7 @@ export async function GET(req: NextRequest) {
         const session = await getServerSession(authOptions);
         const isAdmin = !!session;
 
-        const where: any = {};
+        const where: Prisma.ProductWhereInput = {};
         if (!isAdmin) {
             where.isPublic = true;
         }
@@ -103,7 +111,7 @@ export async function POST(request: NextRequest) {
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
                 reviews: data.reviews && Array.isArray(data.reviews) ? {
-                    create: data.reviews.map((r: any) => ({
+                    create: data.reviews.map((r: ProductReviewPayload) => ({
                         rating: r.rating,
                         title: r.title,
                         comment: r.comment,
@@ -145,4 +153,3 @@ export async function POST(request: NextRequest) {
         console.log(`Product creation attempt finished`);
     }
 }
-

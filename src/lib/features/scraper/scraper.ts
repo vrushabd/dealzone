@@ -1,4 +1,4 @@
-import { parse } from 'node-html-parser';
+import { parse, type HTMLElement } from 'node-html-parser';
 
 export interface ScrapedProduct {
     title: string;
@@ -18,6 +18,12 @@ export interface ScrapedProduct {
     deliveryInfo?: string;
     reviews?: { rating: number, title?: string, comment: string, author?: string }[];
     fromUrl?: boolean;
+}
+
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+    return typeof value === 'object' && value !== null;
 }
 
 /** Extract a human-readable name from a URL slug */
@@ -65,17 +71,21 @@ function parseJsonLd(html: string): { title?: string; image?: string; price?: nu
         const matches = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
         for (const match of matches) {
             try {
-                const data = JSON.parse(match[1]);
-                const nodes: any[] = Array.isArray(data['@graph'])
-                    ? data['@graph']
-                    : [data];
-                const product = nodes.find((n: any) => n['@type'] === 'Product' || n['@type'] === 'IndividualProduct');
+                const data = JSON.parse(match[1]) as unknown;
+                const graph = isRecord(data) ? data['@graph'] : undefined;
+                const nodes = Array.isArray(graph) ? graph : [data];
+                const product = nodes.find((node): node is JsonRecord => (
+                    isRecord(node) &&
+                    (node['@type'] === 'Product' || node['@type'] === 'IndividualProduct')
+                ));
                 if (!product) continue;
-                const offer = Array.isArray(product.offers) ? product.offers[0] : product.offers;
-                const price = offer?.price ? parseFloat(String(offer.price).replace(/[,₹\s]/g, '')) : 0;
-                const image = Array.isArray(product.image) ? product.image[0] : product.image;
+                const offer = Array.isArray(product['offers']) ? product['offers'][0] : product['offers'];
+                const priceValue = isRecord(offer) ? offer['price'] : undefined;
+                const price = priceValue ? parseFloat(String(priceValue).replace(/[,₹\s]/g, '')) : 0;
+                const imageValue = product['image'];
+                const image = Array.isArray(imageValue) ? imageValue[0] : imageValue;
                 return {
-                    title: product.name || '',
+                    title: typeof product['name'] === 'string' ? product['name'] : '',
                     image: typeof image === 'string' ? image : '',
                     price,
                 };
@@ -109,7 +119,7 @@ function parseFlipkartWindowState(html: string): { title?: string; image?: strin
 }
 
 /** Extract Open Graph / meta tag data — works even on some bot-detection pages */
-function parseOpenGraph(root: any): { title?: string; image?: string; price?: number } {
+function parseOpenGraph(root: HTMLElement): { title?: string; image?: string; price?: number } {
     const og = (name: string) =>
         root.querySelector(`meta[property="og:${name}"]`)?.getAttribute('content') ||
         root.querySelector(`meta[name="og:${name}"]`)?.getAttribute('content') || '';
@@ -126,8 +136,6 @@ function parseOpenGraph(root: any): { title?: string; image?: string; price?: nu
 // ────────────────────────────────────────────────────────────────
 const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 const CHROME_MAC_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-const GOOGLEBOT_UA = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
-
 const BASE_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
     'Accept-Language': 'en-IN,en-US;q=0.9,en;q=0.8,hi;q=0.7',
@@ -334,7 +342,7 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
 // Platform Parsers
 // ────────────────────────────────────────────────────────────────
 
-function parseAmazon(root: any, url: string): ScrapedProduct {
+function parseAmazon(root: HTMLElement, url: string): ScrapedProduct {
     const title = (
         root.querySelector('#productTitle')?.text?.trim() ||
         root.querySelector('span#productTitle')?.text?.trim() ||
@@ -440,8 +448,8 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
 
     // Description extraction
     const descriptionLines = Array.from(root.querySelectorAll('#feature-bullets li span.a-list-item'))
-        .map((el: any) => el?.text?.trim())
-        .filter((t: string) => t && t.length > 5);
+        .map((el) => el.text?.trim() || '')
+        .filter((text) => text.length > 5);
     
     let description = descriptionLines.join('\n');
     if (!description) {
@@ -465,7 +473,7 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     const bankOffers: string[] = [];
     try {
         const offerEls = root.querySelectorAll('#bankOffer_feature_div .a-carousel-card span.a-truncate-full, #bankOffer_feature_div .a-section-bank-offer span');
-        offerEls.forEach((el: any) => {
+        offerEls.forEach((el) => {
             const txt = el.text?.trim();
             if (txt && txt.length > 10 && !bankOffers.includes(txt)) bankOffers.push(txt);
         });
@@ -477,7 +485,7 @@ function parseAmazon(root: any, url: string): ScrapedProduct {
     return { title, price, originalPrice, discount, image, images, platform: 'amazon', url, category, rating, description, reviews, bankOffers, deliveryInfo };
 }
 
-function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
+function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedProduct {
     // Scoping to main product container to avoid picking up similar products/ads
     const mainContainer = root.querySelector('.aMaAEs') || root.querySelector('.DOjaZg') || root;
     
@@ -679,7 +687,7 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     try {
         // Flipkart offers often in <li> with specific classes
         const offerEls = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span');
-        offerEls.forEach((el: any) => {
+        offerEls.forEach((el) => {
             const txt = el.text?.trim();
             if (txt && txt.length > 15 && (txt.includes('Bank Offer') || txt.includes('% off')) && !bankOffers.includes(txt)) {
                 bankOffers.push(txt);
@@ -708,7 +716,7 @@ function parseFlipkart(root: any, url: string, html?: string): ScrapedProduct {
     };
 }
 
-function parseFlipkartMobile(root: any, url: string): ScrapedProduct {
+function parseFlipkartMobile(root: HTMLElement, url: string): ScrapedProduct {
     const title = (
         root.querySelector('.x4eQg')?.text?.trim()  ||
         root.querySelector('h1')?.text?.trim()       ||
@@ -733,7 +741,7 @@ function parseFlipkartMobile(root: any, url: string): ScrapedProduct {
     return { title, price, image, platform: 'flipkart', url };
 }
 
-function parseMyntra(root: any, url: string): ScrapedProduct {
+function parseMyntra(root: HTMLElement, url: string): ScrapedProduct {
     const title = [
         root.querySelector('.pdp-title')?.text?.trim(),
         root.querySelector('.pdp-name')?.text?.trim(),

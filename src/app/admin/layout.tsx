@@ -1,11 +1,19 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-    // Note: Authentication is now handled by src/middleware.ts
-    // This layout is shared by all /admin routes including /admin/login
-    // We only show the sidebar if we are NOT on the login page
-    // However, for simplicity and to avoid layout shifts, we keep it basic
-    // or we can use a (protected) group. For now, let's just make it stable.
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+    const isLoginPage = pathname === "/admin/login";
+
+    if (isLoginPage) {
+        return (
+            <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
+                {children}
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] md:flex">

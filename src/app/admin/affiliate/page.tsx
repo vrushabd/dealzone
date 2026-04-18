@@ -6,6 +6,17 @@ import {
     Sparkles, BarChart3, MousePointer2, Zap, AlertCircle
 } from 'lucide-react';
 
+interface AffiliateProductRow {
+    id: string;
+    title: string;
+    image?: string | null;
+    price?: number | null;
+    clickCount?: number;
+    amazonLink?: string | null;
+    flipkartLink?: string | null;
+    affiliateUrl?: string | null;
+}
+
 // ── Inline Link Generator ─────────────────────────────────────────────────────
 function LinkGenerator() {
     const [url, setUrl] = useState('');
@@ -126,7 +137,7 @@ function LinkGenerator() {
 
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 export default function AffiliateDashboard() {
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<AffiliateProductRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState('');
 
@@ -220,10 +231,14 @@ export default function AffiliateDashboard() {
                             </thead>
                             <tbody className="divide-y divide-[var(--border)]">
                                 {products.map((product) => (
+                                    (() => {
+                                        const link = product.affiliateUrl ?? product.amazonLink ?? product.flipkartLink;
+                                        return (
                                     <tr key={product.id} className="hover:bg-[var(--bg-card-hover)] transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-md bg-[var(--bg-elevated)] overflow-hidden flex-shrink-0 border border-[var(--border)]">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     {product.image && <img src={product.image} className="w-full h-full object-contain p-1" alt="" />}
                                                 </div>
                                                 <div className="min-w-0">
@@ -251,9 +266,9 @@ export default function AffiliateDashboard() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            {(product.amazonLink || product.flipkartLink || product.affiliateUrl) ? (
+                                            {link ? (
                                                 <a
-                                                    href={product.affiliateUrl || product.amazonLink || product.flipkartLink}
+                                                    href={link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-elevated)] hover:bg-[var(--bg-card-hover)] text-[10px] font-bold rounded-lg border border-[var(--border)] transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -265,6 +280,8 @@ export default function AffiliateDashboard() {
                                             )}
                                         </td>
                                     </tr>
+                                        );
+                                    })()
                                 ))}
                             </tbody>
                         </table>

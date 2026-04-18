@@ -202,6 +202,7 @@ function ProductForm({
                     <div className="grid grid-cols-4 xs:grid-cols-6 gap-3 mb-4">
                         {form.images.map((img, idx) => (
                             <div key={idx} className="relative aspect-square border border-[var(--border)] rounded-md overflow-hidden bg-white group/img">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={img} alt="" className="w-full h-full object-contain p-1 mix-blend-multiply" />
                                 <button
                                     type="button"

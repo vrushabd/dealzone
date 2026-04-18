@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, BookOpen, Search, X, Loader2, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, BookOpen, Search, X, Loader2, Eye } from "lucide-react";
 
 interface Post {
     id: string; title: string; slug: string; excerpt?: string | null;
@@ -114,18 +114,25 @@ export default function AdminPostsPage() {
     const [deleting, setDeleting] = useState<string | null>(null);
 
     const load = async () => {
-        setLoading(true);
-        const data = await fetch("/api/posts").then(r => r.json());
-        setPosts(data); setLoading(false);
+        try {
+            const data = await fetch("/api/posts").then(r => r.json());
+            setPosts(data);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => { load(); }, []);
+    useEffect(() => {
+        void load();
+    }, []);
 
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this post?")) return;
         setDeleting(id);
+        setLoading(true);
         await fetch(`/api/posts/${id}`, { method: "DELETE" });
-        setDeleting(null); load();
+        setDeleting(null);
+        await load();
     };
 
     const filtered = posts.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
@@ -192,7 +199,15 @@ export default function AdminPostsPage() {
             )}
 
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-                <PostForm initial={editing} onSave={() => { setModalOpen(false); load(); }} onClose={() => setModalOpen(false)} />
+                <PostForm
+                    initial={editing}
+                    onSave={async () => {
+                        setModalOpen(false);
+                        setLoading(true);
+                        await load();
+                    }}
+                    onClose={() => setModalOpen(false)}
+                />
             </Modal>
         </div>
     );

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
     Link2, Loader2, Check, Copy, ExternalLink, Zap,
-    ShoppingBag, Package, AlertCircle, ChevronRight, RefreshCw
+    Package, AlertCircle, RefreshCw
 } from "lucide-react";
 
 interface ScrapedResult {
@@ -22,7 +22,6 @@ export default function AddViaUrlPage() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<ScrapedResult | null>(null);
     const [error, setError] = useState("");
-    const [saved, setSaved] = useState(false);
     const [copying, setCopying] = useState(false);
 
     const handleFetch = async () => {
@@ -30,7 +29,6 @@ export default function AddViaUrlPage() {
         setLoading(true);
         setError("");
         setResult(null);
-        setSaved(false);
 
         try {
             const res = await fetch("/api/product/add", {
@@ -55,9 +53,8 @@ export default function AddViaUrlPage() {
                 affiliateUrl: data.product.affiliateUrl || data.product.amazonLink || data.product.flipkartLink,
                 slug: data.product.slug,
             });
-            setSaved(true);
-        } catch (e: any) {
-            setError(e.message || "Something went wrong");
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "Something went wrong");
         } finally {
             setLoading(false);
         }
@@ -250,7 +247,7 @@ export default function AddViaUrlPage() {
                                 View Product
                             </a>
                             <button
-                                onClick={() => { setAmazonUrl(""); setFlipkartUrl(""); setResult(null); setSaved(false); }}
+                                onClick={() => { setAmazonUrl(""); setFlipkartUrl(""); setResult(null); }}
                                 className="flex-1 flex items-center justify-center gap-1.5 btn-primary shine-on-hover text-xs py-2.5"
                             >
                                 <RefreshCw size={13} />

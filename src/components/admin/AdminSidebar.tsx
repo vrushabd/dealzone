@@ -18,17 +18,23 @@ const navItems = [
     { href: "/admin/affiliate", label: "Affiliate Links", icon: BarChart3 },
 ];
 
-export default function AdminSidebar() {
-    const pathname = usePathname();
-    const [collapsed, setCollapsed] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
+function isActivePath(pathname: string, href: string, exact?: boolean) {
+    return exact ? pathname === href : pathname.startsWith(href);
+}
 
-    const isActive = (href: string, exact?: boolean) =>
-        exact ? pathname === href : pathname.startsWith(href);
-
-    const SidebarContent = () => (
+function SidebarContent({
+    pathname,
+    collapsed,
+    onNavigate,
+    onSignOut,
+}: {
+    pathname: string;
+    collapsed: boolean;
+    onNavigate: () => void;
+    onSignOut: () => void;
+}) {
+    return (
         <div className="flex flex-col h-full">
-            {/* Logo */}
             <div className={`flex items-center gap-2.5 px-4 py-5 border-b border-[var(--border)] ${collapsed ? "justify-center" : ""}`}>
                 <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-[hsl(214_89%_52%/0.25)]">
                     <Zap size={16} className="text-white" />
@@ -36,15 +42,14 @@ export default function AdminSidebar() {
                 {!collapsed && <span className="text-base font-bold gradient-text">DealZone</span>}
             </div>
 
-            {/* Nav items */}
             <nav className="flex-1 p-3 space-y-1">
                 {navItems.map(({ href, label, icon: Icon, exact }) => {
-                    const active = isActive(href, exact);
+                    const active = isActivePath(pathname, href, exact);
                     return (
                         <Link
                             key={href}
                             href={href}
-                            onClick={() => setMobileOpen(false)}
+                            onClick={onNavigate}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group relative
                 ${active
                                     ? "bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_55%)] shadow-sm"
@@ -60,7 +65,6 @@ export default function AdminSidebar() {
                 })}
             </nav>
 
-            {/* Footer actions */}
             <div className="p-3 border-t border-[var(--border)] space-y-1">
                 <a
                     href="/"
@@ -70,14 +74,14 @@ export default function AdminSidebar() {
                     <ExternalLink size={17} className="text-[var(--text-muted)] flex-shrink-0" />
                     {!collapsed && <span>View Site</span>}
                 </a>
-                
+
                 <div className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
                     <GlobalThemeToggle />
                     {!collapsed && <span>Global Default Theme</span>}
                 </div>
 
                 <button
-                    onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                    onClick={onSignOut}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-red-400 hover:bg-red-500/10 transition-all"
                 >
                     <LogOut size={17} className="text-[var(--text-muted)] flex-shrink-0" />
@@ -86,6 +90,13 @@ export default function AdminSidebar() {
             </div>
         </div>
     );
+}
+
+export default function AdminSidebar() {
+    const pathname = usePathname();
+    const [collapsed, setCollapsed] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const safePathname = pathname || "";
 
     return (
         <>
@@ -99,7 +110,12 @@ export default function AdminSidebar() {
                 >
                     {collapsed ? <ChevronRight size={12} /> : <X size={12} />}
                 </button>
-                <SidebarContent />
+                <SidebarContent
+                    pathname={safePathname}
+                    collapsed={collapsed}
+                    onNavigate={() => setMobileOpen(false)}
+                    onSignOut={() => signOut({ callbackUrl: "/admin/login" })}
+                />
             </aside>
 
             {/* Mobile top bar */}
@@ -118,7 +134,12 @@ export default function AdminSidebar() {
                         <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                             <X size={20} />
                         </button>
-                        <SidebarContent />
+                        <SidebarContent
+                            pathname={safePathname}
+                            collapsed={false}
+                            onNavigate={() => setMobileOpen(false)}
+                            onSignOut={() => signOut({ callbackUrl: "/admin/login" })}
+                        />
                     </aside>
                 </div>
             )}

@@ -25,7 +25,7 @@ export function GlobalThemeToggle() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ defaultTheme: newTheme })
             });
-        } catch (e) {
+        } catch {
             console.error("Failed to save theme");
         }
     };

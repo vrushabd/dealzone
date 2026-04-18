@@ -101,6 +101,8 @@ function ProductForm({
                 discount: data.discount ? data.discount.toString() : f.discount,
                 amazonLink: data.platform === "amazon" ? urlInput.trim() : f.amazonLink,
                 flipkartLink: data.platform === "flipkart" ? urlInput.trim() : f.flipkartLink,
+                seller: data.seller || f.seller,
+                rating: typeof data.rating === "number" && data.rating > 0 ? data.rating.toString() : f.rating,
                 categoryId: matchedCategoryId,
             }));
             setScraped(true);

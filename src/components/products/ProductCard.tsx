@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ArrowRight } from "lucide-react";
+import { Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ArrowRight, Star } from "lucide-react";
 
 interface Product {
     id: string;
@@ -20,6 +20,7 @@ interface Product {
     cashbackFlipkart?: number | null;
     cashbackPaytm?: number | null;
     cashbackPhonePe?: number | null;
+    rating?: number | null;
     category?: { name: string; slug: string } | null;
 }
 
@@ -197,6 +198,16 @@ export default function ProductCard({ product }: { product: Product }) {
                         {product.title}
                     </h2>
                 </Link>
+
+                {typeof product.rating === "number" && product.rating > 0 && (
+                    <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
+                            <Star size={11} className="fill-current" />
+                            {product.rating.toFixed(1)}
+                        </span>
+                        <span className="text-[var(--text-muted)]">/ 5 rating</span>
+                    </div>
+                )}
 
                 {/* Pricing — fixed min-height so rows align */}
                 <div className="flex flex-col gap-1 mb-3 min-h-[3.5rem]">

@@ -348,6 +348,30 @@ function isLikelyProductUrl(url: string, platform: ScrapedProduct['platform']): 
     }
 }
 
+function normalizeProductUrl(parsed: URL, platform: ScrapedProduct['platform']): string {
+    if (platform === 'amazon') {
+        const asinMatch = parsed.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([a-z0-9]{10})/i);
+        if (asinMatch) {
+            return `${parsed.origin}/dp/${asinMatch[1].toUpperCase()}`;
+        }
+    }
+
+    if (platform === 'flipkart') {
+        const normalized = new URL(`${parsed.origin}${parsed.pathname}`);
+        const pid = parsed.searchParams.get('pid');
+        if (pid) {
+            normalized.searchParams.set('pid', pid);
+        }
+        return normalized.toString();
+    }
+
+    if (platform === 'myntra') {
+        return `${parsed.origin}${parsed.pathname}`;
+    }
+
+    return parsed.toString();
+}
+
 function isBotPage(html: string, title: string): boolean {
     const botPhrases = [
         'are you a human',
@@ -648,25 +672,37 @@ const MOBILE_HEADERS = {
 };
 
 async function fetchHtml(url: string, headers: Record<string, string>): Promise<FetchResult | null> {
-    try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        const response = await fetch(url, {
-            headers,
-            redirect: 'follow',
-            signal: controller.signal,
-            cache: 'no-store',
-        });
-        clearTimeout(timeout);
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 12000);
+            const response = await fetch(url, {
+                headers,
+                redirect: 'follow',
+                signal: controller.signal,
+                cache: 'no-store',
+            });
+            clearTimeout(timeout);
 
-        return {
-            html: await response.text(),
-            status: response.status,
-            finalUrl: response.url,
-        };
-    } catch {
-        return null;
+            const result = {
+                html: await response.text(),
+                status: response.status,
+                finalUrl: response.url,
+            };
+
+            if (![429, 503, 529].includes(result.status) || attempt === 1) {
+                return result;
+            }
+        } catch {
+            if (attempt === 1) {
+                return null;
+            }
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
     }
+
+    return null;
 }
 
 export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | null> {
@@ -700,6 +736,8 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
         hostname.includes('flipkart') ? 'flipkart' :
         hostname.includes('myntra') ? 'myntra' :
         'unknown';
+
+    url = normalizeProductUrl(new URL(url), platform);
 
     if (platform === 'unknown' || !isLikelyProductUrl(url, platform)) {
         return null;

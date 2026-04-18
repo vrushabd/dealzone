@@ -28,6 +28,7 @@ const productCardSelect = {
     cashbackFlipkart: true,
     cashbackPaytm: true,
     cashbackPhonePe: true,
+    rating: true,
     category: { select: { name: true, slug: true } },
 };
 

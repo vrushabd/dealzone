@@ -25,6 +25,7 @@ const productCardSelect = {
     amazonLink: true, flipkartLink: true,
     cashbackAmazon: true, cashbackFlipkart: true,
     cashbackPaytm: true, cashbackPhonePe: true,
+    rating: true,
     category: { select: { name: true, slug: true } },
 };
 
@@ -37,8 +38,36 @@ const QUICK_LINKS = [
     { href: "/compare",       label: "Price Comparison Tool" },
 ];
 
+type HomeProduct = {
+    id: string;
+    title: string;
+    slug: string;
+    description: string | null;
+    image: string | null;
+    price: number | null;
+    originalPrice: number | null;
+    discount: number | null;
+    amazonLink: string | null;
+    flipkartLink: string | null;
+    cashbackAmazon: number | null;
+    cashbackFlipkart: number | null;
+    cashbackPaytm: number | null;
+    cashbackPhonePe: number | null;
+    rating: number | null;
+    category: { name: string; slug: string } | null;
+};
+
+type HomeCategory = {
+    id: string;
+    name: string;
+    slug: string;
+    icon: string | null;
+    _count: { products: number };
+    products: Array<{ image: string | null; price: number | null }>;
+};
+
 export default async function HomePage() {
-    const [latestProducts, categories] = await Promise.all([
+    const [latestProducts, categories]: [HomeProduct[], HomeCategory[]] = await Promise.all([
         prisma.product.findMany({
             where: { isPublic: true },
             select: productCardSelect,
@@ -134,7 +163,7 @@ export default async function HomePage() {
                         <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap flex-shrink-0 pr-1">
                             Browse:
                         </span>
-                        {(categories as any[]).map((cat) => (
+                        {categories.map((cat) => (
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}
@@ -142,9 +171,9 @@ export default async function HomePage() {
                             >
                                 <CategoryIcon slug={cat.slug} variant="bar" />
                                 {cat.name}
-                                {(cat as any)._count?.products > 0 && (
+                                {cat._count.products > 0 && (
                                     <span className="text-[9px] text-[var(--text-muted)]">
-                                        ({(cat as any)._count.products})
+                                        ({cat._count.products})
                                     </span>
                                 )}
                             </Link>
@@ -270,9 +299,9 @@ export default async function HomePage() {
                             </Link>
                         </div>
 
-                        {(latestProducts as any[]).length > 0 ? (
+                        {latestProducts.length > 0 ? (
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 stagger-children">
-                                {(latestProducts as any[]).map((product) => (
+                                {latestProducts.map((product) => (
                                     <div key={product.id} className="animate-fade-in-up">
                                         <ProductCard product={product} />
                                     </div>
@@ -289,7 +318,7 @@ export default async function HomePage() {
                     </section>
 
                     {/* ── Shop by Categories ───────────────────────────── */}
-                    {(categories as any[]).length > 0 && (
+                    {categories.length > 0 && (
                         <section>
                             <div className="text-center mb-8">
                                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
@@ -304,8 +333,8 @@ export default async function HomePage() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {(categories as any[]).map((cat) => {
-                                    const cheapest = (cat as any).products?.[0];
+                                {categories.map((cat) => {
+                                    const cheapest = cat.products[0];
                                     return (
                                         <Link
                                             key={cat.id}
@@ -333,10 +362,10 @@ export default async function HomePage() {
                                                 >
                                                     {cat.name}
                                                 </div>
-                                                {(cat as any)._count?.products > 0 && (
+                                                {cat._count.products > 0 && (
                                                     <div className="text-xs text-[var(--text-muted)] mt-1">
-                                                        {(cat as any)._count.products} deal
-                                                        {(cat as any)._count.products !== 1 ? "s" : ""} available
+                                                        {cat._count.products} deal
+                                                        {cat._count.products !== 1 ? "s" : ""} available
                                                     </div>
                                                 )}
                                             </div>

@@ -52,6 +52,7 @@ const productCardSelect = {
     cashbackFlipkart: true,
     cashbackPaytm: true,
     cashbackPhonePe: true,
+    rating: true,
     category: { select: { name: true, slug: true } },
 };
 
@@ -168,6 +169,23 @@ export default async function ProductDetailPage({ params }: Params) {
                         )}
 
                         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug mb-6">{product.title}</h1>
+
+                        {(typeof product.rating === "number" && product.rating > 0) || product.seller ? (
+                            <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
+                                {typeof product.rating === "number" && product.rating > 0 && (
+                                    <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-amber-700">
+                                        <Star size={15} className="fill-current" />
+                                        <span className="font-semibold">{product.rating.toFixed(1)} / 5</span>
+                                    </div>
+                                )}
+                                {product.seller && (
+                                    <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1 text-[var(--text-secondary)]">
+                                        <ShieldCheck size={15} className="text-[hsl(214_89%_55%)]" />
+                                        <span className="font-medium">Seller: {product.seller}</span>
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
 
                         {/* Price */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 pb-6 border-b border-[var(--border)]">

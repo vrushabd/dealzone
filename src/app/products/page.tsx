@@ -34,10 +34,13 @@ const productCardSelect = {
 export default async function ProductsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ category?: string; featured?: string; sort?: string }>;
+    searchParams: Promise<{ category?: string; featured?: string; sort?: string; maxPrice?: string; minDiscount?: string }>;
 }) {
     const sp = await searchParams;
-    const { category, featured, sort } = sp;
+    const { category, featured, sort, maxPrice, minDiscount } = sp;
+
+    const maxPriceVal = maxPrice ? parseFloat(maxPrice) : undefined;
+    const minDiscountVal = minDiscount ? parseFloat(minDiscount) : undefined;
 
     const [products, categories] = await Promise.all([
         prisma.product.findMany({
@@ -45,6 +48,8 @@ export default async function ProductsPage({
                 isPublic: true,
                 ...(category && { category: { slug: category } }),
                 ...(featured === "true" && { featured: true }),
+                ...(maxPriceVal !== undefined && { price: { lte: maxPriceVal } }),
+                ...(minDiscountVal !== undefined && { discount: { gte: minDiscountVal } }),
             },
             select: productCardSelect,
             orderBy: sort === "price_asc" ? { price: "asc" } : sort === "price_desc" ? { price: "desc" } : { createdAt: "desc" },

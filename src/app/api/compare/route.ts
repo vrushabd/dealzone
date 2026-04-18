@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scrapeProduct } from '@/lib/features/scraper/scraper';
+import { scrapeProduct, type ScrapedProduct } from '@/lib/features/scraper/scraper';
 import { AffiliateService } from '@/lib/features/affiliate/service';
 import { prisma } from '@/lib/prisma';
 import slugify from 'slugify';
 import crypto from 'crypto';
+
+function isComparableScrape(data: Awaited<ReturnType<typeof scrapeProduct>>): data is ScrapedProduct {
+    return Boolean(data && !data.fromUrl && data.price > 0 && data.image && data.title);
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -19,7 +23,7 @@ export async function POST(req: NextRequest) {
 
                 try {
                     const scraped = await scrapeProduct(url);
-                    if (!scraped) {
+                    if (!isComparableScrape(scraped)) {
                         console.warn(`Scraping failed for: ${url}`);
                         return null;
                     }
@@ -72,15 +76,12 @@ export async function POST(req: NextRequest) {
                     // Track price history
                     if (scraped.price > 0) {
                         try {
-                            const historyAccessor = (prisma as any).productPriceHistory || (prisma as any).productpricehistory;
-                            if (historyAccessor) {
-                                await historyAccessor.create({
-                                    data: {
-                                        productId: product.id,
-                                        price: scraped.price,
-                                    },
-                                });
-                            }
+                            await prisma.productPriceHistory.create({
+                                data: {
+                                    productId: product.id,
+                                    price: scraped.price,
+                                },
+                            });
                         } catch (historyError) {
                             console.error('History tracking skipped:', historyError);
                         }
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json(validResults);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Global Compare Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

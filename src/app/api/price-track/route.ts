@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
 
         // ── Phase 2: Scrape current price ──────────────────────────────────────────
         const scraped = await scrapeProduct(normalizedUrl);
-        const validScraped = scraped as any;
 
         // Determine platform from URL
         const platform = normalizedUrl.includes('amazon') ? 'amazon'
@@ -57,11 +56,11 @@ export async function POST(req: NextRequest) {
         // Build the "effective" product data for this URL.
         // IMPORTANT: Only fall back to exactMatch DB data if it's the same URL.
         // Never mix in data from a different product to avoid showing wrong details.
-        let effectiveTitle    = validScraped?.title   || normalizedUrl.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'Product';
-        let effectiveImage    = validScraped?.image    || null;
-        let effectivePrice    = validScraped?.price    || 0;
-        let effectiveOriginal = validScraped?.originalPrice || null;
-        const effectiveRating = typeof validScraped?.rating === 'number' ? validScraped.rating : null;
+        let effectiveTitle    = scraped?.title || normalizedUrl.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'Product';
+        let effectiveImage    = scraped?.image || null;
+        let effectivePrice    = scraped?.price || 0;
+        let effectiveOriginal = scraped?.originalPrice || null;
+        const effectiveRating = typeof scraped?.rating === 'number' ? scraped.rating : null;
 
         if (needsDemoData && exactMatch) {
             // exactMatch IS the same product — safe to use its stored data
@@ -176,17 +175,17 @@ export async function POST(req: NextRequest) {
                 image:         product!.image,
                 price:         effectivePrice || product!.price,
                 originalPrice: product!.originalPrice,
-                rating:        (product as any).rating ?? null,
+                rating:        product!.rating ?? null,
                 platform,
                 url: normalizedUrl,
             },
-            history: history.map((h: any) => ({
+            history: history.map((h) => ({
                 price: h.price,
                 date:  h.timestamp,
             })),
-            lowestPrice:  Math.min(effectivePrice, ...history.map((h: any) => h.price)),
-            highestPrice: Math.max(effectivePrice, ...history.map((h: any) => h.price)),
-            category:     validScraped?.category || null,
+            lowestPrice:  Math.min(effectivePrice, ...history.map((h) => h.price)),
+            highestPrice: Math.max(effectivePrice, ...history.map((h) => h.price)),
+            category:     scraped?.category || null,
         });
 
     } catch (error) {
@@ -195,5 +194,4 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: message }, { status: 500 });
     }
 }
-
 

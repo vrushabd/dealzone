@@ -8,6 +8,10 @@ import slugify from 'slugify';
 
 export const dynamic = 'force-dynamic';
 
+function isUsableScrape(data: Awaited<ReturnType<typeof scrapeProduct>>): boolean {
+    return Boolean(data && !data.fromUrl && data.price > 0 && data.title);
+}
+
 export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -40,9 +44,11 @@ export async function POST(req: NextRequest) {
             flipkartAffiliate = await AffiliateService.processProductUrl(fUrl).catch(() => null);
         }
 
-        const primary = amazonScraped || flipkartScraped;
+        const primary = [amazonScraped, flipkartScraped].find(isUsableScrape) || null;
         if (!primary) {
-            return NextResponse.json({ error: 'Failed to scrape product data' }, { status: 400 });
+            return NextResponse.json({
+                error: 'Failed to scrape a valid product page. Use a direct product URL, not a search or blocked page.'
+            }, { status: 422 });
         }
 
         const prices = [amazonScraped?.price, flipkartScraped?.price].filter(p => p !== undefined && p > 0) as number[];
@@ -54,6 +60,12 @@ export async function POST(req: NextRequest) {
         const rating = amazonScraped?.rating || flipkartScraped?.rating || undefined;
 
         // Use scraped description
+        if (bestPrice <= 0) {
+            return NextResponse.json({
+                error: 'Could not extract a valid product price from the URL.'
+            }, { status: 422 });
+        }
+
         const description = primary.description || `Best price for ${primary.title} on DealZone`;
 
         // Determine category from scraper — use URL-described category or "Uncategorized"

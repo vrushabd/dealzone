@@ -22,120 +22,493 @@ export interface ScrapedProduct {
 
 type JsonRecord = Record<string, unknown>;
 
+type StructuredDataProduct = {
+    title?: string;
+    image?: string;
+    images?: string[];
+    price?: number;
+    originalPrice?: number;
+    rating?: number;
+    category?: string;
+    description?: string;
+    availability?: string;
+};
+
+type FetchResult = {
+    html: string;
+    status: number;
+    finalUrl: string;
+};
+
 function isRecord(value: unknown): value is JsonRecord {
     return typeof value === 'object' && value !== null;
 }
 
-/** Extract a human-readable name from a URL slug */
+function normalizeText(value: string | null | undefined): string {
+    return value?.replace(/\s+/g, ' ').trim() || '';
+}
+
+function normalizePrice(value: unknown): number | undefined {
+    if (typeof value === 'number') {
+        return Number.isFinite(value) && value > 0 ? value : undefined;
+    }
+
+    if (typeof value === 'string') {
+        const normalized = value.replace(/[,₹\s]/g, '');
+        const parsed = parseFloat(normalized);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+    }
+
+    return undefined;
+}
+
+function toAbsoluteImageUrl(value: string, platform: ScrapedProduct['platform']): string {
+    if (!value) return '';
+    if (value.startsWith('//')) return `https:${value}`;
+    if (value.startsWith('http://') || value.startsWith('https://')) return value;
+
+    if (platform === 'amazon') return `https://www.amazon.in${value}`;
+    if (platform === 'flipkart') return `https://www.flipkart.com${value}`;
+    if (platform === 'myntra') return `https://www.myntra.com${value}`;
+
+    return value;
+}
+
+function normalizeAvailability(value: unknown): string | undefined {
+    if (typeof value !== 'string') return undefined;
+
+    const cleaned = value.split('/').pop() || value;
+    const normalized = normalizeText(
+        cleaned
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .replace(/[-_]/g, ' ')
+    );
+
+    return normalized || undefined;
+}
+
+function isGenericSiteTitle(title: string, platform: ScrapedProduct['platform']): boolean {
+    const normalized = normalizeText(title).toLowerCase();
+    if (!normalized) return true;
+
+    const genericPhrases = [
+        'page not found',
+        '404',
+        'captcha',
+        'access denied',
+        'robot check',
+        'security check',
+        'something went wrong',
+        'flipkart recaptcha',
+    ];
+
+    if (genericPhrases.some((phrase) => normalized.includes(phrase))) {
+        return true;
+    }
+
+    if (platform === 'flipkart') {
+        return normalized.includes('buy products online at best price in india') ||
+            normalized.includes('all categories | flipkart.com');
+    }
+
+    if (platform === 'amazon') {
+        return normalized === 'amazon.in' ||
+            normalized.includes('online shopping site in india') ||
+            normalized.includes('page not found');
+    }
+
+    if (platform === 'myntra') {
+        return normalized.includes('online shopping for women, men, kids fashion') ||
+            normalized === 'myntra';
+    }
+
+    return false;
+}
+
+function isMeaningfulTitle(title: string, platform: ScrapedProduct['platform']): boolean {
+    const normalized = normalizeText(title);
+    if (normalized.length < 4) return false;
+    if (!/[a-z]/i.test(normalized)) return false;
+    if (isGenericSiteTitle(normalized, platform)) return false;
+    return true;
+}
+
+function isLikelyProductImage(url: string, platform: ScrapedProduct['platform']): boolean {
+    if (!url) return false;
+
+    const normalized = url.toLowerCase();
+    if (!normalized.startsWith('http')) return false;
+
+    const blockedFragments = [
+        '.svg',
+        '.gif',
+        'placeholder',
+        'logo',
+        'sprite',
+        '/promos/',
+        '/icons/',
+        '/favicon',
+        'blank',
+    ];
+
+    if (blockedFragments.some((fragment) => normalized.includes(fragment))) {
+        return false;
+    }
+
+    if (platform === 'flipkart' && normalized.includes('/www/')) {
+        return false;
+    }
+
+    return true;
+}
+
+function dedupeImages(
+    images: Array<string | null | undefined>,
+    platform: ScrapedProduct['platform']
+): string[] {
+    const unique = new Set<string>();
+
+    for (const image of images) {
+        const absolute = toAbsoluteImageUrl(image || '', platform);
+        if (!absolute) continue;
+
+        const upscaled = upscaleImageUrl(absolute, platform);
+        if (!isLikelyProductImage(upscaled, platform)) continue;
+
+        unique.add(upscaled);
+    }
+
+    return Array.from(unique).slice(0, 8);
+}
+
 function titleFromSlug(url: string): string {
     try {
-        const path = new URL(url).pathname;
-        const segments = path.split('/').filter(Boolean);
-        const slug = segments.find(s => s.length > 6 && !/^[a-zA-Z0-9]{4,12}$/.test(s) && s !== 'dp' && s !== 'p') || segments[0] || '';
-        return slug
-            .replace(/-/g, ' ')
-            .replace(/\b\w/g, c => c.toUpperCase())
-            .trim();
-    } catch { return ''; }
+        const parsed = new URL(url);
+        const ignoredSegments = new Set([
+            'dp',
+            'p',
+            'gp',
+            'product',
+            'products',
+            'buy',
+            'search',
+            'shop',
+            'browse',
+        ]);
+
+        const segments = parsed.pathname
+            .split('/')
+            .map((segment) => decodeURIComponent(segment))
+            .map((segment) => segment.trim())
+            .filter(Boolean);
+
+        const candidates = segments.filter((segment) => {
+            const lower = segment.toLowerCase();
+            if (ignoredSegments.has(lower)) return false;
+            if (segment.length < 4) return false;
+            if (/^[a-z0-9]{10,15}$/i.test(segment)) return false;
+            if (/^itm[a-z0-9]{6,}$/i.test(segment)) return false;
+            if (/^b0[a-z0-9]{8,}$/i.test(segment)) return false;
+            if (!/[a-z]/i.test(segment)) return false;
+            return /[-_]/.test(segment);
+        });
+
+        const slug = candidates[candidates.length - 1] || '';
+        return normalizeText(
+            slug
+                .replace(/[-_]+/g, ' ')
+                .replace(/\b\w/g, (char) => char.toUpperCase())
+        );
+    } catch {
+        return '';
+    }
+}
+
+function isLikelyProductUrl(url: string, platform: ScrapedProduct['platform']): boolean {
+    try {
+        const parsed = new URL(url);
+        const pathname = parsed.pathname.toLowerCase();
+
+        if (platform === 'amazon') {
+            return pathname.includes('/dp/') ||
+                pathname.includes('/gp/product/') ||
+                pathname.includes('/gp/aw/d/');
+        }
+
+        if (platform === 'flipkart') {
+            return pathname.includes('/p/') || parsed.searchParams.has('pid');
+        }
+
+        if (platform === 'myntra') {
+            const segments = pathname.split('/').filter(Boolean);
+            return segments.length >= 2 && !pathname.includes('/shop');
+        }
+
+        return false;
+    } catch {
+        return false;
+    }
+}
+
+function isBotPage(html: string, title: string): boolean {
+    const botPhrases = [
+        'are you a human',
+        'robot',
+        'captcha',
+        'access denied',
+        'verify you are',
+        '403 forbidden',
+        'security check',
+        'one moment',
+        'recaptcha',
+    ];
+    const combined = (html.slice(0, 4000) + title).toLowerCase();
+    return botPhrases.some((phrase) => combined.includes(phrase));
+}
+
+function isErrorPage(html: string, title: string, status: number): boolean {
+    if (status >= 400) return true;
+
+    const combined = normalizeText(`${title} ${html.slice(0, 2000)}`).toLowerCase();
+    return combined.includes('page not found') ||
+        combined.includes('we could not find that page') ||
+        combined.includes('the page you are looking for');
+}
+
+function hasMeaningfulProductData(product: ScrapedProduct | null): boolean {
+    if (!product) return false;
+    if (!isMeaningfulTitle(product.title, product.platform)) return false;
+    return product.price > 0 || Boolean(product.image);
+}
+
+function sanitizeScrapedProduct(product: ScrapedProduct | null): ScrapedProduct | null {
+    if (!product) return null;
+
+    const title = isMeaningfulTitle(product.title, product.platform)
+        ? normalizeText(product.title)
+        : '';
+    const imageList = dedupeImages(
+        [product.image, ...(product.images || [])],
+        product.platform
+    );
+    const image = imageList[0] || '';
+    const price = normalizePrice(product.price) || 0;
+    const originalPrice = normalizePrice(product.originalPrice);
+    const rating = typeof product.rating === 'number' && product.rating > 0 && product.rating <= 5
+        ? product.rating
+        : undefined;
+    const description = normalizeText(product.description);
+    const category = normalizeText(product.category);
+    const deliveryInfo = normalizeText(product.deliveryInfo);
+    const availability = normalizeAvailability(product.availability);
+    const reviews = (product.reviews || [])
+        .map((review) => ({
+            rating: typeof review.rating === 'number' && review.rating > 0 ? review.rating : 5,
+            title: normalizeText(review.title) || undefined,
+            comment: normalizeText(review.comment),
+            author: normalizeText(review.author) || undefined,
+        }))
+        .filter((review) => review.comment.length > 5)
+        .slice(0, 5);
+    const bankOffers = Array.from(
+        new Set((product.bankOffers || []).map((offer) => normalizeText(offer)).filter(Boolean))
+    ).slice(0, 8);
+
+    const normalized: ScrapedProduct = {
+        ...product,
+        title,
+        image,
+        images: imageList,
+        price,
+        originalPrice,
+        rating,
+        description: description || undefined,
+        category: category || undefined,
+        deliveryInfo: deliveryInfo || undefined,
+        availability,
+        reviews,
+        bankOffers,
+    };
+
+    if (!normalized.discount && normalized.originalPrice && normalized.price > 0 && normalized.originalPrice > normalized.price) {
+        normalized.discount = Math.round(((normalized.originalPrice - normalized.price) / normalized.originalPrice) * 100);
+    }
+
+    return normalized;
+}
+
+function applyStructuredData(
+    base: ScrapedProduct | null,
+    structured: StructuredDataProduct,
+    platform: ScrapedProduct['platform'],
+    url: string
+): ScrapedProduct | null {
+    if (!base && !structured.title && !structured.image && !structured.price) {
+        return null;
+    }
+
+    const product: ScrapedProduct = {
+        title: base?.title || structured.title || '',
+        price: base?.price || structured.price || 0,
+        originalPrice: base?.originalPrice || structured.originalPrice,
+        discount: base?.discount,
+        image: base?.image || structured.image || '',
+        images: dedupeImages([
+            ...(base?.images || []),
+            base?.image,
+            ...(structured.images || []),
+            structured.image,
+        ], platform),
+        seller: base?.seller,
+        rating: base?.rating || structured.rating,
+        availability: base?.availability || structured.availability,
+        platform,
+        url,
+        category: base?.category || structured.category,
+        description: base?.description || structured.description,
+        bankOffers: base?.bankOffers,
+        deliveryInfo: base?.deliveryInfo,
+        reviews: base?.reviews,
+        fromUrl: base?.fromUrl,
+    };
+
+    if (!product.image && product.images && product.images.length > 0) {
+        product.image = product.images[0];
+    }
+
+    return sanitizeScrapedProduct(product);
 }
 
 /** Improve image quality by rewriting dimension parameters in URLs */
-function upscaleImageUrl(url: string, platform: string): string {
+function upscaleImageUrl(url: string, platform: ScrapedProduct['platform']): string {
     if (!url) return '';
     try {
         if (platform === 'flipkart' && url.includes('rukminim')) {
-            // Replace /image/160/210/ with /image/832/832/ and set high quality q=90
             return url
                 .replace(/\/image\/\d+\/\d+\//, '/image/832/832/')
                 .replace(/\?q=\d+/, '?q=90');
         }
+
         if (platform === 'amazon' && url.includes('media-amazon.com')) {
-            // Remove thumbnail markers and target original hi-res masters
-            // Marker pattern: ._AC_..._ or ._SY..._ or ._SX..._
             return url.replace(/\._[A-Z0-9,]+_\./g, '.');
         }
-    } catch { /* ignore */ }
+    } catch {
+        return url;
+    }
+
     return url;
 }
 
-/** Check for bot/CAPTCHA page */
-function isBotPage(html: string, title: string): boolean {
-    const botPhrases = ['are you a human', 'robot', 'captcha', 'access denied', 'verify you are', '403 forbidden', 'security check', 'one moment'];
-    const combined = (html.slice(0, 3000) + title).toLowerCase();
-    return botPhrases.some(p => combined.includes(p.toLowerCase()));
-}
-
-/** Parse JSON-LD structured data — works for both Amazon and Flipkart */
-function parseJsonLd(html: string): { title?: string; image?: string; price?: number; originalPrice?: number } {
+function parseJsonLd(html: string, platform: ScrapedProduct['platform']): StructuredDataProduct {
     try {
         const matches = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+
         for (const match of matches) {
             try {
                 const data = JSON.parse(match[1]) as unknown;
                 const graph = isRecord(data) ? data['@graph'] : undefined;
                 const nodes = Array.isArray(graph) ? graph : [data];
-                const product = nodes.find((node): node is JsonRecord => (
-                    isRecord(node) &&
-                    (node['@type'] === 'Product' || node['@type'] === 'IndividualProduct')
-                ));
+                const product = nodes.find((node): node is JsonRecord => {
+                    if (!isRecord(node)) return false;
+                    const type = node['@type'];
+                    if (Array.isArray(type)) {
+                        return type.includes('Product');
+                    }
+                    return type === 'Product' || type === 'IndividualProduct';
+                });
+
                 if (!product) continue;
-                const offer = Array.isArray(product['offers']) ? product['offers'][0] : product['offers'];
-                const priceValue = isRecord(offer) ? offer['price'] : undefined;
-                const price = priceValue ? parseFloat(String(priceValue).replace(/[,₹\s]/g, '')) : 0;
+
                 const imageValue = product['image'];
-                const image = Array.isArray(imageValue) ? imageValue[0] : imageValue;
+                const imageCandidates = Array.isArray(imageValue) ? imageValue : [imageValue];
+                const images = dedupeImages(
+                    imageCandidates.filter((value): value is string => typeof value === 'string'),
+                    platform
+                );
+
+                const offer = Array.isArray(product['offers']) ? product['offers'][0] : product['offers'];
+                const aggregateRating = isRecord(product['aggregateRating']) ? product['aggregateRating'] : undefined;
+
                 return {
-                    title: typeof product['name'] === 'string' ? product['name'] : '',
-                    image: typeof image === 'string' ? image : '',
-                    price,
+                    title: typeof product['name'] === 'string' ? normalizeText(product['name']) : undefined,
+                    image: images[0],
+                    images,
+                    price: normalizePrice(isRecord(offer) ? offer['price'] : undefined),
+                    originalPrice: normalizePrice(
+                        isRecord(offer)
+                            ? offer['highPrice'] ?? offer['priceSpecification']
+                            : undefined
+                    ),
+                    rating: normalizePrice(aggregateRating?.['ratingValue']),
+                    category: typeof product['category'] === 'string' ? normalizeText(product['category']) : undefined,
+                    description: typeof product['description'] === 'string' ? normalizeText(product['description']) : undefined,
+                    availability: normalizeAvailability(isRecord(offer) ? offer['availability'] : undefined),
                 };
-            } catch { /* try next */ }
+            } catch {
+                continue;
+            }
         }
-    } catch { /* ignore */ }
+    } catch {
+        return {};
+    }
+
     return {};
 }
 
-/** Parse Flipkart's window.__INITIAL_STATE__ embedded JSON */
-function parseFlipkartWindowState(html: string): { title?: string; image?: string; price?: number; originalPrice?: number } {
+function parseFlipkartWindowState(html: string): StructuredDataProduct {
     try {
-        // Flipkart embeds full product data in a script tag
         const match = html.match(/window\.__INITIAL_STATE__\s*=\s*(\{[\s\S]+?\})(?:;\s*(?:window|<\/script>|$))/);
         if (!match) return {};
-        const state = JSON.parse(match[1]);
-        // Traverse common paths where Flipkart stores product data
-        const pdp =
-            state?.pageData?.pageContext?.pdpData?.product ||
-            state?.pageContext?.pdpData?.product ||
-            state?.pdpData?.product;
-        if (!pdp) return {};
-        const price = pdp.pricing?.finalPrice?.value || pdp.pricing?.mrp?.value || 0;
-        const originalPrice = pdp.pricing?.mrp?.value || 0;
-        const rawImage = pdp.media?.images?.[0]?.url || '';
-        const image = rawImage ? (rawImage.startsWith('http') ? rawImage : `https:${rawImage}`) : '';
-        const title = pdp.productDescription?.completeProductName || '';
-        return { title, image, price, originalPrice };
-    } catch { /* ignore */ }
-    return {};
+
+        const state = JSON.parse(match[1]) as JsonRecord;
+        const pageData = isRecord(state.pageData) ? state.pageData : undefined;
+        const pageContext = isRecord(pageData?.pageContext) ? pageData.pageContext : undefined;
+        const pdpData = isRecord(pageContext?.pdpData) ? pageContext.pdpData : undefined;
+        const product = isRecord(pdpData?.product) ? pdpData.product : undefined;
+        if (!product) return {};
+
+        const pricing = isRecord(product.pricing) ? product.pricing : undefined;
+        const media = isRecord(product.media) ? product.media : undefined;
+        const productDescription = isRecord(product.productDescription) ? product.productDescription : undefined;
+        const images = Array.isArray(media?.images)
+            ? media.images
+                .map((image) => isRecord(image) ? image.url : undefined)
+                .filter((value): value is string => typeof value === 'string')
+            : [];
+
+        return {
+            title: typeof productDescription?.completeProductName === 'string'
+                ? normalizeText(productDescription.completeProductName)
+                : undefined,
+            image: images[0],
+            images,
+            price: normalizePrice(isRecord(pricing?.finalPrice) ? pricing.finalPrice.value : undefined),
+            originalPrice: normalizePrice(isRecord(pricing?.mrp) ? pricing.mrp.value : undefined),
+        };
+    } catch {
+        return {};
+    }
 }
 
-/** Extract Open Graph / meta tag data — works even on some bot-detection pages */
-function parseOpenGraph(root: HTMLElement): { title?: string; image?: string; price?: number } {
+function parseOpenGraph(root: HTMLElement, platform: ScrapedProduct['platform']): { title?: string; image?: string; price?: number } {
     const og = (name: string) =>
         root.querySelector(`meta[property="og:${name}"]`)?.getAttribute('content') ||
         root.querySelector(`meta[name="og:${name}"]`)?.getAttribute('content') || '';
 
-    const title = og('title') || root.querySelector('title')?.text?.trim() || '';
-    const image = og('image') || '';
-    const priceStr = og('price:amount') || '';
-    const price = priceStr ? parseFloat(priceStr) : 0;
-    return { title: title || undefined, image: image || undefined, price };
+    const title = normalizeText(og('title') || root.querySelector('title')?.text || '');
+    const image = toAbsoluteImageUrl(og('image') || '', platform);
+    const price = normalizePrice(og('price:amount'));
+
+    return {
+        title: isMeaningfulTitle(title, platform) ? title : undefined,
+        image: isLikelyProductImage(image, platform) ? image : undefined,
+        price,
+    };
 }
 
-// ────────────────────────────────────────────────────────────────
-// HTTP Headers — rotate UAs and use real Chrome to bypass bot checks
-// ────────────────────────────────────────────────────────────────
 const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 const CHROME_MAC_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
 const BASE_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
     'Accept-Language': 'en-IN,en-US;q=0.9,en;q=0.8,hi;q=0.7',
@@ -173,183 +546,194 @@ const MOBILE_HEADERS = {
     'Referer': 'https://www.google.com/',
 };
 
-async function fetchHtml(url: string, headers: Record<string, string>): Promise<string | null> {
+async function fetchHtml(url: string, headers: Record<string, string>): Promise<FetchResult | null> {
     try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
-        const res = await fetch(url, { 
-            headers, 
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        const response = await fetch(url, {
+            headers,
             redirect: 'follow',
             signal: controller.signal,
             cache: 'no-store',
         });
         clearTimeout(timeout);
-        if (!res.ok) return null;
-        return await res.text();
-    } catch { return null; }
+
+        return {
+            html: await response.text(),
+            status: response.status,
+            finalUrl: response.url,
+        };
+    } catch {
+        return null;
+    }
 }
 
-
-// ────────────────────────────────────────────────────────────────
-// Main Entry Point
-// ────────────────────────────────────────────────────────────────
 export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | null> {
     let url: string;
     let hostname: string;
+
     try {
         const parsed = new URL(rawUrl);
         if (!['http:', 'https:'].includes(parsed.protocol)) return null;
         url = parsed.toString();
         hostname = parsed.hostname.toLowerCase();
     } catch {
-        return null; // Invalid URL
+        return null;
     }
 
-    const ALLOWED_HOSTS = ['www.amazon.in', 'www.flipkart.com', 'm.flipkart.com', 'www.myntra.com', 'myntra.com', 'amazon.in', 'flipkart.com'];
-    if (!ALLOWED_HOSTS.includes(hostname)) {
-        return null; // Strict SSRF and domain check failed
+    const allowedHosts = [
+        'www.amazon.in',
+        'amazon.in',
+        'www.flipkart.com',
+        'flipkart.com',
+        'm.flipkart.com',
+        'www.myntra.com',
+        'myntra.com',
+    ];
+    if (!allowedHosts.includes(hostname)) {
+        return null;
     }
 
     const platform: ScrapedProduct['platform'] =
         hostname.includes('amazon') ? 'amazon' :
         hostname.includes('flipkart') ? 'flipkart' :
-        hostname.includes('myntra') ? 'myntra' : 'unknown';
+        hostname.includes('myntra') ? 'myntra' :
+        'unknown';
 
-    if (platform === 'unknown') return null;
+    if (platform === 'unknown' || !isLikelyProductUrl(url, platform)) {
+        return null;
+    }
 
-    const platformHeaders = platform === 'amazon' ? AMAZON_HEADERS :
-                            platform === 'flipkart' ? FLIPKART_HEADERS : BASE_HEADERS;
+    const platformHeaders = platform === 'amazon'
+        ? AMAZON_HEADERS
+        : platform === 'flipkart'
+            ? FLIPKART_HEADERS
+            : BASE_HEADERS;
 
-    // ── Strategy 1: Desktop fetch ─────────────────────────────────
-    const html = await fetchHtml(url, platformHeaders);
     let result: ScrapedProduct | null = null;
+    const desktop = await fetchHtml(url, platformHeaders);
 
-    if (html) {
-        const root = parse(html);
-        const pageTitle = root.querySelector('title')?.text || '';
+    if (desktop) {
+        const root = parse(desktop.html);
+        const pageTitle = normalizeText(root.querySelector('title')?.text || '');
+        const blockedOrInvalid = isBotPage(desktop.html, pageTitle) ||
+            isErrorPage(desktop.html, pageTitle, desktop.status) ||
+            isGenericSiteTitle(pageTitle, platform);
 
-        if (!isBotPage(html, pageTitle)) {
-            if (platform === 'amazon')   result = parseAmazon(root, url);
-            else if (platform === 'flipkart') result = parseFlipkart(root, url, html);
-            else if (platform === 'myntra')   result = parseMyntra(root, url);
-        }
-
-        // ── Strategy 2: JSON-LD (most reliable — schema.org markup) ──
-        if (!result || result.price === 0 || !result.image) {
-            const ld = parseJsonLd(html);
-            if (ld.title || ld.image || (ld.price && ld.price > 0)) {
-                result = {
-                    title:         result?.title  || ld.title  || titleFromSlug(url),
-                    image:         result?.image  || ld.image  || '',
-                    price:         (result?.price && result.price > 0) ? result.price : (ld.price || 0),
-                    originalPrice: result?.originalPrice || ld.originalPrice,
-                    platform,
-                    url,
-                } as ScrapedProduct;
+        if (!blockedOrInvalid) {
+            if (platform === 'amazon') {
+                result = parseAmazon(root, url);
+            } else if (platform === 'flipkart') {
+                result = parseFlipkart(root, url, desktop.html);
+            } else if (platform === 'myntra') {
+                result = parseMyntra(root, url, desktop.html);
             }
-        }
 
-        // ── Strategy 3: Flipkart window.__INITIAL_STATE__ ─────────────
-        if (platform === 'flipkart' && (!result || result.price === 0 || !result.image)) {
-            const ws = parseFlipkartWindowState(html);
-            if (ws.title || ws.image || (ws.price && ws.price > 0)) {
-                result = {
-                    title:         result?.title || ws.title || titleFromSlug(url),
-                    image:         result?.image || ws.image || '',
-                    price:         (result?.price && result.price > 0) ? result.price : (ws.price || 0),
-                    originalPrice: result?.originalPrice || ws.originalPrice,
-                    platform,
-                    url,
-                } as ScrapedProduct;
+            result = applyStructuredData(result, parseJsonLd(desktop.html, platform), platform, url);
+
+            if (platform === 'flipkart' && (!result?.price || !result?.image || !result?.title)) {
+                result = applyStructuredData(result, parseFlipkartWindowState(desktop.html), platform, url);
             }
-        }
 
-        // ── Strategy 4: Open Graph fallback ───────────────────────────
-        if (!result || !result.image || result.price === 0) {
-            const og = parseOpenGraph(root);
-            if (og.image || og.title) {
-                result = {
-                    ...result,
-                    title:  result?.title  || og.title  || titleFromSlug(url),
-                    image:  result?.image  || og.image  || '',
-                    price:  (result?.price && result.price > 0) ? result.price : (og.price || 0),
+            if (!result?.price || !result?.image || !result?.title) {
+                const og = parseOpenGraph(root, platform);
+                result = sanitizeScrapedProduct({
+                    title: result?.title || og.title || '',
+                    price: result?.price || og.price || 0,
+                    originalPrice: result?.originalPrice,
+                    discount: result?.discount,
+                    image: result?.image || og.image || '',
+                    images: result?.images || [],
+                    seller: result?.seller,
+                    rating: result?.rating,
+                    availability: result?.availability,
                     platform,
                     url,
-                } as ScrapedProduct;
+                    category: result?.category,
+                    description: result?.description,
+                    bankOffers: result?.bankOffers,
+                    deliveryInfo: result?.deliveryInfo,
+                    reviews: result?.reviews,
+                    fromUrl: result?.fromUrl,
+                });
             }
         }
     }
 
-    // ── Strategy 5: Mobile URL fallback (Flipkart) ────────────────
-    if (platform === 'flipkart' && (!result?.image || result?.price === 0)) {
+    if (platform === 'flipkart' && (!hasMeaningfulProductData(result) || !result?.price || !result?.image)) {
         const mobileUrl = url.replace('www.flipkart.com', 'm.flipkart.com');
-        const mHtml = await fetchHtml(mobileUrl, MOBILE_HEADERS);
-        if (mHtml) {
-            const mRoot = parse(mHtml);
-            if (!isBotPage(mHtml, mRoot.querySelector('title')?.text || '')) {
-                const mResult = parseFlipkartMobile(mRoot, url);
-                if (mResult.image || mResult.price > 0) {
-                    result = {
-                        title:         result?.title || mResult.title,
-                        image:         mResult.image || result?.image || '',
-                        price:         mResult.price || result?.price || 0,
-                        originalPrice: mResult.originalPrice || result?.originalPrice,
-                        discount:      mResult.discount || result?.discount,
-                        platform:      'flipkart',
-                        url,
-                    };
-                }
-            }
-            // Also attempt OG image from mobile page
-            if (!result?.image) {
-                const og = parseOpenGraph(parse(mHtml));
-                if (og.image) {
-                    result = {
-                        title: result?.title || titleFromSlug(url) || 'Product',
-                        image: og.image,
-                        price: result?.price || 0,
-                        originalPrice: result?.originalPrice,
-                        discount: result?.discount,
+        const mobile = await fetchHtml(mobileUrl, MOBILE_HEADERS);
+
+        if (mobile) {
+            const root = parse(mobile.html);
+            const pageTitle = normalizeText(root.querySelector('title')?.text || '');
+            const blockedOrInvalid = isBotPage(mobile.html, pageTitle) ||
+                isErrorPage(mobile.html, pageTitle, mobile.status) ||
+                isGenericSiteTitle(pageTitle, 'flipkart');
+
+            if (!blockedOrInvalid) {
+                result = sanitizeScrapedProduct({
+                    ...(result || {
+                        title: '',
+                        price: 0,
+                        image: '',
                         platform: 'flipkart',
                         url,
-                    };
+                    }),
+                    ...parseFlipkartMobile(root, url),
+                });
+
+                result = applyStructuredData(result, parseJsonLd(mobile.html, 'flipkart'), 'flipkart', url);
+
+                if (!result?.image) {
+                    const og = parseOpenGraph(root, 'flipkart');
+                    if (og.image) {
+                        result = sanitizeScrapedProduct({
+                            ...(result || {
+                                title: '',
+                                price: 0,
+                                image: '',
+                                platform: 'flipkart',
+                                url,
+                            }),
+                            image: og.image,
+                            title: result?.title || og.title || '',
+                        });
+                    }
                 }
             }
         }
     }
 
-    // ── Strategy 6: URL slug last resort ─────────────────────────
-    if (!result || (!result.image && result.price === 0)) {
-        const slugTitle = titleFromSlug(url);
-        if (!slugTitle) return null;
-        return {
-            title:         result?.title || slugTitle,
-            image:         result?.image || '',
-            price:         result?.price || 0,
-            originalPrice: result?.originalPrice,
-            discount:      result?.discount,
-            description:   result?.description,
-            platform,
-            url,
-            fromUrl: true,
-        };
+    result = sanitizeScrapedProduct(result);
+    if (hasMeaningfulProductData(result)) {
+        return result;
     }
 
-    return result;
+    const slugTitle = titleFromSlug(url);
+    if (!slugTitle) return null;
+
+    return {
+        title: slugTitle,
+        image: '',
+        price: 0,
+        originalPrice: result?.originalPrice,
+        discount: result?.discount,
+        description: result?.description,
+        platform,
+        url,
+        fromUrl: true,
+    };
 }
 
-// ────────────────────────────────────────────────────────────────
-// Platform Parsers
-// ────────────────────────────────────────────────────────────────
-
 function parseAmazon(root: HTMLElement, url: string): ScrapedProduct {
-    const title = (
-        root.querySelector('#productTitle')?.text?.trim() ||
-        root.querySelector('span#productTitle')?.text?.trim() ||
-        root.querySelector('meta[name="title"]')?.getAttribute('content') || ''
-    ).trim();
+    const title = normalizeText(
+        root.querySelector('#productTitle')?.text ||
+        root.querySelector('span#productTitle')?.text ||
+        root.querySelector('meta[name="title"]')?.getAttribute('content') ||
+        ''
+    );
 
-    // Try selectors in order — Amazon frequently shifts class names
     const priceSelectors = [
         '.reinventPricePriceToPayMargin .a-offscreen',
         '#apex_offerDisplay_desktop .a-price .a-offscreen',
@@ -360,12 +744,13 @@ function parseAmazon(root: HTMLElement, url: string): ScrapedProduct {
         '.a-price .a-offscreen',
         '.a-price-whole',
     ];
+
     let price = 0;
-    for (const sel of priceSelectors) {
-        const raw = root.querySelector(sel)?.text?.replace(/[,₹\s]/g, '');
-        if (raw) {
-            const p = parseFloat(raw);
-            if (p > 0) { price = p; break; }
+    for (const selector of priceSelectors) {
+        const parsed = normalizePrice(root.querySelector(selector)?.text || '');
+        if (parsed) {
+            price = parsed;
+            break;
         }
     }
 
@@ -375,328 +760,248 @@ function parseAmazon(root: HTMLElement, url: string): ScrapedProduct {
         '#listPrice',
         '#priceblock_saleprice',
     ];
+
     let originalPrice: number | undefined;
-    for (const sel of originalPriceSelectors) {
-        const raw = root.querySelector(sel)?.text?.replace(/[,₹\s]/g, '');
-        if (raw) {
-            const p = parseFloat(raw);
-            if (p > 0 && p > price) { originalPrice = p; break; }
+    for (const selector of originalPriceSelectors) {
+        const parsed = normalizePrice(root.querySelector(selector)?.text || '');
+        if (parsed && parsed > price) {
+            originalPrice = parsed;
+            break;
         }
     }
 
-    const discountStr = (
-        root.querySelector('.savingsPercentage')?.text ||
-        root.querySelector('.reinventPriceSavingsPercentageMargin')?.text || ''
-    ).replace(/[-%\s]/g, '');
-    const discount = discountStr ? parseFloat(discountStr) : undefined;
+    const discount = normalizePrice(
+        (root.querySelector('.savingsPercentage')?.text ||
+        root.querySelector('.reinventPriceSavingsPercentageMargin')?.text || '')
+            .replace(/[-%\s]/g, '')
+    );
 
     const imageSelectors = [
         '#landingImage',
         '#imgBlkFront',
         '#main-image',
-        '.a-dynamic-image'
+        '.a-dynamic-image',
     ];
+
     let image = '';
-    for (const sel of imageSelectors) {
-        const el = root.querySelector(sel);
-        const src = el?.getAttribute('src') || el?.getAttribute('data-src') || el?.getAttribute('data-old-hires');
-        if (src && !src.includes('gif') && src.startsWith('http')) { image = src; break; }
-    }
-
-    if (image && image.includes('media-amazon.com')) {
-        image = upscaleImageUrl(image, 'amazon');
-    }
-
-    // Extract multiple high-res images from thumbnail gallery
-    const imagesSet = new Set<string>();
-    if (image) imagesSet.add(image);
-    
-    try {
-        const altEls = root.querySelectorAll('#altImages ul li.item span img, #altImages ul li.a-spacing-small img, #imageBlock_feature_div img');
-        for (const img of altEls) {
-            let src = img.getAttribute('data-old-hires') || img.getAttribute('src');
-            if (src && !src.includes('gif') && src.startsWith('http')) {
-                src = upscaleImageUrl(src, 'amazon');
-                imagesSet.add(src);
-            }
+    for (const selector of imageSelectors) {
+        const element = root.querySelector(selector);
+        const candidate = element?.getAttribute('data-old-hires') ||
+            element?.getAttribute('src') ||
+            element?.getAttribute('data-src') ||
+            '';
+        const absolute = toAbsoluteImageUrl(candidate, 'amazon');
+        if (isLikelyProductImage(absolute, 'amazon')) {
+            image = upscaleImageUrl(absolute, 'amazon');
+            break;
         }
-    } catch {}
-    const images = Array.from(imagesSet).slice(0, 8);
+    }
 
-    // Category from breadcrumbs
-    const category = (
-        root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child a')?.text?.trim() ||
-        root.querySelector('#wayfinding-breadcrumbs_container ul li:nth-last-child(2) a')?.text?.trim() ||
-        root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child')?.text?.trim() ||
-        // Fallback: extract from URL path
-        (() => {
-            try {
-                const match = url.match(/amazon\.in\/([a-zA-Z-]+)\//i);
-                if (match && match[1] !== 'dp') return match[1].replace(/-/g, ' ');
-            } catch {}
-            return '';
-        })()
-    )?.trim() || '';
+    const galleryImages = dedupeImages([
+        image,
+        ...root.querySelectorAll('#altImages ul li.item span img, #altImages ul li.a-spacing-small img, #imageBlock_feature_div img')
+            .map((element) => element.getAttribute('data-old-hires') || element.getAttribute('src') || ''),
+    ], 'amazon');
 
-    // Rating
-    const ratingStr = (
-        root.querySelector('#acrPopover')?.getAttribute('title') ||
+    const category = normalizeText(
+        root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child a')?.text ||
+        root.querySelector('#wayfinding-breadcrumbs_container ul li:nth-last-child(2) a')?.text ||
+        root.querySelector('#wayfinding-breadcrumbs_container ul li:last-child')?.text ||
+        ''
+    );
+
+    const rating = normalizePrice(
+        (root.querySelector('#acrPopover')?.getAttribute('title') ||
         root.querySelector('span[data-hook="rating-out-of-text"]')?.text ||
-        root.querySelector('.a-icon-star span.a-icon-alt')?.text || ''
-    ).replace(/[^0-9.]/g, '');
-    const rating = ratingStr ? parseFloat(ratingStr) : undefined;
+        root.querySelector('.a-icon-star span.a-icon-alt')?.text ||
+        '').replace(/[^0-9.]/g, '')
+    );
 
-    // Description extraction
-    const descriptionLines = Array.from(root.querySelectorAll('#feature-bullets li span.a-list-item'))
-        .map((el) => el.text?.trim() || '')
-        .filter((text) => text.length > 5);
-    
-    let description = descriptionLines.join('\n');
-    if (!description) {
-        description = root.querySelector('#productDescription p')?.text?.trim() || '';
-    }
+    const description = normalizeText(
+        Array.from(root.querySelectorAll('#feature-bullets li span.a-list-item'))
+            .map((element) => normalizeText(element.text))
+            .filter((text) => text.length > 5)
+            .join('\n') ||
+        root.querySelector('#productDescription p')?.text ||
+        ''
+    );
 
-    const reviews: { rating: number, title?: string, comment: string, author?: string }[] = [];
-    try {
-        const reviewElements = root.querySelectorAll('div[data-hook="review"]');
-        for (const el of reviewElements.slice(0, 5)) {
-            const ratingStr = el.querySelector('i[data-hook="review-star-rating"] span')?.text || '';
-            const rating = parseFloat(ratingStr) || 5;
-            const rTitle = el.querySelector('a[data-hook="review-title"] span:not(.a-icon-alt)')?.text?.trim() || 
-                           el.querySelector('a[data-hook="review-title"] span')?.text?.trim() || '';
-            const comment = el.querySelector('span[data-hook="review-body"] span')?.text?.trim() || '';
-            const author = el.querySelector('span.a-profile-name')?.text?.trim() || 'Amazon Customer';
-            if (comment) reviews.push({ rating, title: rTitle, comment, author });
-        }
-    } catch {}
+    const reviews = root.querySelectorAll('div[data-hook="review"]').slice(0, 5).map((element) => ({
+        rating: normalizePrice(element.querySelector('i[data-hook="review-star-rating"] span')?.text || '') || 5,
+        title: normalizeText(
+            element.querySelector('a[data-hook="review-title"] span:not(.a-icon-alt)')?.text ||
+            element.querySelector('a[data-hook="review-title"] span')?.text ||
+            ''
+        ) || undefined,
+        comment: normalizeText(element.querySelector('span[data-hook="review-body"] span')?.text || ''),
+        author: normalizeText(element.querySelector('span.a-profile-name')?.text || 'Amazon Customer') || undefined,
+    })).filter((review) => review.comment.length > 5);
 
-    const bankOffers: string[] = [];
-    try {
-        const offerEls = root.querySelectorAll('#bankOffer_feature_div .a-carousel-card span.a-truncate-full, #bankOffer_feature_div .a-section-bank-offer span');
-        offerEls.forEach((el) => {
-            const txt = el.text?.trim();
-            if (txt && txt.length > 10 && !bankOffers.includes(txt)) bankOffers.push(txt);
-        });
-    } catch {}
+    const bankOffers = root.querySelectorAll('#bankOffer_feature_div .a-carousel-card span.a-truncate-full, #bankOffer_feature_div .a-section-bank-offer span')
+        .map((element) => normalizeText(element.text))
+        .filter((text) => text.length > 10);
 
-    const deliveryInfo = root.querySelector('#mir-layout-DELIVERY_BLOCK-slot-PRIMARY_DELIVERY_MESSAGE_ID span')?.text?.trim() || 
-                        root.querySelector('#deliveryMessageMirId span')?.text?.trim() || '';
+    const deliveryInfo = normalizeText(
+        root.querySelector('#mir-layout-DELIVERY_BLOCK-slot-PRIMARY_DELIVERY_MESSAGE_ID span')?.text ||
+        root.querySelector('#deliveryMessageMirId span')?.text ||
+        ''
+    );
 
-    return { title, price, originalPrice, discount, image, images, platform: 'amazon', url, category, rating, description, reviews, bankOffers, deliveryInfo };
+    return {
+        title,
+        price,
+        originalPrice,
+        discount,
+        image,
+        images: galleryImages,
+        platform: 'amazon',
+        url,
+        category,
+        rating,
+        description,
+        reviews,
+        bankOffers,
+        deliveryInfo,
+    };
 }
 
 function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedProduct {
-    // Scoping to main product container to avoid picking up similar products/ads
     const mainContainer = root.querySelector('.aMaAEs') || root.querySelector('.DOjaZg') || root;
-    
-    // Title — Flipkart rotates class names frequently
-    const title = (
-        mainContainer.querySelector('.VU-Z7x')?.text?.trim()  ||
-        mainContainer.querySelector('h1.yhB1nd')?.text?.trim() ||
-        mainContainer.querySelector('.B_NuCI')?.text?.trim()   ||
-        mainContainer.querySelector('h1._9E25nV')?.text?.trim()||
-        mainContainer.querySelector('span.B_NuCI')?.text?.trim()||
-        mainContainer.querySelector('._2W109w')?.text?.trim() ||
-        root.querySelector('h1')?.text?.trim() || ''
-    ).trim();
 
-    // Price selectors - Ordered by reliability
+    const title = normalizeText(
+        mainContainer.querySelector('.VU-Z7x')?.text ||
+        mainContainer.querySelector('h1.yhB1nd')?.text ||
+        mainContainer.querySelector('.B_NuCI')?.text ||
+        mainContainer.querySelector('h1._9E25nV')?.text ||
+        mainContainer.querySelector('span.B_NuCI')?.text ||
+        mainContainer.querySelector('._2W109w')?.text ||
+        root.querySelector('h1')?.text ||
+        ''
+    );
+
     const priceSelectors = [
-        '.Nx9n0j', 
-        '._30jeq3', 
-        '._16Jk6d', 
-        '.hl05eU', 
-        '.UOCQB1 .Nx9n0j', 
+        '.Nx9n0j',
+        '._30jeq3',
+        '._16Jk6d',
+        '.hl05eU',
+        '.UOCQB1 .Nx9n0j',
         '[class*="finalPrice"]',
-        '.Y1HWO0'
+        '.Y1HWO0',
     ];
-    
+
     let price = 0;
-    for (const sel of priceSelectors) {
-        const raw = mainContainer.querySelector(sel)?.text?.replace(/[,₹\s]/g, '');
-        if (raw) {
-            const p = parseFloat(raw);
-            if (p > 0 && (price === 0 || p < price)) { price = p; }
+    for (const selector of priceSelectors) {
+        const parsed = normalizePrice(mainContainer.querySelector(selector)?.text || '');
+        if (parsed && (!price || parsed < price)) {
+            price = parsed;
         }
     }
 
     if (price === 0 && html) {
-        // Regex catch-all for deeply nested or obfuscated raw price strings
-        const regexMatch = html.match(/"(?:finalPrice|price)"\s*:\s*"?(\d+(?:\.\d+)?)/);
-        if (regexMatch) {
-            price = parseFloat(regexMatch[1]);
-        }
+        const match = html.match(/"(?:finalPrice|price)"\s*:\s*"?(\d+(?:\.\d+)?)/);
+        const parsed = normalizePrice(match?.[1]);
+        if (parsed) price = parsed;
     }
 
-    // Original / MRP price
     const originalPriceSelectors = [
         '.y9H9c2',
         '._3I9_wc',
         '.yRaY8j',
         '.font-extra-light-black',
-        '[class*="mrpPrice"]'
+        '[class*="mrpPrice"]',
     ];
-    
+
     let originalPrice: number | undefined;
-    for (const sel of originalPriceSelectors) {
-        const raw = mainContainer.querySelector(sel)?.text?.replace(/[,₹\s]/g, '');
-        if (raw) {
-            const p = parseFloat(raw);
-            if (p > 0 && p > price) { originalPrice = p; break; }
+    for (const selector of originalPriceSelectors) {
+        const parsed = normalizePrice(mainContainer.querySelector(selector)?.text || '');
+        if (parsed && parsed > price) {
+            originalPrice = parsed;
+            break;
         }
     }
 
-    // Discount
-    const discountStr = (
-        mainContainer.querySelector('.UkUFwK')?.text  ||
+    const discount = normalizePrice(
+        (mainContainer.querySelector('.UkUFwK')?.text ||
         mainContainer.querySelector('._3Ay6Sb')?.text ||
-        mainContainer.querySelector('span._2Tpdn3')?.text || ''
-    ).replace(/[%off\s]/g, '');
-    const discount = discountStr ? parseFloat(discountStr) : undefined;
+        mainContainer.querySelector('span._2Tpdn3')?.text ||
+        '').replace(/[%off\s]/gi, '')
+    );
 
-    // Sanity check: if price is ridiculously high compared to originalPrice, it's likely wrong
-    if (price > 0 && originalPrice && originalPrice > 0 && price > originalPrice) {
-        // Assume price is actually the originalPrice and we might be seeing a placeholder
-        price = originalPrice;
-    }
-
-    // Image — priority order
-    const isValidFlipkartImage = (u?: string | null) => u && u.startsWith('http') && !u.includes('.svg') && !u.includes('.gif') && !u.includes('/promos/') && !u.includes('placeholder');
-
-    let image = [
+    const image = dedupeImages([
         mainContainer.querySelector('._95YkrM img')?.getAttribute('src'),
         mainContainer.querySelector('._396cs4')?.getAttribute('src'),
         mainContainer.querySelector('._2r_T1I')?.getAttribute('src'),
         root.querySelector('img._2r_T1I')?.getAttribute('src'),
-        root.querySelector('img[src*="rukminim"]')?.getAttribute('src')
-    ].find(isValidFlipkartImage) || '';
+        root.querySelector('img[src*="rukminim"]')?.getAttribute('src'),
+    ], 'flipkart')[0] || '';
 
-    // If image is still empty, look in HTML for cloudfront/rukminim URLs
-    if (!image && html) {
-        const imgMatch = html.match(/https:\/\/[^"']+\.(?:jpg|jpeg|png|webp)\?q=\d+/);
-        if (imgMatch) image = imgMatch[0];
-    }
+    const images = dedupeImages([
+        image,
+        ...(html?.match(/"(https:\/\/rukminim[^"]+?\.(?:jpg|jpeg|png|webp)[^"]*)"/g) || [])
+            .map((value) => value.replace(/"/g, '')),
+    ], 'flipkart');
 
-    // Upscale image if found
-    if (image) image = upscaleImageUrl(image, 'flipkart');
-
-    // Extract multiple images using regex on the raw HTML, as DOM structure varies heavily
-    const imagesSet = new Set<string>();
-    if (image) imagesSet.add(image);
-    
-    if (html) {
-        try {
-            // Find rukminim links inside the JSON state or raw page
-            const matches = html.match(/"(https:\/\/rukminim[^"]+?\.(?:jpg|jpeg|png|webp)[^"]*)"/g);
-            if (matches) {
-                matches.forEach(m => {
-                    const cleanUrl = m.replace(/"/g, '');
-                    if (isValidFlipkartImage(cleanUrl)) {
-                        imagesSet.add(upscaleImageUrl(cleanUrl, 'flipkart'));
-                    }
-                });
-            }
-        } catch {}
-    }
-    const images = Array.from(imagesSet).filter(Boolean).slice(0, 8);
-
-    // Category parsing — prefer internal tracking JSON over fragile DOM breadcrumbs
     let category = '';
     if (html) {
-        const catMatch = html.match(/"analyticsData"\s*:\s*\{[^}]*"category"\s*:\s*"([^"]+)"/);
-        if (catMatch) {
-            category = catMatch[1].replace(/\\/g, '');
+        const categoryMatch = html.match(/"analyticsData"\s*:\s*\{[^}]*"category"\s*:\s*"([^"]+)"/);
+        if (categoryMatch) {
+            category = normalizeText(categoryMatch[1].replace(/\\/g, ''));
         }
+
         if (!category) {
-             const pathMatch = html.match(/"categoryPath"\s*:\s*"([^"]+)"/);
-             if (pathMatch) {
-                 const parts = pathMatch[1].split('>');
-                 category = parts[parts.length - 1]?.trim()?.replace(/\\/g, '');
-             }
+            const pathMatch = html.match(/"categoryPath"\s*:\s*"([^"]+)"/);
+            if (pathMatch) {
+                const parts = pathMatch[1].replace(/\\/g, '').split('>');
+                category = normalizeText(parts[parts.length - 1]);
+            }
         }
     }
 
     if (!category) {
-        const catEls1 = root.querySelectorAll('._2whKao');
-        const catEls2 = root.querySelectorAll('._1HEO9G');
-        const catEls3 = root.querySelectorAll('a.dvEPBh');
-        const catEls4 = root.querySelectorAll('.l7Mx8l a');
-        category = (
-            (catEls4.length > 0 ? catEls4[catEls4.length - 2]?.text?.trim() : null) ||
-            (catEls3.length > 0 ? catEls3[catEls3.length - 1]?.text?.trim() : null) ||
-            (catEls1.length > 0 ? catEls1[catEls1.length - 1]?.text?.trim() : null) ||
-            (catEls2.length > 0 ? catEls2[catEls2.length - 1]?.text?.trim() : null) ||
-            // URL-based fallback
-            (() => {
-                try {
-                    const urlLower = url.toLowerCase();
-                    if (urlLower.includes('mobile') || urlLower.includes('iphone') || urlLower.includes('smartphone')) return 'Smartphones';
-                    if (urlLower.includes('laptop')) return 'Laptops';
-                    if (urlLower.includes('television') || urlLower.includes('-tv-')) return 'Televisions';
-                    if (urlLower.includes('headphone') || urlLower.includes('earphone') || urlLower.includes('earbuds')) return 'Headphones';
-                    if (urlLower.includes('tablet')) return 'Tablets';
-                    if (urlLower.includes('camera')) return 'Cameras';
-                    if (urlLower.includes('watch')) return 'Smartwatches';
-                    if (urlLower.includes('shoe') || urlLower.includes('sneaker')) return 'Footwear';
-                    if (urlLower.includes('shirt') || urlLower.includes('dress') || urlLower.includes('kurta')) return 'Clothing';
-                } catch {}
-                return '';
-            })()
-        )?.trim() || '';
+        const breadcrumbCandidates = [
+            ...root.querySelectorAll('._2whKao'),
+            ...root.querySelectorAll('._1HEO9G'),
+            ...root.querySelectorAll('a.dvEPBh'),
+            ...root.querySelectorAll('.l7Mx8l a'),
+        ].map((element) => normalizeText(element.text)).filter(Boolean);
+
+        category = breadcrumbCandidates[breadcrumbCandidates.length - 1] || '';
     }
 
-    // Rating
-    const ratingStr = (
-        mainContainer.querySelector('._3LWZlK')?.text?.trim() ||
-        mainContainer.querySelector('.XQDdHH')?.text?.trim() ||
-        mainContainer.querySelector('._2d4LTz')?.text?.trim() ||
-        root.querySelector('div.row-fluid-seo [itemprop="ratingValue"]')?.text?.trim() || ''
-    ).replace(/[^0-9.]/g, '');
-    let rating = ratingStr ? parseFloat(ratingStr) : undefined;
-    
-    // Fallback: look for averageRating in raw html json state
-    if (!rating && html) {
-        const ratingMatch = html.match(/"averageRating":\s*"?([\d.]+)"?/);
-        if (ratingMatch) rating = parseFloat(ratingMatch[1]);
-    }
+    const rating = normalizePrice(
+        (mainContainer.querySelector('._3LWZlK')?.text ||
+        mainContainer.querySelector('.XQDdHH')?.text ||
+        mainContainer.querySelector('._2d4LTz')?.text ||
+        root.querySelector('div.row-fluid-seo [itemprop="ratingValue"]')?.text ||
+        '').replace(/[^0-9.]/g, '')
+    );
 
-    // Description extraction
-    let description = mainContainer.querySelector('._1mXcCf')?.text?.trim() || '';
-    if (!description && html) {
-        const descMatch = html.match(/"description":"([^"]+)"/);
-        if (descMatch) description = descMatch[1].replace(/\\n/g, '\n');
-    }
+    const description = normalizeText(
+        mainContainer.querySelector('._1mXcCf')?.text ||
+        html?.match(/"description":"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') ||
+        ''
+    );
 
-    const reviews: { rating: number, title?: string, comment: string, author?: string }[] = [];
-    try {
-        const reviewContainers = root.querySelectorAll('div.t-ZTKy') || [];
-        const ratingContainers = root.querySelectorAll('div._3LWZlK') || [];
-        const authorContainers = root.querySelectorAll('p._2sc7ZR._2V5EAA') || [];
-        const titleContainers = root.querySelectorAll('p._2-N8zT') || [];
-        
-        for (let i = 0; i < Math.min(5, reviewContainers.length); i++) {
-            const comment = reviewContainers[i]?.text?.trim()?.replace(/READ MORE$/, '') || '';
-            const rTitle = titleContainers[i]?.text?.trim() || '';
-            const rating = parseFloat(ratingContainers[i]?.text || '5');
-            const author = authorContainers[i]?.text?.trim() || 'Flipkart Customer';
-            if (comment) reviews.push({ rating, title: rTitle, comment, author });
-        }
-    } catch {}
+    const reviewContainers = root.querySelectorAll('div.t-ZTKy');
+    const ratingContainers = root.querySelectorAll('div._3LWZlK');
+    const authorContainers = root.querySelectorAll('p._2sc7ZR._2V5EAA');
+    const titleContainers = root.querySelectorAll('p._2-N8zT');
+    const reviews = Array.from({ length: Math.min(5, reviewContainers.length) }).map((_, index) => ({
+        rating: normalizePrice(ratingContainers[index]?.text || '') || 5,
+        title: normalizeText(titleContainers[index]?.text || '') || undefined,
+        comment: normalizeText(reviewContainers[index]?.text?.replace(/READ MORE$/, '') || ''),
+        author: normalizeText(authorContainers[index]?.text || 'Flipkart Customer') || undefined,
+    })).filter((review) => review.comment.length > 5);
 
-    const bankOffers: string[] = [];
-    try {
-        // Flipkart offers often in <li> with specific classes
-        const offerEls = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span');
-        offerEls.forEach((el) => {
-            const txt = el.text?.trim();
-            if (txt && txt.length > 15 && (txt.includes('Bank Offer') || txt.includes('% off')) && !bankOffers.includes(txt)) {
-                bankOffers.push(txt);
-            }
-        });
-    } catch {}
+    const bankOffers = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span')
+        .map((element) => normalizeText(element.text))
+        .filter((text) => text.length > 15 && (text.includes('Bank Offer') || text.includes('% off')));
 
-    const deliveryInfo = mainContainer.querySelector('._3XNo0Z span')?.text?.trim() || 
-                        mainContainer.querySelector('.Y8v6Y_')?.text?.trim() || '';
+    const deliveryInfo = normalizeText(
+        mainContainer.querySelector('._3XNo0Z span')?.text ||
+        mainContainer.querySelector('.Y8v6Y_')?.text ||
+        ''
+    );
 
     return {
         title,
@@ -712,44 +1017,66 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
         description,
         reviews,
         bankOffers,
-        deliveryInfo
+        deliveryInfo,
     };
 }
 
 function parseFlipkartMobile(root: HTMLElement, url: string): ScrapedProduct {
-    const title = (
-        root.querySelector('.x4eQg')?.text?.trim()  ||
-        root.querySelector('h1')?.text?.trim()       ||
-        root.querySelector('._9roun')?.text?.trim() || ''
-    ).trim();
-
-    const priceStr = (
-        root.querySelector('._1vC4OE')?.text    ||
-        root.querySelector('.Y1HWO0')?.text     ||
-        root.querySelector('[class*="price"]')?.text || '0'
-    ).replace(/[,₹\s]/g, '');
-    const price = parseFloat(priceStr) || 0;
-
-    const isValidFlipkartImage = (u?: string | null) => u && u.startsWith('http') && !u.includes('.svg') && !u.includes('.gif') && !u.includes('/promos/') && !u.includes('placeholder');
-
-    const image = [
+    const title = normalizeText(
+        root.querySelector('.x4eQg')?.text ||
+        root.querySelector('h1')?.text ||
+        root.querySelector('._9roun')?.text ||
+        ''
+    );
+    const price = normalizePrice(
+        root.querySelector('._1vC4OE')?.text ||
+        root.querySelector('.Y1HWO0')?.text ||
+        root.querySelector('[class*="price"]')?.text ||
+        '0'
+    ) || 0;
+    const image = dedupeImages([
         root.querySelector('._2r_T1I')?.getAttribute('src'),
         root.querySelector('img[src*="rukminim"]')?.getAttribute('src'),
-        root.querySelector('img._2amPTt')?.getAttribute('src')
-    ].find(isValidFlipkartImage) || '';
+        root.querySelector('img._2amPTt')?.getAttribute('src'),
+    ], 'flipkart')[0] || '';
 
     return { title, price, image, platform: 'flipkart', url };
 }
 
-function parseMyntra(root: HTMLElement, url: string): ScrapedProduct {
-    const title = [
-        root.querySelector('.pdp-title')?.text?.trim(),
-        root.querySelector('.pdp-name')?.text?.trim(),
-    ].filter(Boolean).join(' ');
-    const priceStr = root.querySelector('.pdp-price strong')?.text?.replace(/[,₹\s]/g, '') || '0';
-    const price = parseFloat(priceStr) || 0;
-    const originalPriceStr = root.querySelector('.pdp-mrp s')?.text?.replace(/[,₹\s]/g, '') || '';
-    const originalPrice = originalPriceStr ? parseFloat(originalPriceStr) : undefined;
-    const image = root.querySelector('.pdp-main-img')?.getAttribute('src') || '';
-    return { title, price, originalPrice, image, platform: 'myntra', url };
+function parseMyntra(root: HTMLElement, url: string, html?: string): ScrapedProduct {
+    const title = normalizeText([
+        root.querySelector('.pdp-title')?.text,
+        root.querySelector('.pdp-name')?.text,
+    ].filter(Boolean).join(' '));
+    const price = normalizePrice(root.querySelector('.pdp-price strong')?.text || '') || 0;
+    const originalPrice = normalizePrice(root.querySelector('.pdp-mrp s')?.text || '');
+    const image = dedupeImages([
+        root.querySelector('.pdp-main-img')?.getAttribute('src'),
+        root.querySelector('img.image-grid-image')?.getAttribute('src'),
+        root.querySelector('img[data-testid="pdp-image"]')?.getAttribute('src'),
+    ], 'myntra')[0] || '';
+
+    const category = normalizeText(
+        root.querySelector('.breadcrumbs-container li:last-child')?.text ||
+        root.querySelector('a.breadcrumbs-link:last-child')?.text ||
+        ''
+    );
+
+    const description = normalizeText(
+        root.querySelector('.pdp-product-description-content')?.text ||
+        root.querySelector('.index-product-description')?.text ||
+        html?.match(/"productDescriptors":\{[\s\S]*?"description":\{"value":"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') ||
+        ''
+    );
+
+    return {
+        title,
+        price,
+        originalPrice,
+        image,
+        platform: 'myntra',
+        url,
+        category,
+        description,
+    };
 }

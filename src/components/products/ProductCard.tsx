@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ExternalLink, Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ChevronDown, ArrowRight } from "lucide-react";
+import { Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ArrowRight } from "lucide-react";
 
 interface Product {
     id: string;
@@ -10,6 +10,7 @@ interface Product {
     slug: string;
     description?: string | null;
     image?: string | null;
+    images?: string[] | null;
     price?: number | null;
     originalPrice?: number | null;
     discount?: number | null;
@@ -24,14 +25,13 @@ interface Product {
 
 export default function ProductCard({ product }: { product: Product }) {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
-    const [isBuyOpen, setIsBuyOpen] = useState(false);
     const [alertEmail, setAlertEmail] = useState("");
     const [targetPrice, setTargetPrice] = useState(product.price ? Math.floor(product.price * 0.9) : 0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
     const hasBuyLinks = !!(product.amazonLink || product.flipkartLink);
-    const platformCount = [product.amazonLink, product.flipkartLink].filter(Boolean).length;
+    const canSetAlert = Boolean(product.price && product.price > 1);
 
     const discountPct =
         product.discount ||
@@ -53,22 +53,6 @@ export default function ProductCard({ product }: { product: Product }) {
     const highestCashback = cashbacks.length > 0
         ? cashbacks.reduce((prev, cur) => (cur.value! > prev.value! ? cur : prev))
         : null;
-
-    const trackClick = async (platform: string) => {
-        try {
-            await fetch("/api/analytics/click", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    productId: product.id,
-                    platform,
-                    sessionId: typeof window !== "undefined" ? localStorage.getItem("dealzone_session") : "unknown"
-                }),
-            });
-        } catch (err) {
-            console.error("Failed to track click:", err);
-        }
-    };
 
     const handleAlertSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -121,13 +105,16 @@ export default function ProductCard({ product }: { product: Product }) {
                 )}
 
                 {/* Bell */}
-                <button
-                    onClick={() => setIsAlertOpen(true)}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-md bg-[var(--bg-base)]/90 border border-[var(--border)] text-[var(--text-secondary)] hover:text-[hsl(214_89%_52%)] hover:border-[hsl(214_89%_52%/0.40)] hover:bg-[hsl(214_89%_52%/0.08)] flex items-center justify-center transition-all duration-200 shadow-[var(--shadow-card)] opacity-0 group-hover/card:opacity-100 z-20"
-                    title="Set Price Alert"
-                >
-                    <Bell size={13} />
-                </button>
+                {canSetAlert && (
+                    <button
+                        onClick={() => setIsAlertOpen(true)}
+                        className="absolute top-3 right-3 inline-flex h-8 items-center justify-center gap-1 rounded-md bg-[var(--bg-base)]/92 px-2.5 border border-[var(--border)] text-[var(--text-secondary)] hover:text-[hsl(214_89%_52%)] hover:border-[hsl(214_89%_52%/0.40)] hover:bg-[hsl(214_89%_52%/0.08)] transition-all duration-200 shadow-[var(--shadow-card)] z-20"
+                        title="Set Price Alert"
+                    >
+                        <Bell size={13} />
+                        <span className="text-[10px] font-semibold">Notify</span>
+                    </button>
+                )}
 
                 {/* Category chip */}
                 {product.category && (
@@ -138,7 +125,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 )}
 
                 {/* Multi-image indicator badge */}
-                {(product as any).images?.length > 1 && (
+                {product.images && product.images.length > 1 && (
                     <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-[var(--brand)] text-white text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-lg pointer-events-none z-20">
                         HD Gallery
                     </div>
@@ -256,43 +243,37 @@ export default function ProductCard({ product }: { product: Product }) {
                                 <ArrowRight size={13} className="ml-auto" />
                             </Link>
 
-                            {/* Platform options — slide down */}
-                            {isBuyOpen && (
-                                <div className="flex flex-col gap-1.5 animate-scale-in">
-                                    {product.amazonLink && (
-                                        <a
-                                            href={product.amazonLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer sponsored"
-                                            onClick={() => trackClick("amazon")}
-                                            className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold py-2 px-4 rounded-md transition-all shine-on-hover"
-                                        >
-                                            <ExternalLink size={11} />
-                                            Amazon
-                                        </a>
-                                    )}
-                                    {product.flipkartLink && (
-                                        <a
-                                            href={product.flipkartLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer sponsored"
-                                            onClick={() => trackClick("flipkart")}
-                                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded-md transition-all shine-on-hover"
-                                        >
-                                            <ExternalLink size={11} />
-                                            Flipkart
-                                        </a>
-                                    )}
-                                </div>
+                            {canSetAlert && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAlertOpen(true)}
+                                    className="flex items-center justify-center gap-2 w-full border border-[hsl(214_89%_52%/0.24)] bg-[hsl(214_89%_52%/0.06)] hover:bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_45%)] text-sm font-semibold py-2 px-4 rounded-md transition-all duration-200"
+                                >
+                                    <Bell size={13} />
+                                    Notify Me
+                                </button>
                             )}
                         </div>
                     ) : (
-                        <Link
-                            href={`/products/${product.slug}`}
-                            className="flex items-center justify-center gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold py-2.5 px-4 rounded-md transition-all duration-200"
-                        >
-                            View Details
-                        </Link>
+                        <div className="flex flex-col gap-2">
+                            <Link
+                                href={`/products/${product.slug}`}
+                                className="flex items-center justify-center gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold py-2.5 px-4 rounded-md transition-all duration-200"
+                            >
+                                View Details
+                            </Link>
+
+                            {canSetAlert && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAlertOpen(true)}
+                                    className="flex items-center justify-center gap-2 w-full border border-[hsl(214_89%_52%/0.24)] bg-[hsl(214_89%_52%/0.06)] hover:bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_45%)] text-sm font-semibold py-2.5 px-4 rounded-md transition-all duration-200"
+                                >
+                                    <Bell size={13} />
+                                    Notify Me
+                                </button>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

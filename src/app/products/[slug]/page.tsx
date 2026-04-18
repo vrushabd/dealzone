@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
@@ -11,7 +10,8 @@ import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
 import TrackedLink from "@/components/products/TrackedLink";
-import { ExternalLink, Tag, ShoppingCart, Star, ShieldCheck, CreditCard, Truck, Calendar } from "lucide-react";
+import { ExternalLink, Tag, Star, ShieldCheck, CreditCard, Truck } from "lucide-react";
+import type { Prisma } from "@prisma/client";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -55,6 +55,8 @@ const productCardSelect = {
     category: { select: { name: true, slug: true } },
 };
 
+type ProductReview = Prisma.ProductReviewGetPayload<Record<string, never>>;
+
 export default async function ProductDetailPage({ params }: Params) {
     const { slug } = await params;
     const product = await prisma.product.findUnique({
@@ -65,6 +67,7 @@ export default async function ProductDetailPage({ params }: Params) {
             slug: true,
             description: true,
             image: true,
+            images: true,
             price: true,
             originalPrice: true,
             discount: true,
@@ -87,8 +90,6 @@ export default async function ProductDetailPage({ params }: Params) {
             updatedAt: true,
             category: { select: { id: true, name: true, slug: true, icon: true } },
             reviews: { orderBy: { rating: 'desc' }, take: 5 },
-            // NOTE: intentionally not selecting `images` to avoid crashes if the column
-            // isn't present yet in the deployed DB.
         },
     });
 
@@ -146,7 +147,7 @@ export default async function ProductDetailPage({ params }: Params) {
                     {/* Image Gallery */}
                     <div className="relative">
                         <ProductGallery 
-                            images={(product as any).images || []} 
+                            images={product.images || []} 
                             title={product.title} 
                             primaryImage={product.image} 
                         />
@@ -168,7 +169,7 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug mb-6">{product.title}</h1>
 
-                        {/* Price & Alert */}
+                        {/* Price */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 pb-6 border-b border-[var(--border)]">
                             <div className="flex items-baseline gap-3">
                                 {(product.price ?? 0) > 0 ? (
@@ -195,14 +196,6 @@ export default async function ProductDetailPage({ params }: Params) {
                                     <Truck size={14} />
                                     {product.deliveryInfo}
                                 </div>
-                            )}
-
-                            {(product.price ?? 0) > 0 && (
-                                <PriceAlertButton 
-                                    productId={product.id} 
-                                    currentPrice={product.price!} 
-                                    productName={product.title} 
-                                />
                             )}
                         </div>
                         {/* Compare Prices / Buying Options */}
@@ -260,6 +253,16 @@ export default async function ProductDetailPage({ params }: Params) {
                             </div>
                         )}
 
+                        {(product.price ?? 0) > 0 && (
+                            <div className="mb-8">
+                                <PriceAlertButton
+                                    productId={product.id}
+                                    currentPrice={product.price!}
+                                    productName={product.title}
+                                />
+                            </div>
+                        )}
+
                         {/* Special Bank Offers & Coupons */}
                         {product.bankOffers && product.bankOffers.length > 0 && (
                             <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 mb-8 overflow-hidden relative group">
@@ -299,11 +302,11 @@ export default async function ProductDetailPage({ params }: Params) {
                 </div>
 
                 {/* Customer Reviews Section */}
-                {(product as any).reviews && (product as any).reviews.length > 0 && (
+                {product.reviews.length > 0 && (
                     <section className="mb-12">
                         <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6">What Buyers Are Saying</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {(product as any).reviews.map((review: any) => (
+                            {product.reviews.map((review: ProductReview) => (
                                 <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex flex-col h-full">
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-1 text-[var(--warning)]">
@@ -314,7 +317,7 @@ export default async function ProductDetailPage({ params }: Params) {
                                         <div className="text-xs text-[var(--text-muted)] font-semibold">{review.rating}/5</div>
                                     </div>
                                     {review.title && <h3 className="font-bold text-[var(--text-primary)] text-sm mb-2">{review.title}</h3>}
-                                    <p className="text-sm text-[var(--text-secondary)] italic leading-relaxed flex-1 mb-4">"{review.comment}"</p>
+                                    <p className="text-sm text-[var(--text-secondary)] italic leading-relaxed flex-1 mb-4">&quot;{review.comment}&quot;</p>
                                     <div className="text-xs text-[var(--text-muted)] mt-auto pt-4 border-t border-[var(--border)] flex items-center gap-2">
                                         <div className="w-5 h-5 rounded-full bg-[var(--bg-base)] flex flex-shrink-0 items-center justify-center font-bold text-[10px] text-[var(--text-primary)]">
                                             {review.author?.[0]?.toUpperCase() || 'Buyer'}

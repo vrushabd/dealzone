@@ -11,12 +11,19 @@ interface PricePoint {
     price: number;
     timestamp: string;
     date: string;
+    platform?: string | null;
 }
 
 interface Props {
     productId: string;
     currentPrice?: number | null;
 }
+
+type TooltipContentProps = {
+    active?: boolean;
+    label?: string;
+    payload?: Array<{ value?: number | string }>;
+};
 
 function formatDate(dateStr: string) {
     const d = new Date(dateStr);
@@ -28,19 +35,19 @@ function formatPrice(p: number) {
 }
 
 // Custom tooltip
-const CustomTooltip = ({ active, payload, label }: any) => {
+function CustomTooltip({ active, payload, label }: TooltipContentProps) {
     if (active && payload && payload.length) {
         return (
             <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md px-3 py-2.5 shadow-xl">
                 <p className="text-[10px] text-[var(--text-muted)] mb-1">{label}</p>
                 <p className="text-[hsl(214_89%_55%)] font-bold text-sm">
-                    {formatPrice(payload[0].value)}
+                    {formatPrice(Number(payload[0].value || 0))}
                 </p>
             </div>
         );
     }
     return null;
-};
+}
 
 export default function PriceHistoryChart({ productId, currentPrice }: Props) {
     const [history, setHistory] = useState<PricePoint[]>([]);
@@ -76,9 +83,46 @@ export default function PriceHistoryChart({ productId, currentPrice }: Props) {
         );
     }
 
+    if (history.length === 1) {
+        const firstPoint = history[0];
+        const displayedPrice = currentPrice || firstPoint.price;
+
+        return (
+            <div className="glass border border-[var(--border)] rounded-md p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                    <div>
+                        <h2 className="text-[var(--text-primary)] font-bold text-base flex items-center gap-2">
+                            <Clock size={16} className="text-[hsl(214_89%_55%)]" />
+                            Price History
+                        </h2>
+                        <p className="text-[var(--text-muted)] text-xs mt-0.5">1 data point recorded so far</p>
+                    </div>
+                    <div className="text-xs font-semibold px-3 py-1.5 rounded-full border bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-muted)]">
+                        Trend unlocks after more syncs
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-4 text-center">
+                        <div className="font-extrabold text-lg text-[hsl(214_89%_55%)]">{formatPrice(displayedPrice)}</div>
+                        <div className="text-[var(--text-muted)] text-[10px] mt-1">Current Price</div>
+                    </div>
+                    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-4 text-center">
+                        <div className="font-extrabold text-sm text-[var(--text-primary)]">{formatDate(firstPoint.date || firstPoint.timestamp)}</div>
+                        <div className="text-[var(--text-muted)] text-[10px] mt-1">First Recorded</div>
+                    </div>
+                </div>
+
+                <p className="text-[var(--text-muted)] text-sm">
+                    We’ve started tracking this deal. Run more syncs or wait for additional price changes to unlock the chart trend and stronger AI advice.
+                </p>
+            </div>
+        );
+    }
+
     // Collapse into points grouped by date
     const chartDataMap = new Map();
-    history.forEach((h: any) => {
+    history.forEach((h) => {
         const d = formatDate(h.date || h.timestamp);
         if (!chartDataMap.has(d)) {
             chartDataMap.set(d, { date: d });
@@ -97,7 +141,6 @@ export default function PriceHistoryChart({ productId, currentPrice }: Props) {
     const deltaPct    = firstPrice > 0 ? ((delta / firstPrice) * 100).toFixed(1) : "0";
     const trending    = delta < 0 ? "down" : delta > 0 ? "up" : "flat";
 
-    const trendColor  = trending === "down" ? "text-green-500" : trending === "up" ? "text-red-500" : "text-[var(--text-muted)]";
     const TrendIcon   = trending === "down" ? TrendingDown : trending === "up" ? TrendingUp : Minus;
 
     // Y-axis domain with padding

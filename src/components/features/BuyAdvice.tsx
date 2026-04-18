@@ -10,6 +10,8 @@ interface Prediction {
     predictedPrice: number;
     confidence: number;
     reason: string;
+    dataPoints: number;
+    minimumRequired: number;
     daysUntilNextDrop?: number;
 }
 
@@ -55,11 +57,11 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
     const isInsufficient = prediction.confidence === 0;
     const isDown   = !isInsufficient && prediction.trend === "down";
     const isUp     = !isInsufficient && prediction.trend === "up";
-    const isStable = !isInsufficient && prediction.trend === "stable";
+    const remainingPoints = Math.max(0, prediction.minimumRequired - prediction.dataPoints);
 
     // "Should I buy now?" verdict
     const verdict = isInsufficient
-        ? { label: "Observing Trends", sub: "Collecting real-time price points", bg: "bg-[var(--bg-elevated)]", border: "border-[var(--border)]", text: "text-[var(--text-muted)]", icon: <Clock size={20} />, dot: "bg-[var(--text-muted)]" }
+        ? { label: "Observing Trends", sub: `${prediction.dataPoints}/${prediction.minimumRequired} price points collected`, bg: "bg-[var(--bg-elevated)]", border: "border-[var(--border)]", text: "text-[var(--text-muted)]", icon: <Clock size={20} />, dot: "bg-[var(--text-muted)]" }
         : isDown
         ? { label: "Wait a Few Days", sub: "Price likely dropping soon", bg: "bg-[hsl(45_95%_53%/0.08)]", border: "border-[hsl(45_95%_53%/0.25)]", text: "text-[hsl(45_95%_53%)]", icon: <Clock size={20} />, dot: "bg-[hsl(45_95%_53%)]" }
         : isUp
@@ -110,7 +112,14 @@ export default function BuyAdvice({ productId, currentPrice }: Props) {
                 <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md p-4">
                     <div className="flex items-start gap-2.5">
                         <Brain size={13} className="text-purple-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-[var(--text-secondary)] text-xs leading-relaxed">{prediction.reason}</p>
+                        <div className="text-[var(--text-secondary)] text-xs leading-relaxed">
+                            <p>{prediction.reason}</p>
+                            {isInsufficient && remainingPoints > 0 && (
+                                <p className="mt-2 text-[var(--text-muted)]">
+                                    Need {remainingPoints} more tracked {remainingPoints === 1 ? "price point" : "price points"} before the advisor can compare trend direction with the history chart.
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
 

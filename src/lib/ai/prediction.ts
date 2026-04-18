@@ -6,6 +6,8 @@ export interface PricePrediction {
     predictedPrice: number;
     confidence: number;
     reason: string;
+    dataPoints: number;
+    minimumRequired: number;
     daysUntilNextDrop?: number;
 }
 
@@ -16,13 +18,17 @@ export async function predictPrice(productId: string): Promise<PricePrediction> 
         take: 30, // Last 30 points
     });
 
+    const minimumRequired = 3;
+
     if (history.length < 3) {
         return {
             productId,
             trend: 'stable',
             predictedPrice: 0,
             confidence: 0,
-            reason: 'Insufficient historical data to generate a reliable forecast. We need at least 3 price points.',
+            dataPoints: history.length,
+            minimumRequired,
+            reason: `Insufficient historical data to generate a reliable forecast. We need at least ${minimumRequired} price points.`,
         };
     }
 
@@ -62,6 +68,8 @@ export async function predictPrice(productId: string): Promise<PricePrediction> 
         trend,
         predictedPrice: Math.round(predictedNext),
         confidence: Math.round(Math.min(95, (n / 30) * 100)),
+        dataPoints: history.length,
+        minimumRequired,
         reason,
         daysUntilNextDrop
     };

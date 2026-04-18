@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { scrapeProduct } from '@/lib/features/scraper/scraper';
+import { recordPriceHistoryPoint } from '@/lib/features/history/service';
 
 const productForTrackingSelect = {
     id: true,
@@ -145,21 +146,11 @@ export async function POST(req: NextRequest) {
 
         // ── Phase 4: Record today's price point ───────────────────────────────────
         if (product && effectivePrice > 0) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const existing = await prisma.productPriceHistory.findFirst({
-                where: { productId: product.id, platform, timestamp: { gte: today } },
+            await recordPriceHistoryPoint({
+                productId: product.id,
+                price: effectivePrice,
+                platform,
             });
-            if (!existing) {
-                await prisma.productPriceHistory.create({
-                    data: { productId: product.id, price: effectivePrice, platform },
-                });
-            } else if (existing.price !== effectivePrice && !needsDemoData) {
-                await prisma.productPriceHistory.update({
-                    where: { id: existing.id },
-                    data: { price: effectivePrice },
-                });
-            }
         }
 
         // ── Phase 5: Return response ──────────────────────────────────────────────
@@ -194,4 +185,3 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: message }, { status: 500 });
     }
 }
-

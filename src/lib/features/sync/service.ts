@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { scrapeProduct, type ScrapedProduct } from "@/lib/features/scraper/scraper";
 import { triggerPriceDropAlerts } from "@/lib/features/alerts/service";
+import { recordPriceHistoryPoint } from "@/lib/features/history/service";
 
 type ScrapedReview = NonNullable<ScrapedProduct["reviews"]>[number];
 
@@ -84,31 +85,11 @@ export async function runProductSync() {
                 data: updateData,
             });
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const existingHistory = await prisma.productPriceHistory.findFirst({
-                where: {
-                    productId: product.id,
-                    timestamp: { gte: today },
-                },
+            await recordPriceHistoryPoint({
+                productId: product.id,
+                price: scraped.price,
+                platform,
             });
-
-            if (!existingHistory) {
-                await prisma.productPriceHistory.create({
-                    data: {
-                        productId: product.id,
-                        price: scraped.price,
-                        platform,
-                        timestamp: new Date(),
-                    },
-                });
-            } else if (existingHistory.price !== scraped.price) {
-                await prisma.productPriceHistory.update({
-                    where: { id: existingHistory.id },
-                    data: { price: scraped.price },
-                });
-            }
 
             const alertResults = await triggerPriceDropAlerts({
                 productId: product.id,

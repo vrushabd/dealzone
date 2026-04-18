@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import slugify from "slugify";
+import { inferCategoryIdFromText } from "@/lib/features/products/category";
 
 const productDetailSelect = {
     id: true,
@@ -59,6 +60,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         const { id } = await params;
         const data = await request.json();
         const slug = slugify(data.title, { lower: true, strict: true });
+        const categories = await prisma.category.findMany({
+            select: { id: true, name: true, slug: true },
+        });
+        const categoryId = data.categoryId || inferCategoryIdFromText(categories, {
+            title: data.title,
+            description: data.description,
+        });
 
         const product = await prisma.product.update({
             where: { id },
@@ -73,7 +81,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 discount: data.discount ? parseFloat(data.discount) : null,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
-                categoryId: data.categoryId || null,
+                categoryId: categoryId || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
                 seller: data.seller || null,

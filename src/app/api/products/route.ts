@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import slugify from "slugify";
+import { inferCategoryIdFromText } from "@/lib/features/products/category";
 
 const productApiSelect = {
     id: true,
@@ -87,6 +88,13 @@ export async function POST(request: NextRequest) {
     try {
         const data = await request.json();
         const slug = slugify(data.title, { lower: true, strict: true }) + '-' + Date.now();
+        const categories = await prisma.category.findMany({
+            select: { id: true, name: true, slug: true },
+        });
+        const categoryId = data.categoryId || inferCategoryIdFromText(categories, {
+            title: data.title,
+            description: data.description,
+        });
 
         const platform = data.amazonLink?.includes('amazon') ? 'amazon' 
                        : data.flipkartLink?.includes('flipkart') ? 'flipkart'
@@ -105,7 +113,7 @@ export async function POST(request: NextRequest) {
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
                 featured: data.featured || false,
-                categoryId: data.categoryId || null,
+                categoryId: categoryId || null,
                 isPublic: true,
                 originalUrl: data.amazonLink || data.flipkartLink || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,

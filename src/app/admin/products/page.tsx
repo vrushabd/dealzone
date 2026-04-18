@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, ShoppingBag, Search, X, Loader2, Star, ExternalLink, Zap, Download, CheckCircle } from "lucide-react";
+import { inferCategoryIdFromText } from "@/lib/features/products/category";
 
-interface Category { id: string; name: string; }
+interface Category { id: string; name: string; slug: string; }
 interface Product {
     id: string; title: string; slug: string; image?: string | null; images: string[]; description?: string | null;
     price?: number | null; originalPrice?: number | null; discount?: number | null;
@@ -83,15 +84,11 @@ function ProductForm({
             
             // Auto-select category if matching name found
             let matchedCategoryId = form.categoryId;
-            if (data.category) {
-                const scrapedLower = data.category.toLowerCase();
-                const match = categories.find(c => 
-                    c.name.toLowerCase() === scrapedLower || 
-                    scrapedLower.includes(c.name.toLowerCase()) ||
-                    c.name.toLowerCase().includes(scrapedLower)
-                );
-                if (match) matchedCategoryId = match.id;
-            }
+            matchedCategoryId = inferCategoryIdFromText(categories, {
+                scrapedCategory: data.category,
+                title: data.title,
+                description: data.description,
+            }) || matchedCategoryId;
 
             setForm((f) => ({
                 ...f,

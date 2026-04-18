@@ -40,6 +40,41 @@ type FetchResult = {
     finalUrl: string;
 };
 
+function inferCategoryFromContent(value: string): string | undefined {
+    const normalized = normalizeText(value).toLowerCase();
+    if (!normalized) return undefined;
+
+    if (/(mobile|smartphone|smart phone|iphone|oppo|samsung|redmi|realme|oneplus|vivo|pixel)/.test(normalized)) {
+        return 'Mobiles';
+    }
+
+    if (/(laptop|macbook|notebook|computer)/.test(normalized)) {
+        return 'Laptops';
+    }
+
+    if (/(shoe|sneaker|shirt|jeans|trouser|cargo|fashion)/.test(normalized)) {
+        return 'Fashion';
+    }
+
+    if (/(kitchen|air fryer|instant pot|mixer|cooker|home)/.test(normalized)) {
+        return 'Home & Kitchen';
+    }
+
+    if (/(beauty|makeup|serum|cream|shampoo|skincare)/.test(normalized)) {
+        return 'Beauty';
+    }
+
+    if (/(gaming|ps5|playstation|xbox|controller)/.test(normalized)) {
+        return 'Gaming';
+    }
+
+    if (/(book|novel|paperback|hardcover|author)/.test(normalized)) {
+        return 'Books';
+    }
+
+    return undefined;
+}
+
 function isRecord(value: unknown): value is JsonRecord {
     return typeof value === 'object' && value !== null;
 }
@@ -172,6 +207,8 @@ function isLikelyProductImage(url: string, platform: ScrapedProduct['platform'])
         'placeholder',
         'logo',
         'sprite',
+        'prod-fk-cms-brand-images',
+        '/cms-rpd-img/',
         '/promos/',
         '/icons/',
         '/favicon',
@@ -1013,6 +1050,10 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
         ].map((element) => normalizeText(element.text)).filter(Boolean);
 
         category = breadcrumbCandidates[breadcrumbCandidates.length - 1] || '';
+    }
+
+    if (!category) {
+        category = inferCategoryFromContent(`${title} ${url}`) || '';
     }
 
     const rating = normalizePrice(

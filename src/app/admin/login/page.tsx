@@ -1,7 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Lock, Mail, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 
 export default function AdminLoginPage() {
@@ -11,6 +11,7 @@ export default function AdminLoginPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,7 +22,8 @@ export default function AdminLoginPage() {
         if (res?.error) {
             setError("Invalid email or password. Please try again.");
         } else {
-            router.push("/admin");
+            const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+            router.push(callbackUrl);
             router.refresh();
         }
     };
@@ -78,7 +80,7 @@ export default function AdminLoginPage() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="admin@dealzone.com"
+                                    placeholder="admin@gmail.com"
                                     required
                                     className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-4 py-2.5 text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm outline-none transition-all"
                                 />
@@ -132,13 +134,6 @@ export default function AdminLoginPage() {
                         </button>
                     </form>
 
-                    {/* Hint */}
-                    <div className="mt-6 pt-5 border-t border-[var(--border)] flex items-center justify-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[var(--border)]" />
-                        <p className="text-[var(--text-muted)] text-xs">
-                            Default: <span className="text-[var(--text-secondary)]">admin@dealzone.com</span> / <span className="text-[var(--text-secondary)]">admin123</span>
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>

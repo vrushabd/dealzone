@@ -7,19 +7,24 @@ dotenv.config();
 
 const connectionString = process.env.DATABASE_URL!;
 const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter } as any);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
     console.log("🌱 Seeding database...");
 
     // Admin
-    const password = await bcrypt.hash("admin123", 10);
+    const password = await bcrypt.hash("pass1234", 10);
     await prisma.admin.upsert({
-        where: { email: "admin@dealzone.com" },
-        update: {},
-        create: { email: "admin@dealzone.com", password },
+        where: { email: "admin@gmail.com" },
+        update: { password },
+        create: { email: "admin@gmail.com", password },
     });
-    console.log("✅ Admin created: admin@dealzone.com / admin123");
+    await prisma.admin.deleteMany({
+        where: {
+            email: { not: "admin@gmail.com" },
+        },
+    });
+    console.log("✅ Admin created: admin@gmail.com / pass1234");
 
     // Categories
     const cats = [
@@ -121,7 +126,7 @@ async function main() {
     }
 
     console.log("\n🎉 Database seeded successfully!");
-    console.log("👉 Admin login: admin@dealzone.com / admin123");
+    console.log("👉 Admin login: admin@gmail.com / pass1234");
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());

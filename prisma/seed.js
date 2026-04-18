@@ -18,18 +18,18 @@ async function main() {
     process.env.SEED_SAMPLE_DATA === "true" || process.env.NODE_ENV !== "production";
 
   // ── Admin ──────────────────────────────────────────────
-  const existing = await prisma.admin.findUnique({
-    where: { email: "admin@dealzone.com" },
+  const password = await bcrypt.hash("pass1234", 10);
+  await prisma.admin.upsert({
+    where: { email: "admin@gmail.com" },
+    update: { password },
+    create: { email: "admin@gmail.com", password },
   });
-  if (!existing) {
-    const password = await bcrypt.hash("admin123", 10);
-    await prisma.admin.create({
-      data: { email: "admin@dealzone.com", password },
-    });
-    console.log("✅ Admin: admin@dealzone.com / admin123");
-  } else {
-    console.log("ℹ️  Admin already exists");
-  }
+  await prisma.admin.deleteMany({
+    where: {
+      email: { not: "admin@gmail.com" },
+    },
+  });
+  console.log("✅ Admin: admin@gmail.com / pass1234");
 
   // ── Categories ─────────────────────────────────────────
   const cats = [
@@ -342,7 +342,7 @@ async function main() {
   }
   console.log("✅ Coupons seeded");
 
-  console.log("\n🎉 Done! Admin: admin@dealzone.com / admin123");
+  console.log("\n🎉 Done! Admin: admin@gmail.com / pass1234");
 }
 
 main()

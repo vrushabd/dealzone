@@ -62,16 +62,42 @@ function normalizePrice(value: unknown): number | undefined {
     return undefined;
 }
 
+function normalizeImageSource(value: string): string {
+    return value
+        .replace(/\\u002F/gi, '/')
+        .replace(/\\\//g, '/')
+        .replace(/&amp;/gi, '&')
+        .trim();
+}
+
+function extractImageCandidates(value: string): string[] {
+    const normalized = normalizeImageSource(value);
+    if (!normalized) return [];
+
+    const absoluteMatches = normalized.match(/https?:\/\/[^\s",]+/gi);
+    if (absoluteMatches && absoluteMatches.length > 0) {
+        return absoluteMatches.map((candidate) => candidate.replace(/[,)]+$/g, ''));
+    }
+
+    const srcsetParts = normalized
+        .split(',')
+        .map((part) => part.trim().split(/\s+/)[0]?.trim())
+        .filter(Boolean) as string[];
+
+    return srcsetParts.length > 0 ? srcsetParts : [normalized];
+}
+
 function toAbsoluteImageUrl(value: string, platform: ScrapedProduct['platform']): string {
-    if (!value) return '';
-    if (value.startsWith('//')) return `https:${value}`;
-    if (value.startsWith('http://') || value.startsWith('https://')) return value;
+    const normalized = normalizeImageSource(value);
+    if (!normalized) return '';
+    if (normalized.startsWith('//')) return `https:${normalized}`;
+    if (normalized.startsWith('http://') || normalized.startsWith('https://')) return normalized;
 
-    if (platform === 'amazon') return `https://www.amazon.in${value}`;
-    if (platform === 'flipkart') return `https://www.flipkart.com${value}`;
-    if (platform === 'myntra') return `https://www.myntra.com${value}`;
+    if (platform === 'amazon') return `https://www.amazon.in${normalized}`;
+    if (platform === 'flipkart') return `https://www.flipkart.com${normalized}`;
+    if (platform === 'myntra') return `https://www.myntra.com${normalized}`;
 
-    return value;
+    return normalized;
 }
 
 function normalizeAvailability(value: unknown): string | undefined {
@@ -138,6 +164,7 @@ function isLikelyProductImage(url: string, platform: ScrapedProduct['platform'])
 
     const normalized = url.toLowerCase();
     if (!normalized.startsWith('http')) return false;
+    if (/\s\d+x(?:$|,)/i.test(url)) return false;
 
     const blockedFragments = [
         '.svg',
@@ -159,6 +186,23 @@ function isLikelyProductImage(url: string, platform: ScrapedProduct['platform'])
         return false;
     }
 
+    try {
+        const parsed = new URL(url);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+
+        if (platform === 'flipkart') {
+            const validHost = /(^|\.)flixcart\.com$/i.test(parsed.hostname) || /(^|\.)flipkart\.com$/i.test(parsed.hostname);
+            if (!validHost) return false;
+        }
+
+        if (platform === 'amazon') {
+            const validHost = /(^|\.)media-amazon\.com$/i.test(parsed.hostname) || /(^|\.)amazon\.in$/i.test(parsed.hostname);
+            if (!validHost) return false;
+        }
+    } catch {
+        return false;
+    }
+
     return true;
 }
 
@@ -169,13 +213,15 @@ function dedupeImages(
     const unique = new Set<string>();
 
     for (const image of images) {
-        const absolute = toAbsoluteImageUrl(image || '', platform);
-        if (!absolute) continue;
+        for (const candidate of extractImageCandidates(image || '')) {
+            const absolute = toAbsoluteImageUrl(candidate, platform);
+            if (!absolute) continue;
 
-        const upscaled = upscaleImageUrl(absolute, platform);
-        if (!isLikelyProductImage(upscaled, platform)) continue;
+            const upscaled = upscaleImageUrl(absolute, platform);
+            if (!isLikelyProductImage(upscaled, platform)) continue;
 
-        unique.add(upscaled);
+            unique.add(upscaled);
+        }
     }
 
     return Array.from(unique).slice(0, 8);
@@ -384,9 +430,10 @@ function upscaleImageUrl(url: string, platform: ScrapedProduct['platform']): str
     if (!url) return '';
     try {
         if (platform === 'flipkart' && url.includes('rukminim')) {
-            return url
-                .replace(/\/image\/\d+\/\d+\//, '/image/832/832/')
-                .replace(/\?q=\d+/, '?q=90');
+            const parsed = new URL(url);
+            parsed.pathname = parsed.pathname.replace(/\/image\/\d+\/\d+\//, '/image/832/832/');
+            parsed.searchParams.set('q', '90');
+            return parsed.toString();
         }
 
         if (platform === 'amazon' && url.includes('media-amazon.com')) {

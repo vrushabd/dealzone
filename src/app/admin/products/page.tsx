@@ -26,6 +26,10 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
     );
 }
 
+function dedupeStrings(values: Array<string | null | undefined>) {
+    return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean))) as string[];
+}
+
 function ProductForm({
     initial, categories, onSave, onClose,
 }: {
@@ -94,7 +98,7 @@ function ProductForm({
                 title: data.title || f.title,
                 description: data.description || f.description,
                 image: data.image || f.image,
-                images: Array.from(new Set([...(data.images || []), f.image, data.image])).filter(Boolean) as string[],
+                images: dedupeStrings([...(data.images || []), f.image, data.image]),
                 price: data.price > 0 ? data.price.toString() : f.price,
                 originalPrice: data.originalPrice ? data.originalPrice.toString() : f.originalPrice,
                 discount: data.discount ? data.discount.toString() : f.discount,
@@ -203,7 +207,16 @@ function ProductForm({
                         {form.images.map((img, idx) => (
                             <div key={idx} className="relative aspect-square border border-[var(--border)] rounded-md overflow-hidden bg-white group/img">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={img} alt="" className="w-full h-full object-contain p-1 mix-blend-multiply" />
+                                <img
+                                    src={img}
+                                    alt=""
+                                    className="w-full h-full object-contain p-1 mix-blend-multiply"
+                                    onError={() => setForm((current) => {
+                                        const nextImages = current.images.filter((_, imageIndex) => imageIndex !== idx);
+                                        const nextPrimary = current.image === img ? nextImages[0] || "" : current.image;
+                                        return { ...current, images: nextImages, image: nextPrimary };
+                                    })}
+                                />
                                 <button
                                     type="button"
                                     onClick={() => setForm(f => ({ ...f, images: f.images.filter((_, i) => i !== idx) }))}
@@ -234,7 +247,7 @@ function ProductForm({
                         />
                         <button 
                             type="button" 
-                            onClick={() => { if(form.image) setForm(f => ({ ...f, images: [...new Set([...f.images, f.image])] })) }}
+                            onClick={() => { if(form.image) setForm(f => ({ ...f, images: dedupeStrings([...f.images, f.image]) })) }}
                             className="text-[var(--brand)] text-[10px] font-bold px-2 hover:underline"
                         >
                             ADD TO GALLERY

@@ -1,10 +1,10 @@
 "use client";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Lock, Mail, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 
-export default function AdminLoginPage() {
+function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPw, setShowPw] = useState(false);
@@ -137,5 +137,17 @@ export default function AdminLoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function AdminLoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
+                <div className="animate-pulse text-[var(--text-muted)]">Loading Admin...</div>
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }

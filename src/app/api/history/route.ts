@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
@@ -10,20 +12,13 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Missing productId' }, { status: 400 });
         }
 
-        // Use the correct accessor based on Prisma Client generation
-        const historyModel = (prisma as any).productPriceHistory || (prisma as any).productpricehistory;
-
-        if (!historyModel) {
-            throw new Error('ProductPriceHistory model not found in Prisma');
-        }
-
-        const history = await historyModel.findMany({
+        const history = await prisma.productPriceHistory.findMany({
             where: { productId },
             orderBy: { timestamp: 'asc' },
         });
 
         // Map timestamp to date for frontend compatibility
-        const mappedHistory = history.map((h: any) => ({
+        const mappedHistory = history.map((h) => ({
             ...h,
             date: h.timestamp
         }));

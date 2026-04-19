@@ -4,16 +4,16 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { BookOpen, Calendar, Clock } from "lucide-react";
+import { BookOpen, Calendar } from "lucide-react";
 
 const BASE = process.env.NEXTAUTH_URL || "https://dealzone.onrender.com";
 
 export const metadata: Metadata = {
-    title: "Blog – Shopping Tips, Deal Guides & Reviews | DealZone",
-    description: "Read DealZone's expert shopping tips, deal guides, and product reviews to get the best prices on Amazon and Flipkart.",
+    title: "Blog – Shopping Tips, Deal Guides & Reviews | GenzLoots",
+    description: "Read GenzLoots expert shopping tips, deal guides, and product reviews to get the best prices on Amazon and Flipkart.",
     alternates: { canonical: `${BASE}/blog` },
     openGraph: {
-        title: "DealZone Blog – Shopping Tips & Deal Guides",
+        title: "GenzLoots Blog – Shopping Tips & Deal Guides",
         description: "Expert shopping tips, deal guides, and product reviews to save more money on Amazon & Flipkart.",
         url: `${BASE}/blog`,
         type: "website",
@@ -36,7 +36,7 @@ export default async function BlogPage() {
                 <div className="mb-8">
                     <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-2">
                         <BookOpen size={13} />
-                        DealZone Blog
+                        GenzLoots Blog
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">Shopping Tips &amp; Guides</h1>
                     <p className="text-[var(--text-secondary)] text-sm mt-1">Expert deal guides and product reviews — updated regularly.</p>

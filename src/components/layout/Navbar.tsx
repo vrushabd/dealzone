@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingBag, Search, Menu, X, Zap } from "lucide-react";
+import { Search, Menu, X, Zap } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
@@ -33,6 +33,7 @@ export default function Navbar() {
         { href: "/price-tracker", label: "Price Tracker" },
         { href: "/coupons", label: "Coupons" },
         { href: "/blog", label: "Blog" },
+        { href: "/contact", label: "Contact" },
     ];
 
     return (
@@ -53,7 +54,7 @@ export default function Navbar() {
                                 <Zap size={17} className="text-white" fill="currentColor" />
                             </div>
                         </div>
-                        <span className="text-xl font-extrabold gradient-text tracking-tight">DealZone</span>
+                        <span className="text-xl font-extrabold gradient-text tracking-tight">GenzLoots</span>
 
                         {/* Live badge */}
                         <div className="hidden sm:flex items-center gap-1 bg-[hsl(214_89%_52%/0.10)] border border-[hsl(214_89%_52%/0.25)] rounded-full px-2 py-0.5 text-[10px] font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider">

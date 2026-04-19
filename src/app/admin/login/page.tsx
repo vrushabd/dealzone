@@ -46,7 +46,7 @@ function LoginForm() {
                         {/* Glow ring */}
                         <div className="absolute inset-0 rounded-md border-2 border-[hsl(214_89%_52%/0.30)] scale-110 opacity-60 animate-[pulseGlow_2s_ease-in-out_infinite]" />
                     </div>
-                    <h1 className="text-3xl font-extrabold gradient-text tracking-tight">DealZone</h1>
+                    <h1 className="text-3xl font-extrabold gradient-text tracking-tight">GenzLoots</h1>
                     <p className="text-[var(--text-muted)] text-sm mt-1">Admin Dashboard</p>
                 </div>
 

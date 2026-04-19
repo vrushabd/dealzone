@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
-import { Tag, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -17,8 +16,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const category = await prisma.category.findUnique({ where: { slug } });
     if (!category) return { title: "Category Not Found" };
     return {
-        title: `${category.name} Deals – DealZone`,
-        description: `Browse all ${category.name} deals from Amazon and Flipkart at DealZone.`,
+        title: `${category.name} Deals – GenzLoots`,
+        description: `Browse all ${category.name} deals from Amazon and Flipkart at GenzLoots.`,
     };
 }
 

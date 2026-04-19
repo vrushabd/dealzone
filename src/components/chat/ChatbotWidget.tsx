@@ -30,7 +30,7 @@ function Stars({ rating }: { rating: number }) {
 export default function ChatbotWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{role: 'user'|'assistant', content: string}[]>([
-        { role: 'assistant', content: "Hi! I'm your DealZone AI Assistant. I can help you find products, compare prices, or track deals. What are you looking for?" }
+        { role: 'assistant', content: "Hi! I'm your GenzLoots AI Assistant. I can help you find products, compare prices, or track deals. What are you looking for?" }
     ]);
     const [suggestedProducts, setSuggestedProducts] = useState<Array<{
         id: string;
@@ -85,7 +85,7 @@ export default function ChatbotWidget() {
                         : (data?.error || "Something went wrong.");
                 setMessages([...newMessages, { role: 'assistant', content: `Error: ${friendly}` }]);
             }
-        } catch (error) {
+        } catch {
             setMessages([...newMessages, { role: 'assistant', content: "Failed to connect to the AI. Please try again." }]);
         } finally {
             setIsLoading(false);
@@ -123,7 +123,7 @@ export default function ChatbotWidget() {
                         <div className="flex items-center gap-2">
                             <Bot className="text-[var(--brand)]" size={20} />
                             <div>
-                                <h3 className="font-bold text-sm">DealZone Assistant</h3>
+                                <h3 className="font-bold text-sm">GenzLoots Assistant</h3>
                                 <span className="text-[10px] text-[var(--brand)] font-bold uppercase tracking-widest">AI Powered</span>
                             </div>
                         </div>

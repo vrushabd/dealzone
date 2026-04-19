@@ -39,7 +39,7 @@ function SidebarContent({
                 <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-[hsl(214_89%_52%/0.25)]">
                     <Zap size={16} className="text-white" />
                 </div>
-                {!collapsed && <span className="text-base font-bold gradient-text">DealZone</span>}
+                {!collapsed && <span className="text-base font-bold gradient-text">GenzLoots</span>}
             </div>
 
             <nav className="flex-1 p-3 space-y-1">
@@ -123,7 +123,7 @@ export default function AdminSidebar() {
                 <button onClick={() => setMobileOpen(true)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     <Menu size={22} />
                 </button>
-                <span className="font-bold gradient-text">DealZone Admin</span>
+                <span className="font-bold gradient-text">GenzLoots Admin</span>
             </div>
 
             {/* Mobile drawer */}

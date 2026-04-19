@@ -7,7 +7,7 @@ import CategoryIcon from "@/components/ui/CategoryIcon";
 import { Tag } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "All Categories – DealZone",
+    title: "All Categories – GenzLoots",
     description: "Browse deals by category. Find electronics, fashion, home & kitchen, beauty, gaming, books and more.",
 };
 

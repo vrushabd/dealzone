@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
         if (keywords.length > 0) {
             contextProducts = await prisma.product.findMany({
                 where: {
-                    OR: keywords.map((k: string) => ({ title: { contains: k, mode: 'insensitive' as any } })),
+                    OR: keywords.map((k: string) => ({ title: { contains: k, mode: Prisma.QueryMode.insensitive } })),
                     isPublic: true
                 },
                 take: 5,
@@ -139,12 +140,12 @@ export async function POST(req: NextRequest) {
         }
 
         const dbContext = contextProducts.length > 0
-            ? `Available products:\n` + contextProducts.map((p: any) =>
+            ? `Available products:\n` + contextProducts.map((p) =>
                 `- ${p.title} (${p.category?.name || 'General'}): ₹${p.price || 'N/A'} → /products/${p.slug}`
             ).join('\n')
             : "No specific products found.";
 
-        const systemPrompt = `You are the DealZone AI Shopping Assistant. Help users find products, compare prices, and give buying advice based ONLY on products in the DealZone database. Be concise and friendly. Use markdown.\n\n${dbContext}\n\nOnly recommend products above. If not found, say DealZone doesn't track it yet. Do NOT invent prices.`;
+        const systemPrompt = `You are the GenzLoots AI Shopping Assistant. Help users find products, compare prices, and give buying advice based ONLY on products in the GenzLoots database. Be concise and friendly. Use markdown.\n\n${dbContext}\n\nOnly recommend products above. If not found, say GenzLoots doesn't track it yet. Do NOT invent prices.`;
 
         // Build conversation for Gemini API
         const conversationHistory = messages.slice(0, -1).map((m) => ({
@@ -170,7 +171,7 @@ export async function POST(req: NextRequest) {
                         body: JSON.stringify({
                             contents: [
                                 { role: 'user', parts: [{ text: systemPrompt }] },
-                                { role: 'model', parts: [{ text: 'Understood. I am the DealZone shopping assistant.' }] },
+                                { role: 'model', parts: [{ text: 'Understood. I am the GenzLoots shopping assistant.' }] },
                                 ...conversationHistory,
                                 { role: 'user', parts: [{ text: lastUserMessage }] }
                             ],

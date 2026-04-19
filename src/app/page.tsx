@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "DealZone – Best Amazon & Flipkart Deals",
+    title: "GenzLoots – Best Amazon & Flipkart Deals",
     description: "Track real price drops, compare across Amazon & Flipkart, and shop smarter every day.",
 };
 
@@ -133,7 +133,7 @@ export default async function HomePage() {
                     {/* Hero content */}
                     <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center flex flex-col items-center justify-center">
                         <h1 className="sr-only">
-                            DealZone - Find Real Deals and Skip the Fake Ones
+                            GenzLoots - Find Real Deals and Skip the Fake Ones
                         </h1>
                         
                         {/* Search bar */}

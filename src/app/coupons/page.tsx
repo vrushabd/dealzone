@@ -2,24 +2,23 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Tag, Copy, ExternalLink, Ticket, Search, Filter, CheckCircle, Zap } from "lucide-react";
+import { Copy, ExternalLink, Ticket, Search, CheckCircle, Zap } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-    title: "Coupons & Promo Codes – DealZone",
+    title: "Coupons & Promo Codes – GenzLoots",
     description: "Find the latest coupons, promo codes and discount deals for Amazon, Flipkart, Myntra and more.",
 };
 
 export const revalidate = 3600; // Cache for 1 hour
 
 export default async function CouponsPage() {
-    // @ts-ignore - Prisma types may be stale
-    const coupons: any[] = await prisma.coupon.findMany({
+    const coupons = await prisma.coupon.findMany({
         where: { isVerified: true },
         orderBy: { createdAt: "desc" },
     });
 
-    const stores = Array.from(new Set(coupons.map((c: any) => c.store))) as string[];
+    const stores = Array.from(new Set(coupons.map((coupon) => coupon.store)));
 
     return (
         <>

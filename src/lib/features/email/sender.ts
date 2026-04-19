@@ -50,7 +50,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; padding: 40px 20px;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                 <div style="background-color: #3b82f6; padding: 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">DealZone Alert</h1>
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">GenzLoots Alert</h1>
                 </div>
                 
                 <div style="padding: 40px 30px;">
@@ -81,7 +81,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
 
                 <div style="background-color: #f9fafb; border-top: 1px solid #e5e7eb; padding: 20px; text-align: center;">
                     <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                        You received this because you set a Price Drop Alert on DealZone.
+                        You received this because you set a Price Drop Alert on GenzLoots.
                     </p>
                 </div>
             </div>
@@ -91,7 +91,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
     try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         const result = await resend.emails.send({
-            from: `DealZone <${senderEmail}>`,
+            from: `GenzLoots <${senderEmail}>`,
             to: [data.userEmail],
             subject: `Price Drop! ${data.productTitle}`,
             html: htmlTemplate,

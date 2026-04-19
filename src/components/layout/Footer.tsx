@@ -47,7 +47,7 @@ export default function Footer() {
                                 <div className="w-9 h-9 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-md flex items-center justify-center shadow-[0_0_16px_hsl(24_95%_53%/0.35)]">
                                     <Zap size={18} className="text-white" fill="currentColor" />
                                 </div>
-                                <span className="text-xl font-extrabold gradient-text">DealZone</span>
+                                <span className="text-xl font-extrabold gradient-text">GenzLoots</span>
                             </div>
                             <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
                                 Discover the best deals and discounts from Amazon & Flipkart. Handpicked deals updated daily — so you never miss a bargain.
@@ -66,7 +66,8 @@ export default function Footer() {
                                     { href: "/categories", label: "Categories" },
                                     { href: "/coupons",    label: "Coupons" },
                                     { href: "/blog",       label: "Blog" },
-                                    { href: "/search",     label: "Search" },
+                                    { href: "/contact",    label: "Contact Us" },
+                                    { href: "/disclaimer", label: "Disclaimer" },
                                 ].map((link) => (
                                     <li key={link.href}>
                                         <Link
@@ -105,10 +106,15 @@ export default function Footer() {
                         </div>
                     </div>
 
+                    <div className="mt-10 rounded-md border border-[var(--border)] bg-[var(--bg-card)]/70 px-4 py-4 text-sm leading-6 text-[var(--text-secondary)]">
+                        <span className="font-semibold text-[var(--text-primary)]">Disclaimer:</span>{" "}
+                        Prices, stock, coupons, and cashback can change quickly on merchant sites. Please verify all final details on the store page before you buy.
+                    </div>
+
                     {/* Bottom bar */}
                     <div className="border-t border-[var(--border-subtle)] mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <p className="text-[var(--text-muted)] text-xs">
-                            © {new Date().getFullYear()} DealZone. All rights reserved.
+                            © {new Date().getFullYear()} GenzLoots. All rights reserved.
                         </p>
                         <div className="flex items-center gap-4">
                             <Link href="/privacy" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
@@ -119,8 +125,12 @@ export default function Footer() {
                                 Terms
                             </Link>
                             <span className="text-[var(--border)]">·</span>
-                            <Link href="/affiliate-disclosure" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
-                                Disclosure
+                            <Link href="/disclaimer" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
+                                Disclaimer
+                            </Link>
+                            <span className="text-[var(--border)]">·</span>
+                            <Link href="/contact" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">
+                                Contact
                             </Link>
                         </div>
                     </div>

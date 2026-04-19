@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
             }, { status: 422 });
         }
 
-        const description = primary.description || `Best price for ${primary.title} on DealZone`;
+        const description = primary.description || `Best price for ${primary.title} on GenzLoots`;
 
         // Determine category from scraper — use URL-described category or "Uncategorized"
         const scrapedCategory = (primary.category || '').trim();

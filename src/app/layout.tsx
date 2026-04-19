@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   title: {
-    default: "DealZone – Best Amazon & Flipkart Deals",
-    template: "%s | DealZone",
+    default: "GenzLoots – Best Amazon & Flipkart Deals",
+    template: "%s | GenzLoots",
   },
   description:
     "Discover the best deals, discounts and trending products from Amazon & Flipkart. Handpicked deals updated daily.",
@@ -19,12 +19,12 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "DealZone",
+    siteName: "GenzLoots",
     images: [{ url: "/og-default.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    site: "@dealzone",
+    site: "@genzloots",
   },
   robots: { index: true, follow: true },
   icons: {

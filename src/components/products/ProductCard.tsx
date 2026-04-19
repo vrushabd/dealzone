@@ -76,7 +76,7 @@ export default function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <article className="group/card relative flex flex-col bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(214_89%_52%/0.30)] hover:shadow-[var(--shadow-elevated)]">
+        <article className="group/card relative flex flex-col h-full bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(214_89%_52%/0.30)] hover:shadow-[var(--shadow-elevated)]">
 
             {/* Image — portrait on mobile, landscape on desktop */}
             <div className="relative aspect-[4/5] sm:aspect-[5/4] bg-[var(--bg-card-hover)] overflow-hidden">
@@ -199,15 +199,17 @@ export default function ProductCard({ product }: { product: Product }) {
                     </h2>
                 </Link>
 
-                {typeof product.rating === "number" && product.rating > 0 && (
-                    <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
-                            <Star size={11} className="fill-current" />
-                            {product.rating.toFixed(1)}
-                        </span>
-                        <span className="text-[var(--text-muted)]">/ 5 rating</span>
-                    </div>
-                )}
+                <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] min-h-[20px]">
+                    {typeof product.rating === "number" && product.rating > 0 ? (
+                        <>
+                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
+                                <Star size={11} className="fill-current" />
+                                {product.rating.toFixed(1)}
+                            </span>
+                            <span className="text-[var(--text-muted)]">/ 5 rating</span>
+                        </>
+                    ) : null}
+                </div>
 
                 {/* Pricing — fixed min-height so rows align */}
                 <div className="flex flex-col gap-1 mb-3 min-h-[3.5rem]">

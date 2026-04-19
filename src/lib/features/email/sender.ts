@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { prisma } from '@/lib/prisma';
 
 export interface PriceDropData {
     userEmail: string;
@@ -30,7 +31,10 @@ function appUrl() {
 }
 
 export async function sendPriceDropEmail(data: PriceDropData) {
-    if (!process.env.RESEND_API_KEY) {
+    const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
+    const apiKey = settings?.resendApiKey || process.env.RESEND_API_KEY;
+
+    if (!apiKey) {
         console.warn("Emails not configured. Missing RESEND_API_KEY.");
         return { success: false, error: "Missing API Key" };
     }
@@ -89,7 +93,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
     `;
 
     try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
+        const resend = new Resend(apiKey);
         const result = await resend.emails.send({
             from: `GenzLoots <${senderEmail}>`,
             to: [data.userEmail],

@@ -3,7 +3,11 @@ import { AffiliateStrategyFactory } from './factory';
 
 export class AffiliateService {
     static async processProductUrl(url: string) {
-        const strategy = AffiliateStrategyFactory.getStrategy(url);
+        const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
+        const strategy = AffiliateStrategyFactory.getStrategy(url, {
+            amazon: settings?.amazonAffiliateTag || undefined,
+            flipkart: settings?.flipkartAffiliateId || undefined
+        });
 
         if (!strategy) {
             throw new Error('Platform not supported');

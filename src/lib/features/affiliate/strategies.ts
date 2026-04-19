@@ -6,7 +6,11 @@ export interface AffiliateStrategy {
 
 export class AmazonAffiliateStrategy implements AffiliateStrategy {
     platform = 'amazon';
-    private tag = process.env.AMAZON_AFFILIATE_TAG || 'mytag-21';
+    private tag: string;
+
+    constructor(tag?: string) {
+        this.tag = tag || process.env.AMAZON_AFFILIATE_TAG || 'mytag-21';
+    }
 
     extractProductId(url: string): string | null {
         const match = url.match(/\/dp\/([A-Z0-9]{10})/) || url.match(/\/gp\/product\/([A-Z0-9]{10})/);
@@ -26,7 +30,11 @@ export class AmazonAffiliateStrategy implements AffiliateStrategy {
 
 export class FlipkartAffiliateStrategy implements AffiliateStrategy {
     platform = 'flipkart';
-    private affid = process.env.FLIPKART_AFFILIATE_ID || 'myid';
+    private affid: string;
+
+    constructor(affid?: string) {
+        this.affid = affid || process.env.FLIPKART_AFFILIATE_ID || 'myid';
+    }
 
     extractProductId(url: string): string | null {
         const urlObj = new URL(url);

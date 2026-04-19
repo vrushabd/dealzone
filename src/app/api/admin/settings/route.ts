@@ -8,7 +8,10 @@ export async function GET() {
         const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
         return NextResponse.json({ 
             defaultTheme: settings?.defaultTheme || "dark",
-            geminiApiKey: settings?.geminiApiKey || ""
+            geminiApiKey: settings?.geminiApiKey || "",
+            amazonAffiliateTag: settings?.amazonAffiliateTag || "",
+            flipkartAffiliateId: settings?.flipkartAffiliateId || "",
+            resendApiKey: settings?.resendApiKey || "",
         });
     } catch (error) {
         console.error("Settings GET error:", error);
@@ -23,9 +26,15 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { defaultTheme, geminiApiKey } = await req.json();
+        const { defaultTheme, geminiApiKey, amazonAffiliateTag, flipkartAffiliateId, resendApiKey } = await req.json();
 
-        const updateData: { defaultTheme?: string; geminiApiKey?: string } = {};
+        const updateData: { 
+            defaultTheme?: string; 
+            geminiApiKey?: string;
+            amazonAffiliateTag?: string;
+            flipkartAffiliateId?: string;
+            resendApiKey?: string;
+        } = {};
 
         if (defaultTheme) {
             if (!["light", "dark"].includes(defaultTheme)) {
@@ -34,9 +43,10 @@ export async function POST(req: NextRequest) {
             updateData.defaultTheme = defaultTheme;
         }
 
-        if (geminiApiKey !== undefined) {
-            updateData.geminiApiKey = geminiApiKey;
-        }
+        if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey;
+        if (amazonAffiliateTag !== undefined) updateData.amazonAffiliateTag = amazonAffiliateTag;
+        if (flipkartAffiliateId !== undefined) updateData.flipkartAffiliateId = flipkartAffiliateId;
+        if (resendApiKey !== undefined) updateData.resendApiKey = resendApiKey;
 
         const settings = await prisma.siteSettings.upsert({
             where: { id: "default" },
@@ -44,7 +54,10 @@ export async function POST(req: NextRequest) {
             create: { 
                 id: "default", 
                 defaultTheme: updateData.defaultTheme || "dark",
-                geminiApiKey: updateData.geminiApiKey || null
+                geminiApiKey: updateData.geminiApiKey || null,
+                amazonAffiliateTag: updateData.amazonAffiliateTag || null,
+                flipkartAffiliateId: updateData.flipkartAffiliateId || null,
+                resendApiKey: updateData.resendApiKey || null,
             },
         });
 

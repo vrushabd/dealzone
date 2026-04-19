@@ -143,6 +143,9 @@ model SiteSettings {
   id           String   @id @default("default")
   defaultTheme String   @default("dark")
   geminiApiKey String?
+  amazonAffiliateTag String?
+  flipkartAffiliateId String?
+  resendApiKey String?
   updatedAt    DateTime @updatedAt
 }
 

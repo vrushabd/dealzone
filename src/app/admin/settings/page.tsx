@@ -8,8 +8,10 @@ export default function AdminSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    
     const [geminiApiKey, setGeminiApiKey] = useState("");
+    const [amazonAffiliateTag, setAmazonAffiliateTag] = useState("");
+    const [flipkartAffiliateId, setFlipkartAffiliateId] = useState("");
+    const [resendApiKey, setResendApiKey] = useState("");
 
     useEffect(() => {
         async function fetchSettings() {
@@ -18,6 +20,9 @@ export default function AdminSettingsPage() {
                 if (!res.ok) throw new Error("Failed to load settings");
                 const data = await res.json();
                 setGeminiApiKey(data.geminiApiKey || "");
+                setAmazonAffiliateTag(data.amazonAffiliateTag || "");
+                setFlipkartAffiliateId(data.flipkartAffiliateId || "");
+                setResendApiKey(data.resendApiKey || "");
             } catch (err) {
                 console.error(err);
                 setError("Could not load current settings.");
@@ -37,7 +42,12 @@ export default function AdminSettingsPage() {
             const res = await fetch("/api/admin/settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ geminiApiKey: geminiApiKey.trim() }),
+                body: JSON.stringify({ 
+                    geminiApiKey: geminiApiKey.trim(),
+                    amazonAffiliateTag: amazonAffiliateTag.trim(),
+                    flipkartAffiliateId: flipkartAffiliateId.trim(),
+                    resendApiKey: resendApiKey.trim(),
+                }),
             });
             
             const data = await res.json();
@@ -81,22 +91,28 @@ export default function AdminSettingsPage() {
                     </p>
                 </div>
 
-                <div className="p-6 space-y-6">
-                    {error && (
-                        <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-4 py-3 rounded-md flex items-center gap-2">
-                            <AlertCircle size={16} />
-                            {error}
+                <div className="p-6 space-y-8">
+                    {/* Status Alerts */}
+                    {(error || success) && (
+                        <div className="space-y-3">
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/30 text-red-500 text-sm px-4 py-3 rounded-md flex items-center gap-2">
+                                    <AlertCircle size={16} />
+                                    {error}
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="bg-green-500/10 border border-green-500/30 text-green-500 text-sm px-4 py-3 rounded-md flex items-center gap-2">
+                                    <AlertCircle size={16} />
+                                    {success}
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {success && (
-                        <div className="bg-green-500/10 border border-green-500/30 text-green-500 text-sm px-4 py-3 rounded-md flex items-center gap-2">
-                            <AlertCircle size={16} />
-                            {success}
-                        </div>
-                    )}
-
-                    <div>
+                    {/* Gemini AI Key */}
+                    <div className="space-y-4">
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
                             Google Gemini API Key
                         </label>
@@ -111,6 +127,61 @@ export default function AdminSettingsPage() {
                             You can get your API key from Google AI Studio. 
                             Never share this key publicly.
                         </p>
+                    </div>
+
+                    <hr className="border-[var(--border)]" />
+
+                    {/* Affiliate Links */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">Affiliate Configurations</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                                    Amazon Affiliate Tag
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="yourtag-21"
+                                    value={amazonAffiliateTag}
+                                    onChange={(e) => setAmazonAffiliateTag(e.target.value)}
+                                    className="input-base w-full text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                                    Flipkart Affiliate ID
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="yourfkrtid"
+                                    value={flipkartAffiliateId}
+                                    onChange={(e) => setFlipkartAffiliateId(e.target.value)}
+                                    className="input-base w-full text-sm"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr className="border-[var(--border)]" />
+
+                    {/* Resend Email API */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">Email Notifications (Resend)</h3>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                                Resend API Key
+                            </label>
+                            <input
+                                type="password"
+                                placeholder="re_..."
+                                value={resendApiKey}
+                                onChange={(e) => setResendApiKey(e.target.value)}
+                                className="input-base w-full max-w-lg font-mono text-sm"
+                            />
+                            <p className="text-xs text-[var(--text-muted)] mt-2">
+                                Used for sending Price Drop Alert emails to users.
+                            </p>
+                        </div>
                     </div>
                 </div>
 

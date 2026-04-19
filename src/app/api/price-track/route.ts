@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { scrapeProduct } from '@/lib/features/scraper/scraper';
-import { recordPriceHistoryPoint, bulkInsertHistoryPoints } from '@/lib/features/history/service';
-import { fetchBuyhatkeHistory } from '@/lib/features/buyhatke/importer';
+import { recordPriceHistoryPoint } from '@/lib/features/history/service';
 
 const productForTrackingSelect = {
     id: true,
@@ -98,7 +97,6 @@ export async function POST(req: NextRequest) {
 
         // ── Phase 3: Upsert product record ────────────────────────────────────────
         let product = exactMatch;
-        let needsBuyhatkeImport = false;
 
         if (!product) {
             const { default: slugify } = await import('slugify');
@@ -119,7 +117,6 @@ export async function POST(req: NextRequest) {
                 },
                 select: productForTrackingSelect,
             });
-            needsBuyhatkeImport = true;
         } else if (product.price === 0 || product.priceHistory.length === 0) {
             // Existing product with unusable state — heal it
             product = await prisma.product.update({
@@ -133,9 +130,6 @@ export async function POST(req: NextRequest) {
                 },
                 select: productForTrackingSelect,
             });
-            if (product.priceHistory.length === 0) {
-                needsBuyhatkeImport = true;
-            }
         } else if (!needsDemoData && effectivePrice > 0) {
             // Live scrape succeeded AND price changed — keep product data fresh
             await prisma.product.update({
@@ -147,19 +141,6 @@ export async function POST(req: NextRequest) {
                 },
             });
         }
-
-        // ── Phase 3.5: One-time Buyhatke Data Import ──────────────────────────────
-        if (needsBuyhatkeImport && product) {
-            try {
-                const importedPoints = await fetchBuyhatkeHistory(normalizedUrl, platform as any);
-                if (importedPoints && importedPoints.length > 0) {
-                    await bulkInsertHistoryPoints(product.id, importedPoints, "buyhatke_import");
-                }
-            } catch (err) {
-                console.error("Buyhatke import failed natively, continuing:", err);
-            }
-        }
-
 
 
 

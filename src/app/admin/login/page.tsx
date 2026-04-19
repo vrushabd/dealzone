@@ -80,7 +80,7 @@ function LoginForm() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="admin@gmail.com"
+                                    placeholder="genzloots@gmail.com"
                                     required
                                     className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.15)] rounded-md pl-10 pr-4 py-2.5 text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm outline-none transition-all"
                                 />

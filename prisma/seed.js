@@ -18,18 +18,18 @@ async function main() {
     process.env.SEED_SAMPLE_DATA === "true" || process.env.NODE_ENV !== "production";
 
   // ── Admin ──────────────────────────────────────────────
-  const password = await bcrypt.hash("pass1234", 10);
+  const password = await bcrypt.hash("genzloots@2026", 10);
   await prisma.admin.upsert({
-    where: { email: "admin@gmail.com" },
+    where: { email: "genzloots@gmail.com" },
     update: { password },
-    create: { email: "admin@gmail.com", password },
+    create: { email: "genzloots@gmail.com", password },
   });
   await prisma.admin.deleteMany({
     where: {
-      email: { not: "admin@gmail.com" },
+      email: { not: "genzloots@gmail.com" },
     },
   });
-  console.log("✅ Admin: admin@gmail.com / pass1234");
+  console.log("✅ Admin: genzloots@gmail.com / genzloots@2026");
 
   // ── Categories ─────────────────────────────────────────
   const cats = [
@@ -342,7 +342,7 @@ async function main() {
   }
   console.log("✅ Coupons seeded");
 
-  console.log("\n🎉 Done! Admin: admin@gmail.com / pass1234");
+  console.log("\n🎉 Done! Admin: genzloots@gmail.com / genzloots@2026");
 }
 
 main()

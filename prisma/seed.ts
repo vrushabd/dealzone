@@ -13,18 +13,18 @@ async function main() {
     console.log("🌱 Seeding database...");
 
     // Admin
-    const password = await bcrypt.hash("pass1234", 10);
+    const password = await bcrypt.hash("genzloots@2026", 10);
     await prisma.admin.upsert({
-        where: { email: "admin@gmail.com" },
+        where: { email: "genzloots@gmail.com" },
         update: { password },
-        create: { email: "admin@gmail.com", password },
+        create: { email: "genzloots@gmail.com", password },
     });
     await prisma.admin.deleteMany({
         where: {
-            email: { not: "admin@gmail.com" },
+            email: { not: "genzloots@gmail.com" },
         },
     });
-    console.log("✅ Admin created: admin@gmail.com / pass1234");
+    console.log("✅ Admin created: genzloots@gmail.com / genzloots@2026");
 
     // Categories
     const cats = [
@@ -126,7 +126,7 @@ async function main() {
     }
 
     console.log("\n🎉 Database seeded successfully!");
-    console.log("👉 Admin login: admin@gmail.com / pass1234");
+    console.log("👉 Admin login: genzloots@gmail.com / genzloots@2026");
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());

@@ -10,6 +10,7 @@ interface Product {
     amazonLink?: string | null; flipkartLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
     seller?: string | null; rating?: number | null;
+    availability?: string | null;
     featured: boolean; categoryId?: string | null; category?: { name: string } | null;
 }
 
@@ -46,7 +47,7 @@ function ProductForm({
         discount: string; amazonLink: string; flipkartLink: string;
         featured: boolean; categoryId: string; description: string;
         cashbackAmazon: string; cashbackFlipkart: string;
-        seller: string; rating: string;
+        seller: string; rating: string; availability: string;
     }>({
         title: initial?.title || "",
         image: initial?.image || "",
@@ -63,6 +64,7 @@ function ProductForm({
         cashbackFlipkart: initial?.cashbackFlipkart?.toString() || "",
         seller: initial?.seller || "",
         rating: initial?.rating?.toString() || "",
+        availability: initial?.availability || "in_stock",
     });
     type StringFields = Omit<typeof form, 'featured'>;
     const [loading, setLoading] = useState(false);
@@ -268,6 +270,18 @@ function ProductForm({
                         placeholder="Product description..." rows={3} className="input-base resize-none" />
                 </div>
 
+                <div>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Stock Status</label>
+                    <select
+                        value={form.availability}
+                        onChange={(e) => set("availability", e.target.value)}
+                        className="input-base"
+                    >
+                        <option value="in_stock">In Stock</option>
+                        <option value="out_of_stock">Out of Stock</option>
+                    </select>
+                </div>
+
                 <label className="flex items-center gap-3 cursor-pointer group">
                     <div onClick={() => set("featured", !form.featured)}
                         className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 relative ${form.featured ? "bg-[hsl(214_89%_52%)]" : "bg-[var(--bg-elevated)]"}`}>
@@ -408,6 +422,9 @@ export default function AdminProductsPage() {
                                         {p.category && <span className="text-xs text-[var(--text-muted)]">{p.category.name}</span>}
                                         {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-600 px-1.5 py-0.5 rounded-full">Amazon</span>}
                                         {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-600 px-1.5 py-0.5 rounded-full">Flipkart</span>}
+                                        {(p.availability || "in_stock") === "out_of_stock" && (
+                                            <span className="text-xs bg-red-500/15 text-red-500 px-1.5 py-0.5 rounded-full">Out of Stock</span>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0">

@@ -23,6 +23,7 @@ const productDetailSelect = {
     cashbackFlipkart: true,
     seller: true,
     rating: true,
+    availability: true,
     createdAt: true,
     updatedAt: true,
     category: { select: { id: true, name: true, slug: true, icon: true } },
@@ -81,11 +82,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 discount: data.discount ? parseFloat(data.discount) : null,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
+                featured: !!data.featured,
                 categoryId: categoryId || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
+                availability: data.availability || "in_stock",
                 reviews: data.reviews && Array.isArray(data.reviews) ? {
                     deleteMany: {},
                     create: data.reviews.map((r: ProductReviewPayload) => ({

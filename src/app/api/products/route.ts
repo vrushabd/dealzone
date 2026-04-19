@@ -24,6 +24,7 @@ const productApiSelect = {
     cashbackFlipkart: true,
     seller: true,
     rating: true,
+    availability: true,
     createdAt: true,
     updatedAt: true,
     category: { select: { id: true, name: true, slug: true, icon: true } },
@@ -120,6 +121,7 @@ export async function POST(request: NextRequest) {
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
+                availability: data.availability || "in_stock",
                 reviews: data.reviews && Array.isArray(data.reviews) ? {
                     create: data.reviews.map((r: ProductReviewPayload) => ({
                         rating: r.rating,

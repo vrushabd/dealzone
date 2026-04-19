@@ -4,11 +4,13 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Copy, ExternalLink, Ticket, Search, CheckCircle, Zap } from "lucide-react";
 import Link from "next/link";
+import { buildMetadata, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "Coupons & Promo Codes – GenzLoots",
-    description: "Find the latest coupons, promo codes and discount deals for Amazon, Flipkart, Myntra and more.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Verified Coupons & Promo Codes",
+    description: "Find verified coupon codes, promo offers, and discount deals for Amazon, Flipkart, Myntra, and more online stores.",
+    path: "/coupons",
+});
 
 export const revalidate = 3600; // Cache for 1 hour
 
@@ -22,6 +24,13 @@ export default async function CouponsPage() {
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={jsonLdScript(breadcrumbJsonLd([
+                    { name: "Home", path: "/" },
+                    { name: "Coupons", path: "/coupons" },
+                ]))}
+            />
             <Navbar />
             <main className="min-h-screen bg-[var(--bg-base)] pb-20">
                 {/* Header */}

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/legal/InfoPage";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "Disclaimer | GenzLoots",
-    description: "Read the GenzLoots disclaimer covering affiliate relationships, pricing accuracy, and third-party links.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Disclaimer",
+    description: "Read the GenzLoots disclaimer covering affiliate links, product prices, availability, third-party merchants, and shopping advice.",
+    path: "/disclaimer",
+});
 
 export default function DisclaimerPage() {
     return (

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/legal/InfoPage";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "Terms of Use | GenzLoots",
-    description: "Read the GenzLoots terms covering use of the site, content, and third-party merchant links.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Terms of Use",
+    description: "Read the GenzLoots terms covering website use, deal content, third-party merchant links, and shopping responsibilities.",
+    path: "/terms",
+});
 
 export default function TermsPage() {
     return (

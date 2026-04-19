@@ -5,11 +5,31 @@ import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import Link from "next/link";
 import { Filter } from "lucide-react";
+import { absoluteUrl, breadcrumbJsonLd, buildMetadata, jsonLdScript } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "All Deals – Amazon & Flipkart Offers",
-    description: "Browse all handpicked deals from Amazon and Flipkart with maximum discounts. Updated daily.",
+type ProductSearchParams = {
+    category?: string;
+    featured?: string;
+    sort?: string;
+    maxPrice?: string;
+    minDiscount?: string;
 };
+
+export async function generateMetadata({
+    searchParams,
+}: {
+    searchParams: Promise<ProductSearchParams>;
+}): Promise<Metadata> {
+    const sp = await searchParams;
+    const hasFilters = Boolean(sp.category || sp.featured || sp.sort || sp.maxPrice || sp.minDiscount);
+
+    return buildMetadata({
+        title: "All Online Deals, Coupons & Price Drops",
+        description: "Browse handpicked Amazon, Flipkart, and Myntra deals with discounts, price history, coupons, and price drop alerts.",
+        path: "/products",
+        noIndex: hasFilters,
+    });
+}
 
 export const revalidate = 60;
 
@@ -35,7 +55,7 @@ const productCardSelect = {
 export default async function ProductsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ category?: string; featured?: string; sort?: string; maxPrice?: string; minDiscount?: string }>;
+    searchParams: Promise<ProductSearchParams>;
 }) {
     const sp = await searchParams;
     const category = Array.isArray(sp.category) ? sp.category[0] : sp.category;
@@ -62,8 +82,30 @@ export default async function ProductsPage({
         prisma.category.findMany({ orderBy: { name: "asc" } }),
     ]);
 
+    const itemListJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Online deals",
+        itemListElement: products.slice(0, 24).map((product, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            url: absoluteUrl(`/products/${product.slug}`),
+            name: product.title,
+        })),
+    };
+
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={jsonLdScript([
+                    breadcrumbJsonLd([
+                        { name: "Home", path: "/" },
+                        { name: "Deals", path: "/products" },
+                    ]),
+                    itemListJsonLd,
+                ])}
+            />
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Header */}
@@ -90,7 +132,7 @@ export default async function ProductsPage({
                                     {categories.map((cat) => (
                                         <Link
                                             key={cat.id}
-                                            href={`/products?category=${cat.slug}`}
+                                            href={`/categories/${cat.slug}`}
                                             className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${category === cat.slug ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}
                                         >
                                             {cat.name}

@@ -4,12 +4,14 @@ import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CategoryIcon from "@/components/ui/CategoryIcon";
+import { buildMetadata, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 import { Tag } from "lucide-react";
 
-export const metadata: Metadata = {
-    title: "All Categories – GenzLoots",
-    description: "Browse deals by category. Find electronics, fashion, home & kitchen, beauty, gaming, books and more.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Shopping Deal Categories",
+    description: "Browse online deals by category including electronics, fashion, home and kitchen, beauty, gaming, books, smartphones, and more.",
+    path: "/categories",
+});
 
 export const revalidate = 60;
 
@@ -21,6 +23,13 @@ export default async function CategoriesPage() {
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={jsonLdScript(breadcrumbJsonLd([
+                    { name: "Home", path: "/" },
+                    { name: "Categories", path: "/categories" },
+                ]))}
+            />
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Header */}

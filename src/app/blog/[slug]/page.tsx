@@ -5,6 +5,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { absoluteUrl, breadcrumbJsonLd, buildMetadata, jsonLdScript, truncateDescription } from "@/lib/seo";
 import { ArrowLeft, Calendar } from "lucide-react";
 
 interface Params {
@@ -15,15 +16,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
     const post = await prisma.post.findUnique({ where: { slug, published: true } });
     if (!post) return { title: "Post Not Found" };
-    return {
+    return buildMetadata({
         title: post.title,
-        description: post.excerpt || post.content.slice(0, 160),
-        openGraph: {
-            title: post.title,
-            description: post.excerpt || undefined,
-            images: post.image ? [{ url: post.image }] : undefined,
-        },
-    };
+        description: truncateDescription(post.excerpt || post.content),
+        path: `/blog/${post.slug}`,
+        image: post.image,
+        type: "article",
+    });
 }
 
 export const revalidate = 60;
@@ -36,16 +35,38 @@ export default async function BlogPostPage({ params }: Params) {
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": absoluteUrl(`/blog/${post.slug}`),
+        },
         headline: post.title,
-        description: post.excerpt,
-        image: post.image,
-        datePublished: post.createdAt,
-        dateModified: post.updatedAt,
+        description: truncateDescription(post.excerpt || post.content),
+        image: post.image ? [absoluteUrl(post.image)] : undefined,
+        datePublished: post.createdAt.toISOString(),
+        dateModified: post.updatedAt.toISOString(),
+        author: {
+            "@type": "Organization",
+            name: "GenzLoots",
+        },
+        publisher: {
+            "@type": "Organization",
+            name: "GenzLoots",
+            logo: {
+                "@type": "ImageObject",
+                url: absoluteUrl("/favicon.svg"),
+            },
+        },
     };
+
+    const breadcrumbJson = breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Blog", path: "/blog" },
+        { name: post.title, path: `/blog/${post.slug}` },
+    ]);
 
     return (
         <>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript([jsonLd, breadcrumbJson])} />
             <Navbar />
             <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <Link href="/blog" className="inline-flex items-center gap-2 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-sm mb-8 transition-colors">

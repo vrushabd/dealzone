@@ -7,15 +7,17 @@ import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import HeroSearch from "@/components/home/HeroSearch";
 import CategoryIcon from "@/components/ui/CategoryIcon";
+import { absoluteUrl, buildMetadata, jsonLdScript, SITE_NAME } from "@/lib/seo";
 import {
     ArrowRight, Zap, TrendingUp, Tag,
     Sparkles, ExternalLink, ShoppingBag,
 } from "lucide-react";
 
-export const metadata: Metadata = {
-    title: "GenzLoots – Best Amazon & Flipkart Deals",
-    description: "Track real price drops, compare across Amazon & Flipkart, and shop smarter every day.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Best Amazon, Flipkart & Myntra Deals in India",
+    description: "Track real price drops, compare online prices, browse verified coupons, and shop smarter with GenzLoots deal alerts.",
+    path: "/",
+});
 
 export const revalidate = 5;
 
@@ -91,8 +93,42 @@ export default async function HomePage() {
         return [[], []];
     });
 
+    const websiteJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: absoluteUrl("/"),
+        potentialAction: {
+            "@type": "SearchAction",
+            target: `${absoluteUrl("/search")}?q={search_term_string}`,
+            "query-input": "required name=search_term_string",
+        },
+    };
+
+    const organizationJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: SITE_NAME,
+        url: absoluteUrl("/"),
+        logo: absoluteUrl("/favicon.svg"),
+        sameAs: [],
+    };
+
+    const latestDealsJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Latest online deals",
+        itemListElement: latestProducts.map((product, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            url: absoluteUrl(`/products/${product.slug}`),
+            name: product.title,
+        })),
+    };
+
     return (
         <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript([websiteJsonLd, organizationJsonLd, latestDealsJsonLd])} />
             <Navbar />
             <main className="bg-[var(--bg-base)]">
 

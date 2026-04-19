@@ -3,15 +3,24 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { PriceTracker } from "@/components/features/PriceTracker";
 import { History, Search, Bell, TrendingDown } from "lucide-react";
+import { buildMetadata, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "Price History Tracker",
-    description: "Track Amazon & Flipkart product prices. See historical price trends and set alerts for drops.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Amazon & Flipkart Price History Tracker",
+    description: "Track product price history, compare current offers, check real discounts, and set price drop alerts for Amazon and Flipkart products.",
+    path: "/price-tracker",
+});
 
 export default function PriceTrackerPage() {
     return (
         <div className="min-h-screen flex flex-col bg-[var(--bg-base)]">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={jsonLdScript(breadcrumbJsonLd([
+                    { name: "Home", path: "/" },
+                    { name: "Price Tracker", path: "/price-tracker" },
+                ]))}
+            />
             <Navbar />
             
             <main className="flex-1 py-12 px-4 sm:px-6">

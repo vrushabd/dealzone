@@ -10,6 +10,13 @@ import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
 import TrackedLink from "@/components/products/TrackedLink";
+import {
+    absoluteUrl,
+    breadcrumbJsonLd,
+    buildMetadata,
+    jsonLdScript,
+    truncateDescription,
+} from "@/lib/seo";
 import { ExternalLink, Tag, Star, ShieldCheck, CreditCard, Truck } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 
@@ -21,18 +28,34 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
     const product = await prisma.product.findUnique({
         where: { slug },
-        select: { title: true, description: true, image: true },
+        select: {
+            title: true,
+            slug: true,
+            description: true,
+            image: true,
+            price: true,
+            originalPrice: true,
+            discount: true,
+            category: { select: { name: true } },
+        },
     });
     if (!product) return { title: "Product Not Found" };
-    return {
-        title: product.title,
-        description: product.description || `Buy ${product.title} at the best price.`,
-        openGraph: {
-            title: product.title,
-            description: product.description || undefined,
-            images: product.image ? [{ url: product.image }] : undefined,
-        },
-    };
+
+    const savingsText = product.discount && product.discount > 0
+        ? ` Save ${Math.round(product.discount)}% today.`
+        : product.originalPrice && product.price && product.originalPrice > product.price
+            ? ` Save ₹${Math.round(product.originalPrice - product.price).toLocaleString("en-IN")}.`
+            : "";
+
+    return buildMetadata({
+        title: `${product.title} Best Price${product.price ? ` ₹${product.price.toLocaleString("en-IN")}` : ""}`,
+        description: truncateDescription(
+            product.description ||
+            `Compare ${product.title} price, offers, price history, buyer rating, and availability on GenzLoots.${savingsText}`
+        ),
+        path: `/products/${product.slug}`,
+        image: product.image,
+    });
 }
 
 export const revalidate = 60;
@@ -108,24 +131,67 @@ export default async function ProductDetailPage({ params }: Params) {
             ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
             : null);
 
-    // JSON-LD structured data
-    const jsonLd = {
+    const productImages = [product.image, ...(product.images || [])]
+        .filter((image): image is string => Boolean(image))
+        .map((image) => absoluteUrl(image));
+
+    const productJsonLd = {
         "@context": "https://schema.org",
         "@type": "Product",
         name: product.title,
-        description: product.description,
-        image: product.image,
-        offers: {
+        description: truncateDescription(product.description, `Best price and offers for ${product.title}.`),
+        image: productImages.length > 0 ? productImages : undefined,
+        category: product.category?.name,
+        sku: product.id,
+        url: absoluteUrl(`/products/${product.slug}`),
+        aggregateRating: typeof product.rating === "number" && product.rating > 0
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: product.rating.toFixed(1),
+                bestRating: "5",
+                worstRating: "1",
+                ratingCount: Math.max(product.reviews.length, 1),
+            }
+            : undefined,
+        review: product.reviews.map((review) => ({
+            "@type": "Review",
+            reviewRating: {
+                "@type": "Rating",
+                ratingValue: review.rating,
+                bestRating: "5",
+                worstRating: "1",
+            },
+            author: {
+                "@type": "Person",
+                name: review.author || "Verified Buyer",
+            },
+            name: review.title || undefined,
+            reviewBody: review.comment,
+        })),
+        offers: product.price && product.price > 0 ? {
             "@type": "Offer",
+            url: absoluteUrl(`/products/${product.slug}`),
             priceCurrency: "INR",
             price: product.price,
-            availability: "https://schema.org/InStock",
-        },
+            availability: product.availability?.toLowerCase().includes("out")
+                ? "https://schema.org/OutOfStock"
+                : "https://schema.org/InStock",
+            seller: product.seller
+                ? { "@type": "Organization", name: product.seller }
+                : { "@type": "Organization", name: "Merchant partner" },
+        } : undefined,
     };
+
+    const breadcrumbJson = breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Deals", path: "/products" },
+        ...(product.category ? [{ name: product.category.name, path: `/categories/${product.category.slug}` }] : []),
+        { name: product.title, path: `/products/${product.slug}` },
+    ]);
 
     return (
         <>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript([productJsonLd, breadcrumbJson])} />
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <nav className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-8">

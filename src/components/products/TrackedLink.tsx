@@ -18,7 +18,7 @@ export default function TrackedLink({ productId, platform, href, children, class
         body: JSON.stringify({
           productId,
           platform,
-          sessionId: localStorage.getItem("dealzone_session") || "unknown",
+          sessionId: sessionStorage.getItem("dz_session_id") || localStorage.getItem("genzloots_session") || "unknown",
         }),
       });
     } catch (err) {

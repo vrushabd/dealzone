@@ -4,21 +4,14 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { buildMetadata, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 import { BookOpen, Calendar } from "lucide-react";
 
-const BASE = process.env.NEXTAUTH_URL || "https://dealzone.onrender.com";
-
-export const metadata: Metadata = {
-    title: "Blog – Shopping Tips, Deal Guides & Reviews | GenzLoots",
-    description: "Read GenzLoots expert shopping tips, deal guides, and product reviews to get the best prices on Amazon and Flipkart.",
-    alternates: { canonical: `${BASE}/blog` },
-    openGraph: {
-        title: "GenzLoots Blog – Shopping Tips & Deal Guides",
-        description: "Expert shopping tips, deal guides, and product reviews to save more money on Amazon & Flipkart.",
-        url: `${BASE}/blog`,
-        type: "website",
-    },
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Shopping Tips, Deal Guides & Product Reviews",
+    description: "Read GenzLoots shopping tips, deal guides, product reviews, and price tracking advice for Amazon, Flipkart, and Myntra shoppers.",
+    path: "/blog",
+});
 
 export const revalidate = 60;
 
@@ -30,6 +23,13 @@ export default async function BlogPage() {
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={jsonLdScript(breadcrumbJsonLd([
+                    { name: "Home", path: "/" },
+                    { name: "Blog", path: "/blog" },
+                ]))}
+            />
             <Navbar />
             <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Header */}

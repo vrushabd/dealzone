@@ -4,29 +4,57 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/layout/AnalyticsTracker";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_OG_IMAGE,
+  SITE_HANDLE,
+  SITE_NAME,
+  getSiteUrl,
+} from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "GenzLoots – Best Amazon & Flipkart Deals",
-    template: "%s | GenzLoots",
+    default: `${SITE_NAME} – Best Amazon, Flipkart & Myntra Deals`,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Discover the best deals, discounts and trending products from Amazon & Flipkart. Handpicked deals updated daily.",
-  keywords: ["deals", "discounts", "amazon", "flipkart", "affiliate", "offers", "shopping"],
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  category: "shopping",
+  keywords: [
+    "Amazon deals",
+    "Flipkart deals",
+    "Myntra deals",
+    "price tracker",
+    "price drop alerts",
+    "coupons",
+    "shopping offers",
+    "GenzLoots",
+  ],
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "GenzLoots",
-    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+    siteName: SITE_NAME,
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    site: "@genzloots",
+    site: SITE_HANDLE,
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

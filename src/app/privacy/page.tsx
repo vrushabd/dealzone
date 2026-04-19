@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/legal/InfoPage";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "Privacy Policy | GenzLoots",
-    description: "Read the GenzLoots privacy policy covering analytics, alerts, and how basic visitor data is used.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Privacy Policy",
+    description: "Read the GenzLoots privacy policy covering analytics, affiliate clicks, price alerts, tracking preferences, and contact data.",
+    path: "/privacy",
+});
 
 export default function PrivacyPage() {
     return (

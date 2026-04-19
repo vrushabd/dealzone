@@ -34,7 +34,7 @@ export default function ProductForm({
         discount: string; amazonLink: string; flipkartLink: string;
         featured: boolean; categoryId: string; description: string;
         cashbackAmazon: string; cashbackFlipkart: string;
-        seller: string; rating: string;
+        seller: string; rating: string; availability: string;
     }>({
         title: initial?.title || "",
         image: initial?.image || "",
@@ -51,6 +51,7 @@ export default function ProductForm({
         cashbackFlipkart: initial?.cashbackFlipkart?.toString() || "",
         seller: initial?.seller || "",
         rating: initial?.rating?.toString() || "",
+        availability: initial?.availability || "in_stock",
     });
     type StringFields = Omit<typeof form, 'featured'>;
     const [loading, setLoading] = useState(false);
@@ -256,6 +257,18 @@ export default function ProductForm({
                     <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Description</label>
                     <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
                         placeholder="Product description..." rows={3} className="input-base resize-none" />
+                </div>
+
+                <div>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Stock Status</label>
+                    <select
+                        value={form.availability}
+                        onChange={(e) => set("availability", e.target.value)}
+                        className="input-base"
+                    >
+                        <option value="in_stock">In Stock</option>
+                        <option value="out_of_stock">Out of Stock</option>
+                    </select>
                 </div>
 
                 <label className="flex items-center gap-3 cursor-pointer group">

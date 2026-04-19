@@ -3,13 +3,15 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Mail, MessageSquareText, ShieldCheck } from "lucide-react";
+import { buildMetadata } from "@/lib/seo";
 
-const SUPPORT_EMAIL = "admin@gmail.com";
+const SUPPORT_EMAIL = "genzloots@gmail.com";
 
-export const metadata: Metadata = {
-    title: "Contact Us | GenzLoots",
-    description: "Get in touch with GenzLoots for support, corrections, partnerships, or general questions.",
-};
+export const metadata: Metadata = buildMetadata({
+    title: "Contact Us",
+    description: "Contact GenzLoots for support, product corrections, broken deal reports, affiliate questions, and partnership enquiries.",
+    path: "/contact",
+});
 
 export default function ContactPage() {
     const contactCards = [

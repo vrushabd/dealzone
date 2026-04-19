@@ -27,7 +27,7 @@ export default function AdminProductsPage() {
         setLoadError("");
         try {
             const [productsRes, categoriesRes] = await Promise.all([
-                fetch("/api/products"),
+                fetch("/api/products?publicOnly=true"),
                 fetch("/api/categories"),
             ]);
             const [productsData, categoriesData] = await Promise.all([

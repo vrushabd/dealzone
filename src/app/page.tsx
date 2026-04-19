@@ -15,7 +15,7 @@ import {
 
 export const metadata: Metadata = buildMetadata({
     title: "Best Amazon, Flipkart & Myntra Deals in India",
-    description: "Track real price drops, compare online prices, browse verified coupons, and shop smarter with GenzLoots deal alerts.",
+    description: "Track real price drops, browse verified coupons, and shop smarter with GenzLoots deal alerts.",
     path: "/",
 });
 
@@ -37,7 +37,6 @@ const DISCOUNT_TIERS = [40, 50, 60, 70];
 const QUICK_LINKS = [
     { href: "/price-tracker", label: "Amazon Price History Tracker" },
     { href: "/price-tracker", label: "Flipkart Price History Tracker" },
-    { href: "/compare",       label: "Price Comparison Tool" },
 ];
 
 type HomeProduct = {

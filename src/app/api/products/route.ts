@@ -44,12 +44,14 @@ export async function GET(req: NextRequest) {
         const search = searchParams.get('search')?.trim() || '';
         const category = searchParams.get('category') || '';
         const featured = searchParams.get('featured') === 'true';
+        const publicOnly = searchParams.get('publicOnly') === 'true';
 
         const session = await getServerSession(authOptions);
         const isAdmin = !!session;
 
         const where: Prisma.ProductWhereInput = {};
-        if (!isAdmin) {
+        // Force public-only when explicitly requested OR not an admin
+        if (!isAdmin || publicOnly) {
             where.isPublic = true;
         }
 

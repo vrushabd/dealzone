@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import {
     Zap, LayoutDashboard, ShoppingBag, BookOpen, Tag,
-    LogOut, ExternalLink, Menu, X, ChevronRight, Link2, BarChart3, Settings, TrendingUp
+    LogOut, ExternalLink, Menu, X, ChevronRight, BarChart3, Settings, TrendingUp
 } from "lucide-react";
 import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
 import Logo from "@/components/ui/Logo";
@@ -13,7 +13,6 @@ import Logo from "@/components/ui/Logo";
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { href: "/admin/products", label: "Products", icon: ShoppingBag },
-    { href: "/admin/add-product", label: "Add via URL", icon: Link2 },
     { href: "/admin/posts", label: "Blog Posts", icon: BookOpen },
     { href: "/admin/categories", label: "Categories", icon: Tag },
     { href: "/admin/affiliate", label: "Affiliate Links", icon: BarChart3 },

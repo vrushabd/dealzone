@@ -172,9 +172,8 @@ export default async function AdminDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {[
-                    { href: "/admin/products", label: "Add Product", desc: "Upload new affiliate deal" },
                     { href: "/admin/posts/new", label: "New Post", desc: "Write a blog post" },
                     { href: "/admin/categories", label: "Add Category", desc: "Organise your products" },
                 ].map(({ href, label, desc }) => (

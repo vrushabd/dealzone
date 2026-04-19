@@ -71,7 +71,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "No messages provided" }, { status: 400 });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
+        const apiKey = settings?.geminiApiKey || process.env.GEMINI_API_KEY;
+        
         if (!apiKey) {
             return NextResponse.json({ 
                 error: "AI Not Configured. Missing GEMINI_API_KEY." 

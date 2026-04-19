@@ -142,6 +142,7 @@ model AffiliateClick {
 model SiteSettings {
   id           String   @id @default("default")
   defaultTheme String   @default("dark")
+  geminiApiKey String?
   updatedAt    DateTime @updatedAt
 }
 

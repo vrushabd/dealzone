@@ -6,7 +6,10 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
     try {
         const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
-        return NextResponse.json({ defaultTheme: settings?.defaultTheme || "dark" });
+        return NextResponse.json({ 
+            defaultTheme: settings?.defaultTheme || "dark",
+            geminiApiKey: settings?.geminiApiKey || ""
+        });
     } catch (error) {
         console.error("Settings GET error:", error);
         return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
@@ -20,16 +23,29 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { defaultTheme } = await req.json();
+        const { defaultTheme, geminiApiKey } = await req.json();
 
-        if (!["light", "dark"].includes(defaultTheme)) {
-            return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
+        const updateData: { defaultTheme?: string; geminiApiKey?: string } = {};
+
+        if (defaultTheme) {
+            if (!["light", "dark"].includes(defaultTheme)) {
+                return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
+            }
+            updateData.defaultTheme = defaultTheme;
+        }
+
+        if (geminiApiKey !== undefined) {
+            updateData.geminiApiKey = geminiApiKey;
         }
 
         const settings = await prisma.siteSettings.upsert({
             where: { id: "default" },
-            update: { defaultTheme },
-            create: { id: "default", defaultTheme },
+            update: updateData,
+            create: { 
+                id: "default", 
+                defaultTheme: updateData.defaultTheme || "dark",
+                geminiApiKey: updateData.geminiApiKey || null
+            },
         });
 
         return NextResponse.json({ success: true, settings });

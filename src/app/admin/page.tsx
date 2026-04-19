@@ -87,12 +87,13 @@ export default async function AdminDashboard() {
     try {
         const products_data = await Promise.all([
             prisma.product.findMany({
+                where: { isPublic: true },
                 take: 5,
                 orderBy: { createdAt: "desc" },
                 select: productListSelect,
             }),
             prisma.product.findMany({
-                where: { affiliateClicks: { some: {} } },
+                where: { isPublic: true, affiliateClicks: { some: {} } },
                 take: 5,
                 orderBy: { affiliateClicks: { _count: 'desc' } },
                 include: { 

@@ -234,7 +234,14 @@ export default async function ProductDetailPage({ params }: Params) {
                             </Link>
                         )}
 
-                        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug mb-6">{product.title}</h1>
+                        <div className="flex items-start justify-between gap-4 mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug">{product.title}</h1>
+                            {product.availability === "out_of_stock" && (
+                                <span className="bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold px-3 py-1.5 rounded-full flex-shrink-0 uppercase tracking-widest mt-1">
+                                    Out of Stock
+                                </span>
+                            )}
+                        </div>
 
                         {(typeof product.rating === "number" && product.rating > 0) || product.seller ? (
                             <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
@@ -295,49 +302,73 @@ export default async function ProductDetailPage({ params }: Params) {
                                             <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold text-yellow-600 text-xs">AMZ</div>
                                             <span className="font-semibold text-[var(--text-primary)]">Amazon</span>
                                         </div>
-                                        <TrackedLink productId={product.id} platform="amazon" href={product.amazonLink} className="bg-yellow-500 hover:bg-yellow-400 text-gray-950 text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
-                                            Check Deal <ExternalLink size={14} />
-                                        </TrackedLink>
+                                        {product.availability === "out_of_stock" ? (
+                                            <span className="bg-red-500/10 text-red-500/80 text-sm font-bold py-2 px-4 rounded cursor-not-allowed">Out of Stock</span>
+                                        ) : (
+                                            <TrackedLink productId={product.id} platform="amazon" href={product.amazonLink} className="bg-yellow-500 hover:bg-yellow-400 text-gray-950 text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
+                                                Check Deal <ExternalLink size={14} />
+                                            </TrackedLink>
+                                        )}
                                     </div>
                                     <div className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-base)] border border-[var(--border)]">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white text-xs">FLK</div>
                                             <span className="font-semibold text-[var(--text-primary)]">Flipkart</span>
                                         </div>
-                                        <TrackedLink productId={product.id} platform="flipkart" href={product.flipkartLink} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
-                                            Check Deal <ExternalLink size={14} />
-                                        </TrackedLink>
+                                        {product.availability === "out_of_stock" ? (
+                                            <span className="bg-red-500/10 text-red-500/80 text-sm font-bold py-2 px-4 rounded cursor-not-allowed">Out of Stock</span>
+                                        ) : (
+                                            <TrackedLink productId={product.id} platform="flipkart" href={product.flipkartLink} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
+                                                Check Deal <ExternalLink size={14} />
+                                            </TrackedLink>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="flex flex-col sm:flex-row gap-4 mb-8">
                                 {product.amazonLink && (
-                                    <TrackedLink
-                                        productId={product.id}
-                                        platform="amazon"
-                                        href={product.amazonLink}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
-                                    >
-                                        <ExternalLink size={18} />
-                                        Buy on Amazon
-                                    </TrackedLink>
+                                    <>
+                                        {product.availability === "out_of_stock" ? (
+                                            <span className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/20 text-red-500 font-bold py-4 px-6 rounded-md text-base cursor-not-allowed">
+                                                Out of Stock
+                                            </span>
+                                        ) : (
+                                            <TrackedLink
+                                                productId={product.id}
+                                                platform="amazon"
+                                                href={product.amazonLink}
+                                                className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
+                                            >
+                                                <ExternalLink size={18} />
+                                                Buy on Amazon
+                                            </TrackedLink>
+                                        )}
+                                    </>
                                 )}
                                 {product.flipkartLink && (
-                                    <TrackedLink
-                                        productId={product.id}
-                                        platform="flipkart"
-                                        href={product.flipkartLink}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
-                                    >
-                                        <ExternalLink size={18} />
-                                        Buy on Flipkart
-                                    </TrackedLink>
+                                    <>
+                                        {product.availability === "out_of_stock" ? (
+                                            <span className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/20 text-red-500 font-bold py-4 px-6 rounded-md text-base cursor-not-allowed">
+                                                Out of Stock
+                                            </span>
+                                        ) : (
+                                            <TrackedLink
+                                                productId={product.id}
+                                                platform="flipkart"
+                                                href={product.flipkartLink}
+                                                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
+                                            >
+                                                <ExternalLink size={18} />
+                                                Buy on Flipkart
+                                            </TrackedLink>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         )}
 
-                        {(product.price ?? 0) > 0 && (
+                        {(product.price ?? 0) > 0 && product.availability !== "out_of_stock" && (
                             <div className="mb-8">
                                 <PriceAlertButton
                                     productId={product.id}

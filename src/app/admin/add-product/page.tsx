@@ -258,27 +258,7 @@ export default function AddViaUrlPage() {
                 </div>
             )}
 
-            {/* How it works */}
-            {!result && !loading && !error && (
-                <div className="glass rounded-md p-5">
-                    <h3 className="text-xs font-semibold text-[hsl(215_15%_55%)] uppercase tracking-wider mb-4">How it works</h3>
-                    <div className="space-y-3">
-                        {[
-                            { step: "1", text: "Paste any Amazon India or Flipkart product URL above" },
-                            { step: "2", text: "We scrape the title, price, discount, and product image" },
-                            { step: "3", text: "Your affiliate tag is automatically appended to the URL" },
-                            { step: "4", text: "Product is saved to your database and goes live instantly" },
-                        ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-3">
-                                <div className="w-5 h-5 rounded-full bg-[hsl(214_89%_52%/0.12)] border border-[hsl(214_89%_52%/0.25)] flex items-center justify-center text-[10px] font-bold text-[hsl(214_89%_55%)] flex-shrink-0 mt-0.5">
-                                    {item.step}
-                                </div>
-                                <p className="text-[hsl(215_15%_55%)] text-xs leading-relaxed">{item.text}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 }

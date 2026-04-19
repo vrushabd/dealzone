@@ -1,34 +1,78 @@
 "use client";
 import Link from "next/link";
-import { Zap } from "lucide-react";
 
 export default function Logo({ className = "", href = "/", onClick }: { className?: string, href?: string, onClick?: () => void }) {
     return (
-        <Link 
-            href={href} 
+        <Link
+            href={href}
             onClick={onClick}
-            className={`flex items-center gap-2 group flex-shrink-0 ${className}`}
+            className={`flex items-center gap-2.5 group flex-shrink-0 select-none ${className}`}
         >
-            {/* Catchy Icon Box */}
+            {/* Shopping Bag SVG Icon */}
             <div className="relative w-9 h-9 flex-shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[hsl(214_89%_40%)] via-[hsl(214_89%_55%)] to-[hsl(214_89%_70%)] rounded-xl shadow-[0_0_15px_hsl(214_89%_52%/0.45)] group-hover:shadow-[0_0_25px_hsl(214_89%_52%/0.7)] group-hover:rotate-6 transition-all duration-300 ease-out" />
-                <div className="absolute inset-[2px] bg-[var(--bg-base)] rounded-[10px] z-10 flex items-center justify-center overflow-hidden">
-                    {/* Inner glowing effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[hsl(214_89%_40%/0.2)] via-[hsl(214_89%_55%/0.2)] to-[hsl(214_89%_70%/0.2)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Zap 
-                        size={18} 
-                        className="text-[hsl(214_89%_55%)] fill-[hsl(214_89%_60%)] drop-shadow-[0_0_8px_hsl(214_89%_52%/0.8)] group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300 z-20" 
+                <svg
+                    viewBox="0 0 40 44"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-full h-full drop-shadow-[0_4px_12px_hsl(214_89%_52%/0.45)] group-hover:drop-shadow-[0_4px_20px_hsl(214_89%_52%/0.7)] transition-all duration-300"
+                >
+                    {/* Bag body */}
+                    <path
+                        d="M4 13h32l-3.2 26a2 2 0 01-1.98 1.7H9.18A2 2 0 017.2 39L4 13z"
+                        fill="url(#bagGradient)"
                     />
-                </div>
+                    {/* Bag handles */}
+                    <path
+                        d="M14 13c0-3.31 2.69-6 6-6s6 2.69 6 6"
+                        stroke="url(#handleGradient)"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        fill="none"
+                    />
+                    {/* Smile face on bag */}
+                    <path
+                        d="M14.5 26c1 3 2.5 5 5.5 5s4.5-2 5.5-5"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        fill="none"
+                        opacity="0.9"
+                    />
+                    {/* Eyes */}
+                    <circle cx="16" cy="22" r="1.5" fill="white" opacity="0.9" />
+                    <circle cx="24" cy="22" r="1.5" fill="white" opacity="0.9" />
+                    {/* Zap/bolt on top right */}
+                    <path
+                        d="M32 2l-3.5 5.5h2L27 14"
+                        stroke="#fff"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity="0.8"
+                    />
+
+                    <defs>
+                        <linearGradient id="bagGradient" x1="4" y1="13" x2="36" y2="44" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stopColor="hsl(214, 89%, 48%)" />
+                            <stop offset="100%" stopColor="hsl(214, 89%, 35%)" />
+                        </linearGradient>
+                        <linearGradient id="handleGradient" x1="14" y1="7" x2="26" y2="13" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stopColor="hsl(214, 89%, 55%)" />
+                            <stop offset="100%" stopColor="hsl(214, 89%, 45%)" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                {/* Hover glow ring */}
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ring-2 ring-[hsl(214_89%_55%/0.4)]" />
             </div>
 
-            {/* Typography */}
-            <div className="flex flex-col justify-center -space-y-1">
-                <span className="text-xl sm:text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[hsl(214_89%_45%)] via-[hsl(214_89%_60%)] to-[hsl(214_89%_70%)] group-hover:from-[hsl(214_89%_70%)] group-hover:via-[hsl(214_89%_60%)] group-hover:to-[hsl(214_89%_45%)] transition-all duration-500 ease-in-out bg-[length:200%_auto]">
-                    GENZ
+            {/* Text */}
+            <div className="flex flex-col justify-center leading-none">
+                <span className="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[hsl(214_89%_45%)] to-[hsl(214_89%_65%)] group-hover:from-[hsl(214_89%_55%)] group-hover:to-[hsl(214_89%_75%)] transition-all duration-300">
+                    Genz
                 </span>
-                <span className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-[var(--text-muted)] uppercase pl-0.5 group-hover:text-[hsl(214_89%_55%)] transition-colors duration-300">
-                    Loots.
+                <span className="text-[11px] font-extrabold tracking-[0.12em] text-[hsl(214_89%_55%)] uppercase group-hover:text-[hsl(214_89%_65%)] transition-colors duration-300">
+                    Loots
                 </span>
             </div>
         </Link>

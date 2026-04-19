@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Zap, ExternalLink, ShieldCheck, TrendingUp, Tag } from "lucide-react";
+import { ExternalLink, ShieldCheck, TrendingUp, Tag } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 export default function Footer() {
     const stats = [
@@ -43,11 +44,8 @@ export default function Footer() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                         {/* Brand */}
                         <div className="md:col-span-2">
-                            <div className="flex items-center gap-2.5 mb-4">
-                                <div className="w-9 h-9 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-md flex items-center justify-center shadow-[0_0_16px_hsl(24_95%_53%/0.35)]">
-                                    <Zap size={18} className="text-white" fill="currentColor" />
-                                </div>
-                                <span className="text-xl font-extrabold gradient-text">GenzLoots</span>
+                            <div className="mb-4">
+                                <Logo />
                             </div>
                             <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
                                 Discover the best deals and discounts from Amazon & Flipkart. Handpicked deals updated daily — so you never miss a bargain.

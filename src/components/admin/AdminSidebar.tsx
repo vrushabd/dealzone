@@ -8,6 +8,7 @@ import {
     LogOut, ExternalLink, Menu, X, ChevronRight, Link2, BarChart3, Settings
 } from "lucide-react";
 import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
+import Logo from "@/components/ui/Logo";
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -37,10 +38,13 @@ function SidebarContent({
     return (
         <div className="flex flex-col h-full">
             <div className={`flex items-center gap-2.5 px-4 py-5 border-b border-[var(--border)] ${collapsed ? "justify-center" : ""}`}>
-                <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-[hsl(214_89%_52%/0.25)]">
-                    <Zap size={16} className="text-white" />
-                </div>
-                {!collapsed && <span className="text-base font-bold gradient-text">GenzLoots</span>}
+                {collapsed ? (
+                    <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-lg flex items-center justify-center flex-shrink-0 shadow shadow-[hsl(214_89%_52%/0.25)]">
+                        <Zap size={16} className="text-white" />
+                    </div>
+                ) : (
+                    <Logo className="scale-90 origin-left" />
+                )}
             </div>
 
             <nav className="flex-1 p-3 space-y-1">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, Menu, X, Zap } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import Logo from "@/components/ui/Logo";
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -48,20 +49,14 @@ export default function Navbar() {
                 <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-14" : "h-16"}`}>
 
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-                        <div className="relative w-8 h-8 flex-shrink-0">
-                            <div className="w-8 h-8 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-md flex items-center justify-center shadow-[var(--shadow-brand)] group-hover:brightness-110 transition-all duration-200">
-                                <Zap size={17} className="text-white" fill="currentColor" />
-                            </div>
-                        </div>
-                        <span className="text-xl font-extrabold gradient-text tracking-tight">GenzLoots</span>
-
+                    <div className="flex items-center gap-3">
+                        <Logo />
                         {/* Live badge */}
-                        <div className="hidden sm:flex items-center gap-1 bg-[hsl(214_89%_52%/0.10)] border border-[hsl(214_89%_52%/0.25)] rounded-full px-2 py-0.5 text-[10px] font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider">
+                        <div className="hidden sm:flex items-center gap-1 bg-[hsl(214_89%_52%/0.10)] border border-[hsl(214_89%_52%/0.25)] rounded-full px-2 py-0.5 text-[10px] font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider mt-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-[hsl(214_89%_55%)] animate-[pulseDot_1.5s_ease-in-out_infinite]" />
                             Live
                         </div>
-                    </Link>
+                    </div>
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-1">

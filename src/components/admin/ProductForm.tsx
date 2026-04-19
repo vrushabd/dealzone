@@ -10,7 +10,7 @@ interface Product {
     price?: number | null; originalPrice?: number | null; discount?: number | null;
     amazonLink?: string | null; flipkartLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
-    seller?: string | null; rating?: number | null;
+    seller?: string | null; rating?: number | null; availability?: string | null;
     featured: boolean; categoryId?: string | null; category?: { name: string } | null;
 }
 

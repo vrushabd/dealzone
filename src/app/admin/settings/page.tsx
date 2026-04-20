@@ -11,6 +11,7 @@ export default function AdminSettingsPage() {
 
     // Branding
     const [siteName, setSiteName] = useState("");
+    const [siteTagline, setSiteTagline] = useState("");
     const [logoUrl, setLogoUrl] = useState("");
     const [faviconUrl, setFaviconUrl] = useState("");
 
@@ -27,6 +28,7 @@ export default function AdminSettingsPage() {
                 if (!res.ok) throw new Error("Failed to load settings");
                 const data = await res.json();
                 setSiteName(data.siteName || "GenzLoots");
+                setSiteTagline(data.siteTagline || "Best Amazon, Flipkart & Myntra Deals");
                 setLogoUrl(data.logoUrl || "");
                 setFaviconUrl(data.faviconUrl || "");
                 setGeminiApiKey(data.geminiApiKey || "");
@@ -58,6 +60,7 @@ export default function AdminSettingsPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     siteName: siteName.trim(),
+                    siteTagline: siteTagline.trim(),
                     logoUrl: logoUrl.trim(),
                     faviconUrl: faviconUrl.trim(),
                     geminiApiKey: geminiApiKey.trim(),
@@ -139,6 +142,23 @@ export default function AdminSettingsPage() {
                         />
                         <p className="text-xs text-[var(--text-muted)] mt-1.5">
                             Appears in browser tab title, email subject lines, and the logo text.
+                        </p>
+                    </div>
+
+                    {/* Tagline */}
+                    <div>
+                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                            Site Tagline
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Best Amazon, Flipkart & Myntra Deals"
+                            value={siteTagline}
+                            onChange={(e) => setSiteTagline(e.target.value)}
+                            className="input-base w-full max-w-lg"
+                        />
+                        <p className="text-xs text-[var(--text-muted)] mt-1.5">
+                            Shown in the browser tab subtitle and page metadata description. E.g. &ldquo;India&rsquo;s best deal finder&rdquo;.
                         </p>
                     </div>
 

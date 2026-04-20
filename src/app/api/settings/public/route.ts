@@ -8,6 +8,7 @@ export async function GET() {
         const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
         return NextResponse.json({
             siteName: settings?.siteName || "GenzLoots",
+            siteTagline: settings?.siteTagline || "Best Amazon, Flipkart & Myntra Deals",
             logoUrl: settings?.logoUrl || null,
             faviconUrl: settings?.faviconUrl || null,
         }, {

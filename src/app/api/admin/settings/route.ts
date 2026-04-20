@@ -9,6 +9,7 @@ export async function GET() {
         return NextResponse.json({ 
             defaultTheme: settings?.defaultTheme || "dark",
             siteName: settings?.siteName || "GenzLoots",
+            siteTagline: settings?.siteTagline || "Best Amazon, Flipkart & Myntra Deals",
             logoUrl: settings?.logoUrl || "",
             faviconUrl: settings?.faviconUrl || "",
             geminiApiKey: settings?.geminiApiKey || "",
@@ -29,11 +30,12 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { defaultTheme, siteName, logoUrl, faviconUrl, geminiApiKey, amazonAffiliateTag, flipkartAffiliateId, resendApiKey } = await req.json();
+        const { defaultTheme, siteName, siteTagline, logoUrl, faviconUrl, geminiApiKey, amazonAffiliateTag, flipkartAffiliateId, resendApiKey } = await req.json();
 
         const updateData: { 
             defaultTheme?: string;
             siteName?: string;
+            siteTagline?: string;
             logoUrl?: string | null;
             faviconUrl?: string | null;
             geminiApiKey?: string;
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (siteName !== undefined) updateData.siteName = siteName.trim() || "GenzLoots";
+        if (siteTagline !== undefined) updateData.siteTagline = siteTagline.trim() || "Best Amazon, Flipkart & Myntra Deals";
         if (logoUrl !== undefined) updateData.logoUrl = logoUrl.trim() || null;
         if (faviconUrl !== undefined) updateData.faviconUrl = faviconUrl.trim() || null;
         if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey;
@@ -64,6 +67,7 @@ export async function POST(req: NextRequest) {
                 id: "default", 
                 defaultTheme: updateData.defaultTheme || "dark",
                 siteName: updateData.siteName || "GenzLoots",
+                siteTagline: updateData.siteTagline || "Best Amazon, Flipkart & Myntra Deals",
                 logoUrl: updateData.logoUrl || null,
                 faviconUrl: updateData.faviconUrl || null,
                 geminiApiKey: updateData.geminiApiKey || null,

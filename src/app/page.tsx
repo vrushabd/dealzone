@@ -68,7 +68,7 @@ type HomeCategory = {
 };
 
 export default async function HomePage() {
-    const [latestProducts, categories]: [HomeProduct[], HomeCategory[]] = await Promise.all([
+    const [latestProducts, categories, settings]: [HomeProduct[], HomeCategory[], { siteName: string; siteTagline: string } | null] = await Promise.all([
         prisma.product.findMany({
             where: { isPublic: true },
             select: productCardSelect,
@@ -87,15 +87,19 @@ export default async function HomePage() {
             },
             take: 9,
         }),
+        prisma.siteSettings.findFirst({ where: { id: "default" }, select: { siteName: true, siteTagline: true } }).catch(() => null),
     ]).catch((err) => {
         console.error("❌ Prisma fetch error on homepage:", err.message);
-        return [[], []];
+        return [[], [], null] as [HomeProduct[], HomeCategory[], null];
     });
+
+    const siteName = settings?.siteName || SITE_NAME;
+    const siteTagline = settings?.siteTagline || "Best Amazon, Flipkart & Myntra Deals";
 
     const websiteJsonLd = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: SITE_NAME,
+        name: siteName,
         url: absoluteUrl("/"),
         potentialAction: {
             "@type": "SearchAction",
@@ -107,7 +111,7 @@ export default async function HomePage() {
     const organizationJsonLd = {
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: SITE_NAME,
+        name: siteName,
         url: absoluteUrl("/"),
         logo: absoluteUrl("/favicon.svg"),
         sameAs: [],
@@ -168,7 +172,7 @@ export default async function HomePage() {
                     {/* Hero content */}
                     <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center flex flex-col items-center justify-center">
                         <h1 className="sr-only">
-                            GenzLoots - Find Real Deals and Skip the Fake Ones
+                            {siteName} — {siteTagline}
                         </h1>
                         
                         {/* Search bar */}

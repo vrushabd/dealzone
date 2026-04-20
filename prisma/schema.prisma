@@ -144,6 +144,7 @@ model SiteSettings {
   id                  String   @id @default("default")
   defaultTheme        String   @default("dark")
   siteName            String   @default("GenzLoots")
+  siteTagline         String   @default("Best Amazon, Flipkart & Myntra Deals")
   logoUrl             String?
   faviconUrl          String?
   geminiApiKey        String?

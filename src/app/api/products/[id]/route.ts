@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import slugify from "slugify";
 import { inferCategoryIdFromText } from "@/lib/features/products/category";
+import { triggerPriceDropAlerts } from "@/lib/features/alerts/service";
 
 const productDetailSelect = {
     id: true,
@@ -69,6 +70,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             description: data.description,
         });
 
+        // Fetch current price BEFORE update so we can compare
+        const oldProduct = await prisma.product.findUnique({
+            where: { id },
+            select: { price: true },
+        });
+
         const product = await prisma.product.update({
             where: { id },
             data: {
@@ -103,6 +110,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             },
             select: productDetailSelect,
         });
+
+        // Fire price drop alerts if price changed downward
+        const newPrice = data.price ? parseFloat(data.price) : null;
+        const oldPriceVal = oldProduct?.price || null;
+        if (newPrice && newPrice > 0) {
+            // Run alerts in background — don't block the response
+            triggerPriceDropAlerts({
+                productId: product.id,
+                productTitle: product.title,
+                productSlug: product.slug,
+                productImage: product.image,
+                oldPrice: oldPriceVal,
+                newPrice,
+            }).catch((err) => console.error("Alert trigger error after PUT:", err));
+        }
 
         return NextResponse.json(product);
     } catch (error: unknown) {

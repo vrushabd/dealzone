@@ -106,7 +106,7 @@ export async function triggerPriceDropAlerts(input: TriggerPriceAlertsInput) {
         if (result.success) {
             await prisma.priceAlert.update({
                 where: { id: alert.id },
-                data: { isActive: false },
+                data: { isActive: false, emailSentAt: new Date() },
             });
             sent++;
         } else {

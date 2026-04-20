@@ -97,15 +97,16 @@ model Coupon {
 }
 
 model PriceAlert {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   email       String?
   phone       String?
   targetPrice Float
   productId   String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  product     Product  @relation(fields: [productId], references: [id])
+  isActive    Boolean   @default(true)
+  emailSentAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     Product   @relation(fields: [productId], references: [id])
 }
 
 model ProductPriceHistory {

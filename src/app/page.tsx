@@ -10,7 +10,7 @@ import CategoryIcon from "@/components/ui/CategoryIcon";
 import { absoluteUrl, buildMetadata, jsonLdScript, SITE_NAME } from "@/lib/seo";
 import {
     ArrowRight, Zap, TrendingUp, Tag,
-    Sparkles, ExternalLink, ShoppingBag,
+    ExternalLink, ShoppingBag,
 } from "lucide-react";
 
 export const metadata: Metadata = buildMetadata({
@@ -228,12 +228,6 @@ export default async function HomePage() {
                             >
                                 Hot Deals
                             </h2>
-                            <div className="flex items-center justify-center gap-1.5 mt-2">
-                                <Sparkles size={11} className="text-[hsl(214_89%_55%)]" />
-                                <span className="text-xs text-[var(--text-muted)]">
-                                    Powered by Smart Deal Scanner
-                                </span>
-                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -275,12 +269,6 @@ export default async function HomePage() {
                             >
                                 Best Discounts
                             </h2>
-                            <div className="flex items-center justify-center gap-1.5 mt-2">
-                                <Sparkles size={11} className="text-[hsl(149_100%_40%)]" />
-                                <span className="text-xs text-[var(--text-muted)]">
-                                    Powered by Smart Deal Scanner
-                                </span>
-                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -359,13 +347,7 @@ export default async function HomePage() {
                                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
                                     Shop by Categories
                                 </h2>
-                                <div className="flex items-center justify-center gap-1.5 mt-2">
-                                    <Sparkles size={11} className="text-[hsl(214_89%_55%)]" />
-                                    <span className="text-xs text-[var(--text-muted)]">
-                                        Powered by Smart Deal Scanner
-                                    </span>
-                                </div>
-                            </div>
+                        </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {categories.map((cat) => {

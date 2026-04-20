@@ -106,7 +106,7 @@ export default function Navbar() {
                         <ThemeToggle />
                         <button
                             onClick={() => setMenuOpen(!menuOpen)}
-                            className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] rounded-md transition-all"
+                            className="md:hidden flex items-center justify-center w-10 h-10 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-[hsl(214_89%_52%/0.08)] hover:border-[hsl(214_89%_52%/0.25)] hover:text-[hsl(214_89%_55%)] transition-all duration-200"
                             aria-label="Toggle menu"
                         >
                             {menuOpen ? <X size={20} /> : <Menu size={20} />}

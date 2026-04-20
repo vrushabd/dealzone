@@ -124,11 +124,15 @@ export default function AdminSidebar() {
             </aside>
 
             {/* Mobile top bar */}
-            <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 px-4 py-3">
-                <button onClick={() => setMobileOpen(true)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-                    <Menu size={22} />
+            <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 px-3 py-2">
+                <button
+                    onClick={() => setMobileOpen(true)}
+                    className="flex items-center justify-center w-10 h-10 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-[hsl(214_89%_52%/0.10)] hover:border-[hsl(214_89%_52%/0.30)] hover:text-[hsl(214_89%_55%)] transition-all duration-200 flex-shrink-0"
+                    aria-label="Open navigation menu"
+                >
+                    <Menu size={20} />
                 </button>
-                <span className="font-bold gradient-text">GenzLoots Admin</span>
+                <span className="font-bold text-[var(--text-primary)] flex-1">GenzLoots Admin</span>
             </div>
 
             {/* Mobile drawer */}
@@ -136,8 +140,12 @@ export default function AdminSidebar() {
                 <div className="md:hidden fixed inset-0 z-50 flex">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
                     <aside className="relative w-64 bg-[var(--bg-surface)] h-full">
-                        <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
-                            <X size={20} />
+                        <button
+                            onClick={() => setMobileOpen(false)}
+                            className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-all duration-200"
+                            aria-label="Close navigation menu"
+                        >
+                            <X size={18} />
                         </button>
                         <SidebarContent
                             pathname={safePathname}

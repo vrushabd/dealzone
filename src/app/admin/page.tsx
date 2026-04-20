@@ -38,6 +38,9 @@ type RecentProduct = {
 type TrendingProduct = {
     id: string;
     title: string;
+    slug: string;
+    image: string | null;
+    price: number | null;
     category: { name: string } | null;
     _count: { affiliateClicks: number };
 };
@@ -96,7 +99,12 @@ export default async function AdminDashboard() {
                 where: { isPublic: true, affiliateClicks: { some: {} } },
                 take: 5,
                 orderBy: { affiliateClicks: { _count: 'desc' } },
-                include: { 
+                select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    image: true,
+                    price: true,
                     _count: { select: { affiliateClicks: true } },
                     category: { select: { name: true } },
                 }
@@ -254,27 +262,46 @@ export default async function AdminDashboard() {
                         </div>
                     ) : (
                         <div className="divide-y divide-[var(--border)]">
-                            {trendingProducts.map((p, idx) => (
-                                <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--bg-base)]/50 transition-colors relative group">
+                            {trendingProducts.map((p, idx) => {
+                                const maxClicks = trendingProducts[0]?._count.affiliateClicks || 1;
+                                const barPct = Math.round((p._count.affiliateClicks / maxClicks) * 100);
+                                return (
+                                <div key={p.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-[var(--bg-base)]/50 transition-colors relative group">
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--brand)] scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
-                                    <div className="w-6 text-sm font-black text-[var(--text-muted)] italic">#{idx + 1}</div>
+                                    <div className="w-5 text-sm font-black text-[var(--text-muted)] italic flex-shrink-0">#{idx + 1}</div>
+                                    {/* Thumbnail */}
+                                    <div className="w-9 h-9 bg-[var(--bg-base)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden border border-[var(--border)]">
+                                        {p.image ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={p.image} alt={p.title} className="w-full h-full object-contain p-0.5" />
+                                        ) : (
+                                            <ShoppingBag size={14} className="text-[var(--text-muted)]" />
+                                        )}
+                                    </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="font-bold text-[var(--text-primary)] text-sm line-clamp-1">{p.title}</div>
-                                        <div className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-2">
-                                            {p.category?.name} • 
+                                        <div className="text-[10px] text-[var(--text-muted)] mt-0.5 flex items-center gap-2">
+                                            {p.category?.name && <span>{p.category.name}</span>}
+                                            {p.category?.name && <span>•</span>}
                                             <span className="inline-flex items-center gap-1 text-[var(--brand)] font-bold">
                                                  <Activity size={10} /> {p._count.affiliateClicks} CLICKS
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="w-16 h-1 w-16 bg-[var(--bg-elevated)] rounded-full overflow-hidden relative">
-                                        <div 
-                                            className="absolute inset-y-0 left-0 bg-[var(--brand)] rounded-full" 
-                                            style={{ width: `${Math.min(100, (p._count.affiliateClicks / Math.max(1, totalClicks)) * 400)}%` }}
-                                        />
+                                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                        {p.price && (
+                                            <div className="text-xs font-semibold text-[hsl(214_89%_55%)]">₹{p.price.toLocaleString('en-IN')}</div>
+                                        )}
+                                        <div className="w-14 h-1 bg-[var(--bg-elevated)] rounded-full overflow-hidden relative">
+                                            <div 
+                                                className="absolute inset-y-0 left-0 bg-[var(--brand)] rounded-full transition-all duration-500" 
+                                                style={{ width: `${barPct}%` }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>

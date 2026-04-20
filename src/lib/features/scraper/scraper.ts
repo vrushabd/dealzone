@@ -1111,36 +1111,71 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
         category = inferCategoryFromContent(`${title} ${url}`) || '';
     }
 
-    const rating = normalizePrice(
-        (mainContainer.querySelector('._3LWZlK')?.text ||
-        mainContainer.querySelector('.XQDdHH')?.text ||
-        mainContainer.querySelector('._2d4LTz')?.text ||
-        root.querySelector('div.row-fluid-seo [itemprop="ratingValue"]')?.text ||
-        '').replace(/[^0-9.]/g, '')
-    );
+    // ── Rating: multi-strategy (Flipkart hashes class names on every build) ─────
+    let rating: number | undefined;
 
+    // Strategy 1: stable attribute-based selectors
+    const ratingAttrCandidates = [
+        root.querySelector('[itemprop="ratingValue"]')?.getAttribute('content'),
+        root.querySelector('[itemprop="ratingValue"]')?.text,
+        mainContainer.querySelector('[class*="rating"]')?.getAttribute('content'),
+    ];
+    for (const candidate of ratingAttrCandidates) {
+        const parsed = normalizePrice((candidate || '').replace(/[^0-9.]/g, ''));
+        if (parsed && parsed >= 1 && parsed <= 5) { rating = parsed; break; }
+    }
+
+    // Strategy 2: JSON data embedded in page HTML (most reliable)
+    if (!rating && html) {
+        const jsonPatterns = [
+            /"averageRating"\s*:\s*([\d.]+)/,
+            /"ratingValue"\s*:\s*([\d.]+)/,
+            /"overallRating"\s*:\s*([\d.]+)/,
+            /"productRating"\s*:\s*\{[^}]*"value"\s*:\s*"([\d.]+)"/,
+        ];
+        for (const pattern of jsonPatterns) {
+            const m = html.match(pattern);
+            const parsed = normalizePrice(m?.[1] || '');
+            if (parsed && parsed >= 1 && parsed <= 5) { rating = parsed; break; }
+        }
+    }
+
+    // Strategy 3: scan all short text spans/divs for a rating-like float (e.g. "4.3")
+    if (!rating) {
+        for (const el of root.querySelectorAll('span, div')) {
+            const text = el.text?.trim();
+            if (!text || text.length > 5) continue;
+            const val = parseFloat(text);
+            if (Number.isFinite(val) && val >= 1 && val <= 5 && /^[1-5]\.[0-9]$/.test(text)) {
+                rating = val;
+                break;
+            }
+        }
+    }
+
+    // ── Description ───────────────────────────────────────────────────────────
     const description = normalizeText(
         mainContainer.querySelector('._1mXcCf')?.text ||
         html?.match(/"description":"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') ||
+        html?.match(/"productDescription"\s*:\s*\{[^}]*"value"\s*:\s*"([^"]+)"/)?.[1] ||
         ''
     );
 
-    const reviewContainers = root.querySelectorAll('div.t-ZTKy');
-    const ratingContainers = root.querySelectorAll('div._3LWZlK');
-    const authorContainers = root.querySelectorAll('p._2sc7ZR._2V5EAA');
-    const titleContainers = root.querySelectorAll('p._2-N8zT');
-    const reviews = Array.from({ length: Math.min(5, reviewContainers.length) }).map((_, index) => ({
-        rating: normalizePrice(ratingContainers[index]?.text || '') || 5,
-        title: normalizeText(titleContainers[index]?.text || '') || undefined,
-        comment: normalizeText(reviewContainers[index]?.text?.replace(/READ MORE$/, '') || ''),
-        author: normalizeText(authorContainers[index]?.text || 'Flipkart Customer') || undefined,
-    })).filter((review) => review.comment.length > 5);
+    // ── Reviews: use attribute selectors + fallback to comment paragraphs ─────
+    const reviewCommentEls = root.querySelectorAll('[itemprop="reviewBody"], [class*="reviewText"], [class*="review-text"]');
+    const reviews = reviewCommentEls.slice(0, 5).map((el) => ({
+        rating: 5,
+        comment: normalizeText(el.text?.replace(/READ MORE$/i, '') || ''),
+        author: 'Flipkart Customer',
+    })).filter((review) => review.comment.length > 10);
 
-    const bankOffers = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span')
+    // ── Bank offers & delivery ─────────────────────────────────────────────────
+    const bankOffers = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span, [class*="bankOffer"] span')
         .map((element) => normalizeText(element.text))
-        .filter((text) => text.length > 15 && (text.includes('Bank Offer') || text.includes('% off')));
+        .filter((text) => text.length > 15 && (text.toLowerCase().includes('bank') || text.includes('% off') || text.toLowerCase().includes('cashback')));
 
     const deliveryInfo = normalizeText(
+        root.querySelector('[class*="delivery"] span')?.text ||
         mainContainer.querySelector('._3XNo0Z span')?.text ||
         mainContainer.querySelector('.Y8v6Y_')?.text ||
         ''

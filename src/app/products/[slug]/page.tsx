@@ -144,7 +144,7 @@ export default async function ProductDetailPage({ params }: Params) {
         category: product.category?.name,
         sku: product.id,
         url: absoluteUrl(`/products/${product.slug}`),
-        aggregateRating: typeof product.rating === "number" && product.rating > 0
+        aggregateRating: typeof product.rating === "number" && product.rating > 1.5
             ? {
                 "@type": "AggregateRating",
                 ratingValue: product.rating.toFixed(1),
@@ -243,9 +243,9 @@ export default async function ProductDetailPage({ params }: Params) {
                             )}
                         </div>
 
-                        {(typeof product.rating === "number" && product.rating > 0) || product.seller ? (
+                        {(typeof product.rating === "number" && product.rating > 1.5) || product.seller ? (
                             <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
-                                {typeof product.rating === "number" && product.rating > 0 && (
+                                {typeof product.rating === "number" && product.rating > 1.5 && (
                                     <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-amber-700">
                                         <Star size={15} className="fill-current" />
                                         <span className="font-semibold">{product.rating.toFixed(1)} / 5</span>

@@ -1141,12 +1141,15 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
     }
 
     // Strategy 3: scan all short text spans/divs for a rating-like float (e.g. "4.3")
+    // Minimum 2.5 — real product ratings on Flipkart are never 1.0.
+    // Stray values like "1.0" come from version numbers, step indicators, etc.
     if (!rating) {
         for (const el of root.querySelectorAll('span, div')) {
             const text = el.text?.trim();
             if (!text || text.length > 5) continue;
             const val = parseFloat(text);
-            if (Number.isFinite(val) && val >= 1 && val <= 5 && /^[1-5]\.[0-9]$/.test(text)) {
+            // Must look exactly like "X.Y" (one decimal digit, 2.5–5.0 range)
+            if (Number.isFinite(val) && val >= 2.5 && val <= 5 && /^[2-5]\.[0-9]$/.test(text)) {
                 rating = val;
                 break;
             }

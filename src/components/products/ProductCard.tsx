@@ -200,7 +200,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 </Link>
 
                 <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] min-h-[20px]">
-                    {typeof product.rating === "number" && product.rating > 0 ? (
+                    {typeof product.rating === "number" && product.rating > 1.5 ? (
                         <>
                             <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
                                 <Star size={11} className="fill-current" />

@@ -101,6 +101,10 @@ export default function ProductForm({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!form.categoryId) {
+            setError("Category is required. Please select a category before saving.");
+            return;
+        }
         setLoading(true); setError("");
         try {
             const url = initial ? `/api/products/${initial.id}` : "/api/products";
@@ -246,11 +250,21 @@ export default function ProductForm({
                 </div>
 
                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Category</label>
-                    <select value={form.categoryId} onChange={(e) => set("categoryId", e.target.value)} className="input-base">
-                        <option value="">None</option>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">
+                        Category <span className="text-red-400">*</span>
+                    </label>
+                    <select
+                        value={form.categoryId}
+                        onChange={(e) => set("categoryId", e.target.value)}
+                        className={`input-base ${!form.categoryId ? "border-amber-500/50" : ""}`}
+                        required
+                    >
+                        <option value="">-- Select Category (required) --</option>
                         {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
+                    {!form.categoryId && (
+                        <p className="text-amber-500 text-[11px] mt-1">⚠ A category is required for all products.</p>
+                    )}
                 </div>
 
                 <div>

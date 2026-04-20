@@ -198,7 +198,7 @@ export default async function HomePage() {
                         <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap flex-shrink-0 pr-1">
                             Browse:
                         </span>
-                        {categories.map((cat) => (
+                        {categories.filter((cat) => !["uncategorized", "compare"].includes(cat.slug)).map((cat) => (
                             <Link
                                 key={cat.id}
                                 href={`/categories/${cat.slug}`}

@@ -31,6 +31,7 @@ function appUrl() {
 export async function sendPriceDropEmail(data: PriceDropData) {
     const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
     const apiKey = settings?.resendApiKey || process.env.RESEND_API_KEY;
+    const siteName = settings?.siteName || "GenzLoots";
 
     if (!apiKey) {
         console.warn("Emails not configured. Missing RESEND_API_KEY.");
@@ -52,7 +53,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
 
     // ── Plain-text version (critical for spam score — HTML-only emails get flagged) ──
     const plainText = [
-        `GenzLoots Price Drop Alert`,
+        `${siteName} Price Drop Alert`,
         ``,
         `"${data.productTitle}" has dropped to your target price!`,
         ``,
@@ -62,7 +63,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
         `View the deal: ${productUrl}`,
         ``,
         `---`,
-        `You set up a Price Drop Alert on GenzLoots (${baseUrl}).`,
+        `You set up a Price Drop Alert on ${siteName} (${baseUrl}).`,
         `This is a one-time notification. This alert has been automatically deactivated.`,
         `To stop all alerts, reply to this email with "unsubscribe".`,
     ].join("\n");
@@ -73,7 +74,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Price Drop Alert — GenzLoots</title>
+  <title>Price Drop Alert — ${siteName}</title>
 </head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
   <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f1f5f9;padding:40px 16px;">
@@ -83,7 +84,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
         <!-- Header -->
         <tr>
           <td style="background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%);padding:28px 32px;text-align:center;">
-            <p style="margin:0 0 6px;color:#bfdbfe;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">GenzLoots · Price Alert</p>
+            <p style="margin:0 0 6px;color:#bfdbfe;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">${siteName} · Price Alert</p>
             <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:800;line-height:1.3;">&#127919; Target Price Reached!</h1>
           </td>
         </tr>
@@ -92,7 +93,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
         <tr>
           <td style="padding:28px 32px 0;">
             <p style="margin:0;color:#374151;font-size:15px;line-height:1.7;">
-              Great news! A product you're tracking on <strong>GenzLoots</strong> has dropped to or below your target price. Grab it before it goes back up!
+              Great news! A product you're tracking on <strong>${siteName}</strong> has dropped to or below your target price. Grab it before it goes back up!
             </p>
           </td>
         </tr>
@@ -135,7 +136,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
         <tr>
           <td style="padding:8px 32px 32px;text-align:center;">
             <a href="${productUrl}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 36px;border-radius:8px;letter-spacing:0.01em;">
-              View Deal on GenzLoots &#8594;
+              View Deal on ${siteName} &#8594;
             </a>
           </td>
         </tr>
@@ -145,7 +146,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
           <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 32px;text-align:center;">
             <p style="margin:0 0 5px;color:#9ca3af;font-size:12px;line-height:1.6;">
               You received this because you set a Price Drop Alert on
-              <a href="${baseUrl}" style="color:#3b82f6;text-decoration:none;">GenzLoots</a>.
+              <a href="${baseUrl}" style="color:#3b82f6;text-decoration:none;">${siteName}</a>.
             </p>
             <p style="margin:0;color:#d1d5db;font-size:11px;">
               This is a one-time notification. Your alert has been automatically deactivated.
@@ -162,7 +163,7 @@ export async function sendPriceDropEmail(data: PriceDropData) {
     try {
         const resend = new Resend(apiKey);
         const result = await resend.emails.send({
-            from: `GenzLoots <${senderEmail}>`,
+            from: `${siteName} <${senderEmail}>`,
             to: [data.userEmail],
             // Specific subject = looks transactional, not spammy.
             // Generic "Price Drop Alert!" triggers spam filters.

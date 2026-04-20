@@ -8,6 +8,9 @@ export async function GET() {
         const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
         return NextResponse.json({ 
             defaultTheme: settings?.defaultTheme || "dark",
+            siteName: settings?.siteName || "GenzLoots",
+            logoUrl: settings?.logoUrl || "",
+            faviconUrl: settings?.faviconUrl || "",
             geminiApiKey: settings?.geminiApiKey || "",
             amazonAffiliateTag: settings?.amazonAffiliateTag || "",
             flipkartAffiliateId: settings?.flipkartAffiliateId || "",
@@ -26,10 +29,13 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { defaultTheme, geminiApiKey, amazonAffiliateTag, flipkartAffiliateId, resendApiKey } = await req.json();
+        const { defaultTheme, siteName, logoUrl, faviconUrl, geminiApiKey, amazonAffiliateTag, flipkartAffiliateId, resendApiKey } = await req.json();
 
         const updateData: { 
-            defaultTheme?: string; 
+            defaultTheme?: string;
+            siteName?: string;
+            logoUrl?: string | null;
+            faviconUrl?: string | null;
             geminiApiKey?: string;
             amazonAffiliateTag?: string;
             flipkartAffiliateId?: string;
@@ -43,6 +49,9 @@ export async function POST(req: NextRequest) {
             updateData.defaultTheme = defaultTheme;
         }
 
+        if (siteName !== undefined) updateData.siteName = siteName.trim() || "GenzLoots";
+        if (logoUrl !== undefined) updateData.logoUrl = logoUrl.trim() || null;
+        if (faviconUrl !== undefined) updateData.faviconUrl = faviconUrl.trim() || null;
         if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey;
         if (amazonAffiliateTag !== undefined) updateData.amazonAffiliateTag = amazonAffiliateTag;
         if (flipkartAffiliateId !== undefined) updateData.flipkartAffiliateId = flipkartAffiliateId;
@@ -54,6 +63,9 @@ export async function POST(req: NextRequest) {
             create: { 
                 id: "default", 
                 defaultTheme: updateData.defaultTheme || "dark",
+                siteName: updateData.siteName || "GenzLoots",
+                logoUrl: updateData.logoUrl || null,
+                faviconUrl: updateData.faviconUrl || null,
                 geminiApiKey: updateData.geminiApiKey || null,
                 amazonAffiliateTag: updateData.amazonAffiliateTag || null,
                 flipkartAffiliateId: updateData.flipkartAffiliateId || null,

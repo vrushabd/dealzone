@@ -21,9 +21,7 @@ function escapeHtml(value: string) {
 }
 
 function formatPrice(value: number) {
-    return value.toLocaleString("en-IN", {
-        maximumFractionDigits: 0,
-    });
+    return value.toLocaleString("en-IN", { maximumFractionDigits: 0 });
 }
 
 function appUrl() {
@@ -39,68 +37,147 @@ export async function sendPriceDropEmail(data: PriceDropData) {
         return { success: false, error: "Missing API Key" };
     }
 
-    // You MUST verify a custom domain on Resend to send from it, 
-    // or use your own verified email address for testing.
-    const senderEmail = process.env.RESEND_SENDER_EMAIL || 'onboarding@resend.dev';
-    
+    // You MUST verify a custom domain on Resend to send from it.
+    // Go to resend.com → Domains → Add your domain → add the DNS records (SPF + DKIM).
+    // This is the #1 fix for emails going to spam.
+    const senderEmail = process.env.RESEND_SENDER_EMAIL || "onboarding@resend.dev";
+
     const percentageDrop = data.oldPrice > 0
         ? Math.max(0, Math.round(((data.oldPrice - data.newPrice) / data.oldPrice) * 100))
         : 0;
     const productTitle = escapeHtml(data.productTitle);
     const productImage = data.productImage ? escapeHtml(data.productImage) : null;
-    const productUrl = `${appUrl()}/products/${encodeURIComponent(data.productSlug)}`;
+    const baseUrl = appUrl();
+    const productUrl = `${baseUrl}/products/${encodeURIComponent(data.productSlug)}`;
 
-    const htmlTemplate = `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; padding: 40px 20px;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                <div style="background-color: #3b82f6; padding: 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">GenzLoots Alert</h1>
-                </div>
-                
-                <div style="padding: 40px 30px;">
-                    <h2 style="color: #111827; margin-top: 0; font-size: 20px; text-align: center;">Price Drop Alert!</h2>
-                    <p style="color: #4b5563; font-size: 16px; line-height: 1.5; text-align: center;">
-                        Great news! The price of an item you're tracking has dropped below your target price.
-                    </p>
+    // ── Plain-text version (critical for spam score — HTML-only emails get flagged) ──
+    const plainText = [
+        `GenzLoots Price Drop Alert`,
+        ``,
+        `"${data.productTitle}" has dropped to your target price!`,
+        ``,
+        `Current Price : Rs.${formatPrice(data.newPrice)}  (was Rs.${formatPrice(data.oldPrice)}${percentageDrop > 0 ? `, ${percentageDrop}% off` : ""})`,
+        `Your Target   : Rs.${formatPrice(data.targetPrice)}`,
+        ``,
+        `View the deal: ${productUrl}`,
+        ``,
+        `---`,
+        `You set up a Price Drop Alert on GenzLoots (${baseUrl}).`,
+        `This is a one-time notification. This alert has been automatically deactivated.`,
+        `To stop all alerts, reply to this email with "unsubscribe".`,
+    ].join("\n");
 
-                    <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
-                        ${productImage ? `<img src="${productImage}" alt="Product" style="max-width: 150px; max-height: 150px; object-fit: contain; margin-bottom: 20px;" />` : ''}
-                        <h3 style="color: #111827; margin: 0 0 15px 0; font-size: 18px;">${productTitle}</h3>
-                        
-                        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            <span style="color: #9ca3af; text-decoration: line-through; font-size: 16px;">₹${formatPrice(data.oldPrice)}</span>
-                            <span style="color: #10b981; font-weight: 800; font-size: 24px;">₹${formatPrice(data.newPrice)}</span>
-                            <span style="background-color: #d1fae5; color: #059669; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: bold;">${percentageDrop}% OFF</span>
-                        </div>
-                        <p style="color: #6b7280; margin: 0; font-size: 14px;">Your Target: ₹${formatPrice(data.targetPrice)}</p>
-                    </div>
+    // ── HTML version (proper table layout — inline CSS only) ─────────────────────
+    const htmlTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Price Drop Alert — GenzLoots</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f1f5f9;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">
 
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="${productUrl}" 
-                           style="background-color: #3b82f6; color: #ffffff; padding: 14px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">
-                           View Deal Now
-                        </a>
-                    </div>
-                </div>
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%);padding:28px 32px;text-align:center;">
+            <p style="margin:0 0 6px;color:#bfdbfe;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">GenzLoots · Price Alert</p>
+            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:800;line-height:1.3;">&#127919; Target Price Reached!</h1>
+          </td>
+        </tr>
 
-                <div style="background-color: #f9fafb; border-top: 1px solid #e5e7eb; padding: 20px; text-align: center;">
-                    <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                        You received this because you set a Price Drop Alert on GenzLoots.
-                    </p>
-                </div>
-            </div>
-        </div>
-    `;
+        <!-- Intro -->
+        <tr>
+          <td style="padding:28px 32px 0;">
+            <p style="margin:0;color:#374151;font-size:15px;line-height:1.7;">
+              Great news! A product you're tracking on <strong>GenzLoots</strong> has dropped to or below your target price. Grab it before it goes back up!
+            </p>
+          </td>
+        </tr>
+
+        <!-- Product Card -->
+        <tr>
+          <td style="padding:20px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+              ${productImage ? `<tr><td style="padding:20px;text-align:center;border-bottom:1px solid #e2e8f0;"><img src="${productImage}" alt="Product" width="120" height="120" style="max-width:120px;max-height:120px;object-fit:contain;display:block;margin:0 auto;" /></td></tr>` : ""}
+              <tr>
+                <td style="padding:20px 24px;">
+                  <p style="margin:0 0 18px;color:#111827;font-size:15px;font-weight:700;line-height:1.5;">${productTitle}</p>
+
+                  <!-- Price comparison row -->
+                  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                      <td style="width:33%;text-align:center;padding:12px 8px;background:#ffffff;border:1px solid #e2e8f0;border-radius:6px;">
+                        <p style="margin:0 0 3px;color:#9ca3af;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Was</p>
+                        <p style="margin:0;color:#9ca3af;font-size:17px;text-decoration:line-through;">&#8377;${formatPrice(data.oldPrice)}</p>
+                      </td>
+                      <td style="width:10%;text-align:center;color:#cbd5e1;font-size:18px;padding:0 4px;">&#8594;</td>
+                      <td style="width:33%;text-align:center;padding:12px 8px;background:#f0fdf4;border:2px solid #86efac;border-radius:6px;">
+                        <p style="margin:0 0 3px;color:#15803d;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Now</p>
+                        <p style="margin:0;color:#15803d;font-size:22px;font-weight:800;">&#8377;${formatPrice(data.newPrice)}</p>
+                      </td>
+                      ${percentageDrop > 0 ? `<td style="width:24%;text-align:center;padding:0 0 0 8px;"><span style="display:inline-block;background:#dcfce7;color:#15803d;font-size:13px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid #86efac;">${percentageDrop}%&nbsp;OFF</span></td>` : ""}
+                    </tr>
+                  </table>
+
+                  <p style="margin:12px 0 0;color:#9ca3af;font-size:12px;text-align:center;">
+                    Your alert target was &#8377;${formatPrice(data.targetPrice)}
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="padding:8px 32px 32px;text-align:center;">
+            <a href="${productUrl}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 36px;border-radius:8px;letter-spacing:0.01em;">
+              View Deal on GenzLoots &#8594;
+            </a>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 32px;text-align:center;">
+            <p style="margin:0 0 5px;color:#9ca3af;font-size:12px;line-height:1.6;">
+              You received this because you set a Price Drop Alert on
+              <a href="${baseUrl}" style="color:#3b82f6;text-decoration:none;">GenzLoots</a>.
+            </p>
+            <p style="margin:0;color:#d1d5db;font-size:11px;">
+              This is a one-time notification. Your alert has been automatically deactivated.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 
     try {
         const resend = new Resend(apiKey);
         const result = await resend.emails.send({
             from: `GenzLoots <${senderEmail}>`,
             to: [data.userEmail],
-            subject: `Price Drop! ${data.productTitle}`,
+            // Specific subject = looks transactional, not spammy.
+            // Generic "Price Drop Alert!" triggers spam filters.
+            subject: `Price dropped to \u20b9${formatPrice(data.newPrice)} \u2014 ${data.productTitle.slice(0, 55)}`,
             html: htmlTemplate,
+            text: plainText,
+            headers: {
+                // Gmail Bulk Sender requirement — without this Gmail may auto-spam transactional mail
+                "List-Unsubscribe": `<mailto:${senderEmail}?subject=Unsubscribe>, <${baseUrl}>`,
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                // Unique ID per alert prevents Gmail grouping these as a "campaign"
+                "X-Entity-Ref-ID": `genzloots-pricealert-${data.productSlug}-${Date.now()}`,
+            },
         });
-        
+
         console.log(`Alert email sent to ${data.userEmail}:`, result);
         return { success: true, result };
     } catch (error) {

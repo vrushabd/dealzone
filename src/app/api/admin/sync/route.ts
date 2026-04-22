@@ -10,9 +10,10 @@ export async function POST() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    return NextResponse.json(await runProductSync());
+    return NextResponse.json(await runProductSync("manual"));
   } catch (error) {
     console.error("Admin sync error:", error);
     return NextResponse.json({ error: "Failed to run sync" }, { status: 500 });
   }
 }
+

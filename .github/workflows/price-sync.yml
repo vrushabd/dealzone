@@ -2,15 +2,32 @@ name: Price Sync Cron
 
 on:
   schedule:
-    # Runs every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
+    # Runs every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
     - cron: '0 */6 * * *'
-  workflow_dispatch: # Allows manual trigger from UI
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
 
 jobs:
   sync_prices:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - name: Call API Route to Sync Prices
+      - name: Trigger price sync
         run: |
-          curl -X GET 'https://dealzone.onrender.com/api/sync' \
-          -H "x-sync-secret: ${{ secrets.CRON_SYNC_SECRET }}"
+          echo "⏰ Starting scheduled price sync at $(date -u)"
+
+          HTTP_STATUS=$(curl -s -o /tmp/sync_response.json -w "%{http_code}" \
+            -X GET "${{ secrets.APP_URL }}/api/sync" \
+            -H "x-sync-secret: ${{ secrets.CRON_SYNC_SECRET }}" \
+            --max-time 300)
+
+          echo "📡 HTTP Status: $HTTP_STATUS"
+          echo "📋 Response:"
+          cat /tmp/sync_response.json
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "❌ Sync failed with status $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "✅ Sync completed successfully"

@@ -160,3 +160,16 @@ model PageView {
   sessionId String
   timestamp DateTime @default(now())
 }
+
+model SyncLog {
+  id               String   @id @default(cuid())
+  triggeredBy      String   @default("manual") // "manual" | "cron"
+  status           String   @default("success") // "success" | "error"
+  total            Int      @default(0)
+  updated          Int      @default(0)
+  failed           Int      @default(0)
+  alertsSent       Int      @default(0)
+  errorMessage     String?
+  durationMs       Int?
+  createdAt        DateTime @default(now())
+}

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/sync
- * Manually or automatically trigger a refresh of all product prices and images.
+ * Automatically trigger a refresh of all product prices (used by GitHub Actions cron).
  * Security: Requires a 'x-sync-secret' header matching the environment variable.
  */
 export async function GET(req: NextRequest) {
@@ -21,9 +21,10 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        return NextResponse.json(await runProductSync());
+        return NextResponse.json(await runProductSync('cron'));
     } catch (error) {
         console.error('Sync API Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+

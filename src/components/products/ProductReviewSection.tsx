@@ -30,7 +30,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
                     className="transition-transform hover:scale-110"
                 >
                     <Star
-                        size={24}
+                        size={20}
                         className={`transition-colors ${n <= (hovered || value) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"}`}
                     />
                 </button>
@@ -74,20 +74,20 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
 
     return (
         <section className="mt-12">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6">
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
                 Customer Reviews
                 {reviews.length > 0 && (
-                    <span className="ml-2 text-base font-normal text-[var(--text-muted)]">({reviews.length})</span>
+                    <span className="ml-2 text-sm font-normal text-[var(--text-muted)]">({reviews.length})</span>
                 )}
             </h2>
 
             {/* Submit Form */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6 mb-8">
-                <h3 className="font-semibold text-[var(--text-primary)] mb-4">Write a Review</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="max-w-3xl bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 sm:p-5 mb-6">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3 text-sm">Write a Review</h3>
+                <form onSubmit={handleSubmit} className="space-y-3">
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                             Your Name <span className="text-[var(--text-muted)] font-normal">(optional)</span>
                         </label>
                         <div className="relative">
@@ -104,7 +104,7 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
 
                     {/* Rating */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                             Rating <span className="text-red-400">*</span>
                         </label>
                         <StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} />
@@ -112,7 +112,7 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
 
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                             Review Title <span className="text-[var(--text-muted)] font-normal">(optional)</span>
                         </label>
                         <input
@@ -126,14 +126,14 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
 
                     {/* Comment */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                             Comment <span className="text-red-400">*</span>
                         </label>
                         <textarea
                             value={form.comment}
                             onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
                             placeholder="Share your experience with this product..."
-                            rows={4}
+                            rows={3}
                             className="input-base w-full resize-none"
                         />
                     </div>
@@ -148,7 +148,7 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex items-center gap-2 btn-primary px-5 py-2.5 text-sm font-bold disabled:opacity-60"
+                            className="flex items-center gap-2 btn-primary px-4 py-2 text-sm font-bold disabled:opacity-60"
                         >
                             {loading ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
                             Submit Review
@@ -164,18 +164,18 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
 
             {/* Reviews List */}
             {reviews.length === 0 ? (
-                <div className="text-center py-12 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl">
-                    <Star size={32} className="mx-auto mb-3 opacity-30" />
+                <div className="text-center py-10 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-xl">
+                    <Star size={28} className="mx-auto mb-2 opacity-30" />
                     <p className="font-medium">No reviews yet — be the first!</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {reviews.map(review => (
-                        <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 flex flex-col">
+                        <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4 flex flex-col">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex gap-0.5">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star key={i} size={14} className={`${i < Math.floor(review.rating) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"}`} />
+                                        <Star key={i} size={13} className={`${i < Math.floor(review.rating) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"}`} />
                                     ))}
                                 </div>
                                 <span className="text-xs text-[var(--text-muted)]">
@@ -185,12 +185,12 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
                             {review.title && (
                                 <h4 className="font-bold text-sm text-[var(--text-primary)] mb-1">{review.title}</h4>
                             )}
-                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed flex-1 mb-4 italic">
+                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed flex-1 mb-3 italic">
                                 &quot;{review.comment}&quot;
                             </p>
                             <div className="flex items-center gap-2 pt-3 border-t border-[var(--border)] mt-auto">
-                                <div className="w-6 h-6 rounded-full bg-[var(--brand)] flex items-center justify-center text-white text-[10px] font-bold">
-                                    {(review.author || "A")[0].toUpperCase()}
+                                <div className="w-7 h-7 rounded-full bg-[var(--brand-glow)] border border-[var(--border)] flex items-center justify-center text-[var(--brand)]">
+                                    <User size={13} />
                                 </div>
                                 <span className="text-xs text-[var(--text-muted)] font-medium">
                                     {review.author || "Anonymous"}

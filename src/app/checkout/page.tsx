@@ -24,7 +24,7 @@ const SHIPPING_FEE_COD = 40;
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { items, cartTotal, clearCart } = useCart();
+    const { items, cartTotal, clearCart, loading: cartLoading, refreshCart } = useCart();
 
     const [step, setStep] = useState<"address" | "payment" | "done">("address");
     const [paymentMethod, setPaymentMethod] = useState<"COD" | "online">("COD");
@@ -87,12 +87,18 @@ export default function CheckoutPage() {
         }
     }, [status, router]);
 
+    useEffect(() => {
+        if (status === "authenticated") {
+            void refreshCart();
+        }
+    }, [refreshCart, status]);
+
     // Redirect empty cart
     useEffect(() => {
-        if (status === "authenticated" && items.length === 0 && step !== "done") {
+        if (status === "authenticated" && !cartLoading && items.length === 0 && step !== "done") {
             router.push("/products");
         }
-    }, [status, items.length, step, router]);
+    }, [status, cartLoading, items.length, step, router]);
 
     const shippingFee = paymentMethod === "COD" ? SHIPPING_FEE_COD : 0;
     const total = cartTotal + shippingFee;
@@ -204,7 +210,7 @@ export default function CheckoutPage() {
         }
     };
 
-    if (status === "loading") {
+    if (status === "loading" || (status === "authenticated" && cartLoading && step !== "done")) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)]">
                 <Loader2 size={28} className="animate-spin text-[var(--brand)]" />

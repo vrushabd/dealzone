@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Zap, Loader2, CheckCircle2 } from "lucide-react";
@@ -10,12 +10,104 @@ interface BuyButtonsProps {
     outOfStock?: boolean;
 }
 
+const BUY_NOW_STORAGE_KEY = "genzloots_pending_buy_now_product";
+const ADD_TO_CART_STORAGE_KEY = "genzloots_pending_add_to_cart_product";
+
 export default function BuyButtons({ productId, productSlug, outOfStock }: BuyButtonsProps) {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [cartLoading, setCartLoading] = useState(false);
     const [cartAdded, setCartAdded] = useState(false);
     const [buyLoading, setBuyLoading] = useState(false);
+    const [buyError, setBuyError] = useState("");
+
+    const executeBuyNow = useCallback(async () => {
+        setBuyLoading(true);
+        setBuyError("");
+        try {
+            const res = await fetch("/api/cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.error || "Could not add this item to cart");
+            }
+
+            window.dispatchEvent(new CustomEvent("cart-updated"));
+            router.push("/checkout");
+        } catch (error: unknown) {
+            setBuyError(error instanceof Error ? error.message : "Buy now failed");
+        } finally {
+            setBuyLoading(false);
+        }
+    }, [productId, router]);
+
+    const executeAddToCart = useCallback(async () => {
+        setCartLoading(true);
+        setBuyError("");
+        try {
+            const res = await fetch("/api/cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.error || "Could not add this item to cart");
+            }
+
+            setCartAdded(true);
+            window.dispatchEvent(new CustomEvent("cart-updated"));
+            setTimeout(() => setCartAdded(false), 3000);
+        } catch (error: unknown) {
+            setBuyError(error instanceof Error ? error.message : "Add to cart failed");
+        } finally {
+            setCartLoading(false);
+        }
+    }, [productId]);
+
+    useEffect(() => {
+        if (status !== "authenticated") return;
+
+        const pendingProductId = window.sessionStorage.getItem(BUY_NOW_STORAGE_KEY);
+        if (pendingProductId === productId) {
+            window.sessionStorage.removeItem(BUY_NOW_STORAGE_KEY);
+            void executeBuyNow();
+            return;
+        }
+
+        const pendingAddToCartProductId = window.sessionStorage.getItem(ADD_TO_CART_STORAGE_KEY);
+        if (pendingAddToCartProductId === productId) {
+            window.sessionStorage.removeItem(ADD_TO_CART_STORAGE_KEY);
+            void executeAddToCart();
+        }
+    }, [executeAddToCart, executeBuyNow, productId, status]);
+
+    const handleAddToCart = () => {
+        if (status === "loading") return;
+        if (!session) {
+            window.sessionStorage.setItem(ADD_TO_CART_STORAGE_KEY, productId);
+            router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productSlug}`)}`);
+            return;
+        }
+
+        void executeAddToCart();
+    };
+
+    const handleBuyNow = () => {
+        if (status === "loading") return;
+        if (!session) {
+            window.sessionStorage.setItem(BUY_NOW_STORAGE_KEY, productId);
+            router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productSlug}`)}`);
+            return;
+        }
+
+        void executeBuyNow();
+    };
 
     if (outOfStock) {
         return (
@@ -27,56 +119,9 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
         );
     }
 
-    const requireLogin = (next: () => void) => {
-        if (status === "loading") return;
-        if (!session) {
-            router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productSlug}`)}`);
-            return;
-        }
-        next();
-    };
-
-    const handleAddToCart = () => {
-        requireLogin(async () => {
-            setCartLoading(true);
-            try {
-                const res = await fetch("/api/cart", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
-                });
-                if (res.ok) {
-                    setCartAdded(true);
-                    // Refresh navbar cart count
-                    window.dispatchEvent(new CustomEvent("cart-updated"));
-                    setTimeout(() => setCartAdded(false), 3000);
-                }
-            } finally {
-                setCartLoading(false);
-            }
-        });
-    };
-
-    const handleBuyNow = () => {
-        requireLogin(async () => {
-            setBuyLoading(true);
-            try {
-                // Add to cart first, then go to checkout
-                await fetch("/api/cart", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
-                });
-                window.dispatchEvent(new CustomEvent("cart-updated"));
-                router.push("/checkout");
-            } finally {
-                setBuyLoading(false);
-            }
-        });
-    };
-
     return (
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="mb-8">
+            <div className="flex flex-col sm:flex-row gap-3">
             {/* Add to Cart */}
             <button
                 onClick={handleAddToCart}
@@ -102,6 +147,11 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
                 {buyLoading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
                 Buy Now
             </button>
+            </div>
+
+            {buyError && (
+                <p className="mt-2 text-sm text-red-500">{buyError}</p>
+            )}
         </div>
     );
 }

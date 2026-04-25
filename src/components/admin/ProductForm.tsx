@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { X, Loader2, Zap, Download, CheckCircle } from "lucide-react";
+import { X, Loader2, Zap, Download, CheckCircle, Plus, Trash2, User } from "lucide-react";
 import { inferCategoryIdFromText } from "@/lib/features/products/category";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +23,15 @@ interface Product {
 
 function dedupeStrings(values: Array<string | null | undefined>) {
     return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean))) as string[];
+}
+
+function emptyReview(): ProductReview {
+    return {
+        author: "",
+        title: "",
+        rating: 5,
+        comment: "",
+    };
 }
 
 export default function ProductForm({
@@ -131,6 +140,29 @@ export default function ProductForm({
 
     const onClose = () => router.push("/admin/products");
 
+    const updateReview = (index: number, key: keyof ProductReview, value: string | number) => {
+        setForm((current) => ({
+            ...current,
+            reviews: current.reviews.map((review, reviewIndex) =>
+                reviewIndex === index ? { ...review, [key]: value } : review
+            ),
+        }));
+    };
+
+    const addReview = () => {
+        setForm((current) => ({
+            ...current,
+            reviews: [...current.reviews, emptyReview()],
+        }));
+    };
+
+    const removeReview = (index: number) => {
+        setForm((current) => ({
+            ...current,
+            reviews: current.reviews.filter((_, reviewIndex) => reviewIndex !== index),
+        }));
+    };
+
     const fields = [
         { key: "title", label: "Product Title *", placeholder: "e.g. Samsung 4K TV", type: "text" },
         { key: "image", label: "Image URL", placeholder: "https://...", type: "url" },
@@ -156,41 +188,38 @@ export default function ProductForm({
             </div>
 
             <div className="p-6 space-y-4">
-                {/* URL Scraper — only shown for new products */}
-                {!initial && (
-                    <div className="bg-[hsl(214_89%_52%/0.05)] border border-[hsl(214_89%_52%/0.20)] rounded-md p-4">
-                        <label className="block text-xs font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                            <Zap size={11} fill="currentColor" />
-                            Auto-fill from Amazon / Flipkart / Myntra URL
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="url"
-                                value={urlInput}
-                                onChange={(e) => { setUrlInput(e.target.value); setScraped(false); setScrapeError(""); }}
-                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleScrape())}
-                                placeholder="Paste product URL here..."
-                                className="input-base flex-1 text-sm"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleScrape}
-                                disabled={scraping || !urlInput.trim()}
-                                className="flex-shrink-0 flex items-center gap-1.5 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_55%)] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-md transition-all"
-                            >
-                                {scraping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
-                                {scraping ? "Fetching..." : "Fetch Details"}
-                            </button>
-                        </div>
-                        {scrapeError && <p className="text-red-400 text-xs mt-2">{scrapeError}</p>}
-                        {scraped && <p className="text-green-400 text-xs mt-2 flex items-center gap-1"><CheckCircle size={11} /> Details fetched! Review below before saving.</p>}
-                        {form.reviews.length > 0 && (
-                            <p className="text-[var(--text-secondary)] text-xs mt-2">
-                                {form.reviews.length} source review{form.reviews.length === 1 ? "" : "s"} will be saved with this product.
-                            </p>
-                        )}
+                <div className="bg-[hsl(214_89%_52%/0.05)] border border-[hsl(214_89%_52%/0.20)] rounded-md p-4">
+                    <label className="block text-xs font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <Zap size={11} fill="currentColor" />
+                        Auto-fill from Amazon / Flipkart / Myntra URL
+                    </label>
+                    <div className="flex gap-2">
+                        <input
+                            type="url"
+                            value={urlInput}
+                            onChange={(e) => { setUrlInput(e.target.value); setScraped(false); setScrapeError(""); }}
+                            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleScrape())}
+                            placeholder={initial ? "Paste source URL to refresh details..." : "Paste product URL here..."}
+                            className="input-base flex-1 text-sm"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleScrape}
+                            disabled={scraping || !urlInput.trim()}
+                            className="flex-shrink-0 flex items-center gap-1.5 bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_55%)] disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-md transition-all"
+                        >
+                            {scraping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+                            {scraping ? "Fetching..." : initial ? "Refresh Details" : "Fetch Details"}
+                        </button>
                     </div>
-                )}
+                    {scrapeError && <p className="text-red-400 text-xs mt-2">{scrapeError}</p>}
+                    {scraped && <p className="text-green-400 text-xs mt-2 flex items-center gap-1"><CheckCircle size={11} /> Details fetched! Review below before saving.</p>}
+                    {form.reviews.length > 0 && (
+                        <p className="text-[var(--text-secondary)] text-xs mt-2">
+                            {form.reviews.length} review{form.reviews.length === 1 ? "" : "s"} currently attached to this product.
+                        </p>
+                    )}
+                </div>
 
                 {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-md px-4 py-3 text-sm">{error}</div>}
 
@@ -288,6 +317,101 @@ export default function ProductForm({
                     <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Description</label>
                     <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
                         placeholder="Product description..." rows={3} className="input-base resize-none" />
+                </div>
+
+                <div className="bg-[var(--bg-elevated)]/30 border border-[var(--border)] rounded-md p-4 space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Reviews</label>
+                            <p className="text-xs text-[var(--text-secondary)] mt-1">
+                                Review scraped comments here and add manual admin reviews if you want.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addReview}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--brand)] hover:underline"
+                        >
+                            <Plus size={12} />
+                            Add Review
+                        </button>
+                    </div>
+
+                    {form.reviews.length === 0 ? (
+                        <div className="rounded-md border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--text-muted)]">
+                            No reviews yet. Scrape a product URL or add one manually.
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {form.reviews.map((review, index) => (
+                                <div key={`${review.author || "review"}-${index}`} className="rounded-md border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+                                            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand-glow)] text-[var(--brand)]">
+                                                <User size={14} />
+                                            </span>
+                                            Review {index + 1}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeReview(index)}
+                                            className="inline-flex items-center gap-1.5 text-xs text-red-500 hover:underline"
+                                        >
+                                            <Trash2 size={12} />
+                                            Remove
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-[1fr_110px] gap-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Author</label>
+                                            <input
+                                                type="text"
+                                                value={review.author || ""}
+                                                onChange={(e) => updateReview(index, "author", e.target.value)}
+                                                className="input-base"
+                                                placeholder="Verified Buyer"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Rating</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="5"
+                                                step="0.1"
+                                                value={review.rating}
+                                                onChange={(e) => updateReview(index, "rating", Number(e.target.value))}
+                                                className="input-base"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Title</label>
+                                        <input
+                                            type="text"
+                                            value={review.title || ""}
+                                            onChange={(e) => updateReview(index, "title", e.target.value)}
+                                            className="input-base"
+                                            placeholder="Optional review title"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Comment</label>
+                                        <textarea
+                                            rows={3}
+                                            value={review.comment}
+                                            onChange={(e) => updateReview(index, "comment", e.target.value)}
+                                            className="input-base resize-none"
+                                            placeholder="Write the review comment"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div>

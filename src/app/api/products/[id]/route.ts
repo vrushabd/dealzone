@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import slugify from "slugify";
 import { inferCategoryIdFromText } from "@/lib/features/products/category";
 import { triggerPriceDropAlerts } from "@/lib/features/alerts/service";
-import { mergeProductReviews, normalizeIncomingReviews } from "@/lib/features/reviews/service";
+import { normalizeIncomingReviews } from "@/lib/features/reviews/service";
 
 const productDetailSelect = {
     id: true,
@@ -94,15 +94,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
                 availability: data.availability || "in_stock",
+                reviews: Array.isArray(data.reviews) ? {
+                    deleteMany: {},
+                    ...(normalizedReviews.length > 0 ? {
+                        create: normalizedReviews.map((review) => ({
+                            rating: review.rating,
+                            title: review.title,
+                            comment: review.comment,
+                            author: review.author,
+                        })),
+                    } : {}),
+                } : undefined,
                 bankOffers: data.bankOffers && Array.isArray(data.bankOffers) ? data.bankOffers : [],
                 deliveryInfo: data.deliveryInfo || null,
             },
             select: productDetailSelect,
         });
-
-        if (normalizedReviews.length > 0) {
-            await mergeProductReviews(product.id, normalizedReviews);
-        }
 
         // Fire price drop alerts if price changed downward
         const newPrice = data.price ? parseFloat(data.price) : null;

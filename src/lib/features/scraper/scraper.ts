@@ -120,6 +120,11 @@ function normalizeImageSource(value: string): string {
         .trim();
 }
 
+function stripHtml(value: string | null | undefined): string {
+    if (!value) return '';
+    return normalizeText(value.replace(/<[^>]+>/g, ' '));
+}
+
 function extractJsonAssignment(html: string, variableName: string): string | null {
     const start = html.indexOf(variableName);
     if (start === -1) return null;
@@ -688,6 +693,9 @@ function parseMyntraWindowState(html: string): Partial<ScrapedProduct> {
         const reviewInfo = isRecord(ratings?.reviewInfo) ? ratings.reviewInfo : undefined;
         const media = isRecord(pdpData.media) ? pdpData.media : undefined;
         const albums = Array.isArray(media?.albums) ? media.albums : [];
+        const analytics = isRecord(pdpData.analytics) ? pdpData.analytics : undefined;
+        const descriptors = Array.isArray(pdpData.descriptors) ? pdpData.descriptors : [];
+        const productDetails = Array.isArray(pdpData.productDetails) ? pdpData.productDetails : [];
 
         const images = dedupeImages(
             albums.flatMap((album) => {
@@ -730,6 +738,21 @@ function parseMyntraWindowState(html: string): Partial<ScrapedProduct> {
             })
             .filter((review): review is ScrapedReview => Boolean(review));
 
+        const descriptorDescription = descriptors
+            .map((entry) => isRecord(entry) ? stripHtml(typeof entry.description === 'string' ? entry.description : '') : '')
+            .find((value) => value.length > 20);
+
+        const detailDescription = productDetails
+            .map((entry) => isRecord(entry) ? stripHtml(typeof entry.description === 'string' ? entry.description : '') : '')
+            .find((value) => value.length > 20);
+
+        const category = normalizeText(
+            (typeof analytics?.articleType === 'string' && analytics.articleType) ||
+            (typeof analytics?.subCategory === 'string' && analytics.subCategory) ||
+            (typeof analytics?.masterCategory === 'string' && analytics.masterCategory) ||
+            ''
+        );
+
         return {
             title: typeof pdpData.name === 'string' ? normalizeProductTitle(pdpData.name) : undefined,
             price: normalizePrice(pdpData.price) || normalizePrice(pdpData.discountedPrice),
@@ -737,6 +760,8 @@ function parseMyntraWindowState(html: string): Partial<ScrapedProduct> {
             image: images[0],
             images,
             rating: normalizePrice(ratings?.averageRating),
+            category: category || undefined,
+            description: descriptorDescription || detailDescription || undefined,
             reviews,
         };
     } catch {
@@ -1295,11 +1320,33 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
 
     // ── Reviews: use attribute selectors + fallback to comment paragraphs ─────
     const reviewCommentEls = root.querySelectorAll('[itemprop="reviewBody"], [class*="reviewText"], [class*="review-text"]');
-    const reviews = reviewCommentEls.slice(0, 5).map((el) => ({
+    let reviews: ScrapedReview[] = reviewCommentEls.slice(0, 5).map((el) => ({
         rating: 5,
         comment: normalizeText(el.text?.replace(/READ MORE$/i, '') || ''),
         author: 'Flipkart Customer',
     })).filter((review) => review.comment.length > 10);
+
+    if (reviews.length === 0 && html) {
+        const regex = /"reviewText":"([^"]+)".{0,220}?"userRating":([0-9.]+).{0,220}?"userName":"([^"]*)"/g;
+        const parsedReviews: ScrapedReview[] = [];
+
+        for (const match of html.matchAll(regex)) {
+            const comment = normalizeText(match[1]?.replace(/\\n/g, ' ').replace(/\\"/g, '"'));
+            if (comment.length <= 10) continue;
+
+            parsedReviews.push({
+                rating: normalizePrice(match[2]) || 5,
+                comment,
+                author: normalizeText(match[3]?.replace(/\\"/g, '"')) || "Flipkart Customer",
+            });
+
+            if (parsedReviews.length >= 5) break;
+        }
+
+        if (parsedReviews.length > 0) {
+            reviews = parsedReviews;
+        }
+    }
 
     // ── Bank offers & delivery ─────────────────────────────────────────────────
     const bankOffers = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span, [class*="bankOffer"] span')
@@ -1373,12 +1420,14 @@ function parseMyntra(root: HTMLElement, url: string, html?: string): ScrapedProd
     const category = normalizeText(
         root.querySelector('.breadcrumbs-container li:last-child')?.text ||
         root.querySelector('a.breadcrumbs-link:last-child')?.text ||
+        windowState.category ||
         ''
     );
 
     const description = normalizeText(
         root.querySelector('.pdp-product-description-content')?.text ||
         root.querySelector('.index-product-description')?.text ||
+        windowState.description ||
         html?.match(/"productDescriptors":\{[\s\S]*?"description":\{"value":"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') ||
         ''
     );

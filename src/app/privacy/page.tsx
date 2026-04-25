@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
     title: "Privacy Policy",
-    description: "Read the GenzLoots privacy policy covering analytics, affiliate clicks, price alerts, tracking preferences, and contact data.",
+    description: "Read the GenzLoots privacy policy covering data collection, order processing, and customer privacy.",
     path: "/privacy",
 });
 
@@ -12,28 +12,37 @@ export default function PrivacyPage() {
     return (
         <InfoPage
             eyebrow="Privacy"
-            title="We keep data collection practical and limited."
-            intro="GenzLoots uses lightweight analytics and product tracking data so we can measure clicks, understand traffic, and power features like price drop alerts."
+            title="We respect your privacy and protect your data."
+            intro="GenzLoots collects only the necessary information to process your orders securely and provide a seamless shopping experience. We are committed to safeguarding your personal data."
             sections={[
                 {
                     title: "What We Collect",
                     body: [
-                        "We may store basic information such as page views, session identifiers, affiliate click events, alert email addresses, and product tracking preferences.",
-                        "If you contact us directly, we also receive whatever information you choose to include in your message.",
+                        "When you create an account or place an order, we collect essential information such as your name, shipping address, email address, and phone number.",
+                        "We also store basic analytics information such as page views and session identifiers to improve our website experience.",
+                        "We do not store complete payment details (like full credit card numbers) on our servers; these are handled securely by our payment processors.",
                     ],
                 },
                 {
                     title: "How We Use It",
                     body: [
-                        "We use this information to improve site performance, measure deal engagement, send requested alerts, and investigate broken listings or tracking issues.",
-                        "We do not sell your personal information. We only use data that helps the site function and improves the shopping experience.",
+                        "Your information is primarily used to fulfill your orders, provide customer support, and communicate with you about your purchases.",
+                        "We may use your email to send you important order updates, shipping notifications, and occasionally promotional offers (if you opt-in).",
+                        "We do not sell, rent, or trade your personal information to third parties.",
                     ],
                 },
                 {
                     title: "Third-Party Services",
                     body: [
-                        "GenzLoots may rely on third-party services for hosting, authentication, database storage, email delivery, and merchant redirects.",
-                        "Those services process data only as needed to support the app features you use.",
+                        "We use trusted third-party services for essential store functions: hosting, secure payment processing, database storage, and email delivery.",
+                        "These service providers only process data as necessary to perform their functions securely and in compliance with privacy standards.",
+                    ],
+                },
+                {
+                    title: "Your Data Rights",
+                    body: [
+                        "You have the right to access, update, or request the deletion of your personal information stored in your account.",
+                        "If you have any questions about your data or wish to exercise these rights, please contact us at zencultstore@gmail.com.",
                     ],
                 },
             ]}

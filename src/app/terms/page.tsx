@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
     title: "Terms of Use",
-    description: "Read the GenzLoots terms covering website use, deal content, third-party merchant links, and shopping responsibilities.",
+    description: "Read the GenzLoots terms covering website use, purchases, account responsibilities, and store policies.",
     path: "/terms",
 });
 
@@ -12,28 +12,36 @@ export default function TermsPage() {
     return (
         <InfoPage
             eyebrow="Terms"
-            title="Use the site responsibly and verify details before purchase."
-            intro="By using GenzLoots, you agree to use the site for lawful browsing, deal discovery, and product research. You also understand that merchant listings and offers may change at any time."
+            title="Use the site responsibly and understand our policies."
+            intro="By accessing and using GenzLoots, you agree to comply with these terms of use. These terms govern your use of our website and any purchases made through our store."
             sections={[
                 {
                     title: "Using the Website",
                     body: [
-                        "You may browse products, read blog posts, use price alerts, and click merchant links for personal and lawful use.",
-                        "You should not attempt to abuse the site, interfere with tracking systems, or automate actions that degrade service for other users.",
+                        "You may browse products, create an account, place orders, and read blog posts for personal and lawful use.",
+                        "You must provide accurate and complete information when creating an account or placing an order.",
+                        "You should not attempt to abuse the site, interfere with our systems, or automate actions that degrade service for other users.",
+                    ],
+                },
+                {
+                    title: "Purchases & Payments",
+                    body: [
+                        "By placing an order, you agree to pay the total amount specified, including any applicable taxes and shipping fees.",
+                        "We reserve the right to refuse or cancel any order for reasons including, but not limited to, product unavailability, errors in pricing, or suspected fraudulent activity.",
                     ],
                 },
                 {
                     title: "Content Ownership",
                     body: [
-                        "The branding, layout, editorial content, and original deal summaries on GenzLoots remain the property of the site owner unless otherwise stated.",
-                        "Brand names, logos, and product imagery referenced from merchants remain the property of their respective owners.",
+                        "The branding, layout, original imagery, and editorial content on GenzLoots remain the property of the site owner unless otherwise stated.",
+                        "You may not reproduce, distribute, or use our content for commercial purposes without explicit written permission.",
                     ],
                 },
                 {
-                    title: "External Merchant Links",
+                    title: "Returns & Refunds",
                     body: [
-                        "When you leave GenzLoots and visit a merchant site, that merchant's own policies, terms, and pricing rules apply.",
-                        "We are not responsible for a merchant changing price, removing stock, rejecting a coupon, or changing a listing after you click through.",
+                        "If you receive a defective or incorrect item, please contact us within 7 days of delivery with photos of the issue.",
+                        "Refunds and replacements are processed in accordance with our standard return policy and are subject to approval.",
                     ],
                 },
             ]}

@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Mail, MessageSquareText, ShieldCheck } from "lucide-react";
+import { Mail, Package, ShieldCheck } from "lucide-react";
 import { buildMetadata } from "@/lib/seo";
 
-const SUPPORT_EMAIL = "genzloots@gmail.com";
+const SUPPORT_EMAIL = "zencultstore@gmail.com";
 
 export const metadata: Metadata = buildMetadata({
     title: "Contact Us",
-    description: "Contact GenzLoots for support, product corrections, broken deal reports, affiliate questions, and partnership enquiries.",
+    description: "Contact GenzLoots for support, order inquiries, shipping questions, and partnership enquiries.",
     path: "/contact",
 });
 
@@ -17,23 +17,23 @@ export default function ContactPage() {
     const contactCards = [
         {
             title: "General Support",
-            description: "Questions about deals, alerts, broken pages, or account-related admin issues.",
+            description: "Questions about our products, website issues, or your account.",
             value: SUPPORT_EMAIL,
             href: `mailto:${SUPPORT_EMAIL}`,
             icon: Mail,
         },
         {
-            title: "Corrections & Deal Reports",
-            description: "Send us links if you spot an expired offer, wrong image, or outdated product detail.",
-            value: "Report a listing issue",
-            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("GenzLoots listing correction")}`,
-            icon: MessageSquareText,
+            title: "Order & Shipping",
+            description: "Need help with an existing order, tracking, or delivery issues?",
+            value: "Check order status",
+            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("GenzLoots Order Support")}`,
+            icon: Package,
         },
         {
-            title: "Affiliate & Brand Queries",
-            description: "Use the same inbox for collaborations, merchant updates, or brand verification.",
+            title: "Business & Partnerships",
+            description: "For wholesale inquiries, brand collaborations, or media requests.",
             value: "Partnership enquiries",
-            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("GenzLoots partnership enquiry")}`,
+            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("GenzLoots Partnership Enquiry")}`,
             icon: ShieldCheck,
         },
     ];
@@ -50,7 +50,7 @@ export default function ContactPage() {
                         We are happy to hear from you.
                     </h1>
                     <p className="mt-4 text-base leading-7 text-[var(--text-secondary)]">
-                        Reach out for support, pricing corrections, affiliate questions, or anything else related to GenzLoots.
+                        Reach out for support, order questions, or anything else related to GenzLoots.
                         The fastest way to get a response right now is email.
                     </p>
                 </div>
@@ -75,9 +75,9 @@ export default function ContactPage() {
                 <section className="mt-8 rounded-md border border-[var(--border)] bg-[var(--bg-card)] p-6">
                     <h2 className="text-xl font-bold text-[var(--text-primary)]">Before you write in</h2>
                     <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                        <li>Include the product link if you are reporting a pricing or image issue.</li>
-                        <li>Mention your alert email if you are checking on a price drop notification.</li>
-                        <li>For urgent corrections, include screenshots so we can fix the listing faster.</li>
+                        <li>Include your Order ID if you are contacting us about an existing purchase.</li>
+                        <li>Please allow 24-48 hours for a response during busy periods.</li>
+                        <li>For urgent issues, include screenshots or photos of the product if applicable.</li>
                     </ul>
                 </section>
             </main>

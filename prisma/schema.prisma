@@ -41,6 +41,8 @@ model Product {
   category         Category?             @relation(fields: [categoryId], references: [id])
   priceHistory     ProductPriceHistory[]
   trackedBy        TrackedProduct[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
 }
 
 model ProductReview {
@@ -172,4 +174,74 @@ model SyncLog {
   errorMessage     String?
   durationMs       Int?
   createdAt        DateTime @default(now())
+}
+
+// ─── Customer Accounts ───────────────────────────────────────────────────────
+model User {
+  id            String     @id @default(cuid())
+  name          String
+  email         String     @unique
+  password      String
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  pincode       String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  cartItems     CartItem[]
+  orders        Order[]
+}
+
+// ─── Cart ─────────────────────────────────────────────────────────────────────
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+model Order {
+  id                String      @id @default(cuid())
+  userId            String
+  status            String      @default("pending")  // pending | confirmed | ordered | shipped | delivered | cancelled
+  paymentMethod     String      @default("COD")       // COD | online
+  paymentStatus     String      @default("pending")   // pending | paid | failed
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  subtotal          Float
+  shippingFee       Float       @default(0)
+  total             Float
+  // Snapshot of shipping address at time of order
+  shippingName      String
+  shippingPhone     String
+  shippingAddress   String
+  shippingCity      String
+  shippingState     String
+  shippingPincode   String
+  // Admin notes
+  adminNote         String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  user              User        @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  productId    String
+  productTitle String
+  productImage String?
+  quantity     Int
+  price        Float   // price snapshot at time of order
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product @relation(fields: [productId], references: [id])
 }

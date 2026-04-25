@@ -2,7 +2,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ArrowRight, Star } from "lucide-react";
+import { useCart, CartProduct } from "@/components/cart/CartContext";
+
 
 interface Product {
     id: string;
@@ -30,9 +34,31 @@ export default function ProductCard({ product }: { product: Product }) {
     const [targetPrice, setTargetPrice] = useState(product.price ? Math.floor(product.price * 0.9) : 0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(false);
+    const { addToCart } = useCart();
+    const { data: session } = useSession();
+    const router = useRouter();
 
     const hasBuyLinks = !!(product.amazonLink || product.flipkartLink);
     const canSetAlert = Boolean(product.price && product.price > 1);
+
+    const handleAddToCart = async () => {
+        if (!session) {
+            router.push("/login");
+            return;
+        }
+        const cartProduct: CartProduct = {
+            id: product.id,
+            title: product.title,
+            slug: product.slug,
+            image: product.image,
+            price: product.price,
+            originalPrice: product.originalPrice,
+        };
+        await addToCart(cartProduct, 1);
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 2000);
+    };
 
     const discountPct =
         product.discount ||
@@ -242,19 +268,24 @@ export default function ProductCard({ product }: { product: Product }) {
                     )}
                 </div>
 
-                {/* CTA — Buy Now expands to platform options */}
+                {/* CTA — Add to Cart */}
                 <div className="mt-auto">
-                    {hasBuyLinks ? (
+                    {product.price && product.price > 0 ? (
                         <div className="flex flex-col gap-2">
-                            {/* Buy Now trigger — now navigates to product page */}
-                            <Link
-                                href={`/products/${product.slug}`}
-                                className="flex items-center justify-center gap-2 w-full bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white text-sm font-bold py-2 px-4 rounded-md transition-all duration-200 shine-on-hover"
+                            <button
+                                onClick={handleAddToCart}
+                                className={`flex items-center justify-center gap-2 w-full text-sm font-bold py-2 px-4 rounded-md transition-all duration-200 shine-on-hover ${
+                                    addedToCart
+                                        ? "bg-green-500 hover:bg-green-500 text-white"
+                                        : "bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white"
+                                }`}
                             >
-                                <ShoppingCart size={13} />
-                                Buy Now
-                                <ArrowRight size={13} className="ml-auto" />
-                            </Link>
+                                {addedToCart ? (
+                                    <><Check size={13} /> Added!</>
+                                ) : (
+                                    <><ShoppingCart size={13} /> Add to Cart<ArrowRight size={13} className="ml-auto" /></>
+                                )}
+                            </button>
 
                             {canSetAlert && (
                                 <button
@@ -289,6 +320,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         </div>
                     )}
                 </div>
+
             </div>
         </article>
     );

@@ -1,22 +1,38 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Menu, X, Zap } from "lucide-react";
+import { Search, Menu, X, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Logo from "@/components/ui/Logo";
+import { useCart } from "@/components/cart/CartContext";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [scrolled, setScrolled] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
+    const { cartCount, setDrawerOpen } = useCart();
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 12);
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    // Close user menu on outside click
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (!(e.target as Element).closest("[data-user-menu]")) {
+                setUserMenuOpen(false);
+            }
+        };
+        document.addEventListener("click", handleClick);
+        return () => document.removeEventListener("click", handleClick);
     }, []);
 
     const handleSearch = (e: React.FormEvent) => {
@@ -36,6 +52,8 @@ export default function Navbar() {
         { href: "/blog", label: "Blog" },
         { href: "/contact", label: "Contact" },
     ];
+
+    const firstName = session?.user?.name?.split(" ")[0];
 
     return (
         <header
@@ -101,9 +119,83 @@ export default function Navbar() {
                         </div>
                     </form>
 
-                    {/* Mobile menu button and Theme toggle group */}
+                    {/* Right actions: Cart + User + Theme + Mobile menu */}
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
+
+                        {/* Cart Button */}
+                        <button
+                            id="cart-toggle-btn"
+                            onClick={() => setDrawerOpen(true)}
+                            className="relative flex items-center justify-center w-10 h-10 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-[hsl(214_89%_52%/0.08)] hover:border-[hsl(214_89%_52%/0.25)] hover:text-[hsl(214_89%_55%)] transition-all duration-200"
+                            aria-label="Open cart"
+                        >
+                            <ShoppingCart size={18} />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[var(--brand)] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center leading-none shadow-sm">
+                                    {cartCount > 99 ? "99+" : cartCount}
+                                </span>
+                            )}
+                        </button>
+
+                        {/* User Menu */}
+                        <div className="relative hidden md:block" data-user-menu>
+                            {status === "authenticated" && session ? (
+                                <>
+                                    <button
+                                        onClick={() => setUserMenuOpen(v => !v)}
+                                        className="flex items-center gap-2 h-10 px-3 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] hover:border-[hsl(214_89%_52%/0.35)] hover:bg-[hsl(214_89%_52%/0.08)] transition-all duration-200"
+                                    >
+                                        <div className="w-5 h-5 rounded-full bg-[var(--brand)] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                                            {session.user?.name?.[0]?.toUpperCase() || "U"}
+                                        </div>
+                                        <span className="text-sm font-medium max-w-[80px] truncate">{firstName}</span>
+                                    </button>
+
+                                    {userMenuOpen && (
+                                        <div className="absolute right-0 top-full mt-1.5 w-48 bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg shadow-[var(--shadow-elevated)] overflow-hidden z-50 animate-scale-in">
+                                            <div className="px-3 py-2.5 border-b border-[var(--border)]">
+                                                <p className="text-xs text-[var(--text-muted)]">Signed in as</p>
+                                                <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{session.user?.email}</p>
+                                            </div>
+                                            <Link
+                                                href="/profile"
+                                                onClick={() => setUserMenuOpen(false)}
+                                                className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] transition-colors"
+                                            >
+                                                <User size={15} />
+                                                My Profile
+                                            </Link>
+                                            <Link
+                                                href="/orders"
+                                                onClick={() => setUserMenuOpen(false)}
+                                                className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] transition-colors"
+                                            >
+                                                <Package size={15} />
+                                                My Orders
+                                            </Link>
+                                            <button
+                                                onClick={() => { signOut({ callbackUrl: "/" }); setUserMenuOpen(false); }}
+                                                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/08 hover:text-red-400 transition-colors border-t border-[var(--border)]"
+                                            >
+                                                <LogOut size={15} />
+                                                Sign Out
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <Link
+                                    href="/login"
+                                    className="flex items-center gap-2 h-10 px-3 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-medium text-[var(--text-primary)] hover:border-[hsl(214_89%_52%/0.35)] hover:bg-[hsl(214_89%_52%/0.08)] hover:text-[hsl(214_89%_55%)] transition-all duration-200"
+                                >
+                                    <User size={16} />
+                                    Login
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Mobile menu button */}
                         <button
                             onClick={() => setMenuOpen(!menuOpen)}
                             className="md:hidden flex items-center justify-center w-10 h-10 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-[hsl(214_89%_52%/0.08)] hover:border-[hsl(214_89%_52%/0.25)] hover:text-[hsl(214_89%_55%)] transition-all duration-200"
@@ -152,6 +244,26 @@ export default function Navbar() {
                                 </Link>
                             );
                         })}
+                        {/* Mobile auth links */}
+                        <div className="pt-2 border-t border-[var(--border)] mt-2">
+                            {status === "authenticated" ? (
+                                <>
+                                    <Link href="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all">
+                                        <User size={15} /> My Profile
+                                    </Link>
+                                    <Link href="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all">
+                                        <Package size={15} /> My Orders
+                                    </Link>
+                                    <button onClick={() => { signOut({ callbackUrl: "/" }); setMenuOpen(false); }} className="w-full flex items-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all">
+                                        <LogOut size={15} /> Sign Out
+                                    </button>
+                                </>
+                            ) : (
+                                <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium text-[hsl(214_89%_55%)] bg-[hsl(214_89%_52%/0.08)] hover:bg-[hsl(214_89%_52%/0.15)] transition-all">
+                                    <User size={15} /> Login / Register
+                                </Link>
+                            )}
+                        </div>
                     </div>
                 )}
             </nav>

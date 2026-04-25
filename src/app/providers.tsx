@@ -1,6 +1,8 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
+import { CartProvider } from "@/components/cart/CartContext";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 export function Providers({ children, forcedDefaultTheme = "dark" }: { children: React.ReactNode, forcedDefaultTheme?: string }) {
     return (
@@ -12,7 +14,13 @@ export function Providers({ children, forcedDefaultTheme = "dark" }: { children:
             enableSystem={false}
             storageKey="dealzone-theme"
         >
-            <SessionProvider>{children}</SessionProvider>
+            {/* User session provider — points to /api/auth/user */}
+            <SessionProvider basePath="/api/auth/user">
+                <CartProvider>
+                    {children}
+                    <CartDrawer />
+                </CartProvider>
+            </SessionProvider>
         </ThemeProvider>
     );
 }

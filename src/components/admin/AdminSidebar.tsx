@@ -5,14 +5,16 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import {
     Zap, LayoutDashboard, ShoppingBag, BookOpen, Tag,
-    LogOut, ExternalLink, Menu, X, ChevronRight, BarChart3, Settings, TrendingUp, Bell, RefreshCw
+    LogOut, ExternalLink, Menu, X, ChevronRight, BarChart3, Settings, TrendingUp, Bell, RefreshCw, Package
 } from "lucide-react";
+
 import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
 import Logo from "@/components/ui/Logo";
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { href: "/admin/products", label: "Products", icon: ShoppingBag },
+    { href: "/admin/orders", label: "Orders", icon: Package },
     { href: "/admin/posts", label: "Blog Posts", icon: BookOpen },
     { href: "/admin/categories", label: "Categories", icon: Tag },
     { href: "/admin/affiliate", label: "Affiliate Links", icon: BarChart3 },

@@ -3,10 +3,16 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+/**
+ * Separate NextAuth options for CUSTOMER sessions.
+ * Admin auth lives in /src/lib/auth.ts and redirects to /admin/login.
+ * Customer auth uses this config and redirects to /login.
+ */
+export const userAuthOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
-            name: "credentials",
+            id: "user-credentials",
+            name: "User Login",
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
@@ -14,21 +20,25 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
-                const admin = await prisma.admin.findUnique({
+                const user = await prisma.user.findUnique({
                     where: { email: credentials.email },
                 });
 
-                if (!admin) return null;
+                if (!user) return null;
 
-                const isValid = await bcrypt.compare(credentials.password, admin.password);
+                const isValid = await bcrypt.compare(credentials.password, user.password);
                 if (!isValid) return null;
 
-                return { id: admin.id, email: admin.email };
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                };
             },
         }),
     ],
     pages: {
-        signIn: "/admin/login",
+        signIn: "/login",
     },
     session: {
         strategy: "jwt",
@@ -40,19 +50,21 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
+                token.name = user.name;
+                token.role = "user";
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
                 session.user = {
-                    id: token.id as string || token.sub as string || "",
+                    id: token.id as string,
                     email: token.email as string,
-                    name: token.name as string | undefined,
+                    name: token.name as string,
+                    role: "user",
                 };
             }
             return session;
         },
-
     },
 };

@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-    RefreshCw, CheckCircle, AlertCircle, Loader2, Clock,
-    Bot, User2, XCircle, ArrowRight, Activity, Zap, RotateCcw,
+    CheckCircle, AlertCircle, Loader2,
+    Bot, User2, XCircle, Activity, RotateCcw, Info,
 } from "lucide-react";
-import Link from "next/link";
-
-const SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000;
-const STORAGE_KEY = "dealzone_last_sync_time";
 
 type SyncLog = {
     id: string;
@@ -23,17 +19,7 @@ type SyncLog = {
     createdAt: string;
 };
 
-type FilterType = "all" | "success" | "error" | "manual" | "cron";
-
-function formatCountdown(ms: number): string {
-    if (ms <= 0) return "Syncing…";
-    const h = Math.floor(ms / 3600000);
-    const m = Math.floor((ms % 3600000) / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-}
+type FilterType = "all" | "success" | "error" | "manual";
 
 function formatDate(iso: string): string {
     const d = new Date(iso);
@@ -48,16 +34,9 @@ function formatDuration(ms: number | null): string {
 }
 
 export default function AdminSyncPage() {
-    const [syncStatus, setSyncStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-    const [syncMessage, setSyncMessage] = useState("");
-    const [lastSync, setLastSync] = useState<Date | null>(null);
-    const [nextSyncIn, setNextSyncIn] = useState(0);
     const [logs, setLogs] = useState<SyncLog[]>([]);
     const [logsLoading, setLogsLoading] = useState(true);
     const [filter, setFilter] = useState<FilterType>("all");
-
-    const autoSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ── fetch history ──────────────────────────────────────────────
     const fetchLogs = useCallback(async () => {
@@ -71,70 +50,18 @@ export default function AdminSyncPage() {
         }
     }, []);
 
-    // ── trigger sync ───────────────────────────────────────────────
-    const handleSync = useCallback(async (isAuto = false) => {
-        setSyncStatus("loading");
-        setSyncMessage(isAuto ? "Auto-syncing prices…" : "Starting sync now…");
-        try {
-            const res = await fetch("/api/admin/sync", { method: "POST" });
-            const data = await res.json();
-            if (res.ok) {
-                setSyncStatus("success");
-                setSyncMessage(data.message || "Sync completed!");
-                const now = new Date();
-                setLastSync(now);
-                localStorage.setItem(STORAGE_KEY, now.toISOString());
-                fetchLogs();
-            } else {
-                throw new Error(data.error || "Sync failed");
-            }
-        } catch (err: unknown) {
-            setSyncStatus("error");
-            setSyncMessage(err instanceof Error ? err.message : "Sync failed");
-        } finally {
-            setTimeout(() => { setSyncStatus("idle"); setSyncMessage(""); }, 6000);
-        }
+    useEffect(() => {
+        fetchLogs();
     }, [fetchLogs]);
 
-    // ── schedule auto-sync + countdown ────────────────────────────
-    const schedule = useCallback((from: Date) => {
-        if (autoSyncTimer.current) clearTimeout(autoSyncTimer.current);
-        if (countdownInterval.current) clearInterval(countdownInterval.current);
-
-        const tick = () => setNextSyncIn(Math.max(0, SYNC_INTERVAL_MS - (Date.now() - from.getTime())));
-        tick();
-        countdownInterval.current = setInterval(tick, 1000);
-
-        const delay = Math.max(0, SYNC_INTERVAL_MS - (Date.now() - from.getTime()));
-        autoSyncTimer.current = setTimeout(() => handleSync(true), delay);
-    }, [handleSync]);
-
-    useEffect(() => {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        const from = stored ? new Date(stored) : new Date();
-        if (!stored) localStorage.setItem(STORAGE_KEY, from.toISOString());
-        setLastSync(from);
-        schedule(from);
-        fetchLogs();
-        return () => {
-            if (autoSyncTimer.current) clearTimeout(autoSyncTimer.current);
-            if (countdownInterval.current) clearInterval(countdownInterval.current);
-        };
-    }, [schedule, fetchLogs]);
-
-    useEffect(() => { if (lastSync) schedule(lastSync); }, [lastSync, schedule]);
-
     // ── derived ───────────────────────────────────────────────────
-    const progress = lastSync ? Math.min(100, ((Date.now() - lastSync.getTime()) / SYNC_INTERVAL_MS) * 100) : 0;
     const successCount = logs.filter(l => l.status === "success").length;
     const failedCount  = logs.filter(l => l.status === "error").length;
-    const cronCount    = logs.filter(l => l.triggeredBy === "cron").length;
     const manualCount  = logs.filter(l => l.triggeredBy === "manual").length;
 
     const filtered = logs.filter(log => {
         if (filter === "success") return log.status === "success";
         if (filter === "error")   return log.status === "error";
-        if (filter === "cron")    return log.triggeredBy === "cron";
         if (filter === "manual")  return log.triggeredBy === "manual";
         return true;
     });
@@ -144,7 +71,6 @@ export default function AdminSyncPage() {
         { key: "success", label: "Success", count: successCount },
         { key: "error",   label: "Failed",  count: failedCount },
         { key: "manual",  label: "Manual",  count: manualCount },
-        { key: "cron",    label: "Cron",    count: cronCount },
     ];
 
     return (
@@ -152,25 +78,19 @@ export default function AdminSyncPage() {
 
             {/* ── Page Header ───────────────────────────────────────── */}
             <div className="mb-2">
-                <h1 className="text-2xl font-bold text-[var(--text-primary)]">Price Sync</h1>
+                <h1 className="text-2xl font-bold text-[var(--text-primary)]">Sync History</h1>
                 <p className="text-[var(--text-secondary)] text-sm mt-1">
-                    Monitor and control automatic price refreshing for all tracked products.
+                    Review past product sync runs. Automatic 6-hour syncing and admin force sync are disabled.
                 </p>
             </div>
 
-            {/* ── Status flash ──────────────────────────────────────── */}
-            {syncMessage && (
-                <div className={`flex items-center gap-2 px-4 py-3 rounded-md border text-sm ${
-                    syncStatus === "success" ? "bg-green-500/10 border-green-500/30 text-green-500"
-                    : syncStatus === "error" ? "bg-red-500/10 border-red-500/30 text-red-500"
-                    : "bg-blue-500/10 border-blue-500/10 text-blue-500"
-                }`}>
-                    {syncStatus === "loading" ? <Loader2 size={15} className="animate-spin flex-shrink-0" /> :
-                     syncStatus === "success"  ? <CheckCircle size={15} className="flex-shrink-0" /> :
-                                                 <AlertCircle size={15} className="flex-shrink-0" />}
-                    {syncMessage}
+            <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600">
+                <Info size={16} className="mt-0.5 flex-shrink-0" />
+                <div>
+                    Automatic GitHub cron sync has been turned off, and the admin force-sync controls have been removed.
+                    Existing sync logs remain available below for reference.
                 </div>
-            )}
+            </div>
 
             {/* ── Summary stats ─────────────────────────────────────── */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -178,82 +98,13 @@ export default function AdminSyncPage() {
                     { label: "Total Syncs",  value: logs.length, color: "text-[var(--brand)]",    bg: "bg-[var(--brand-glow)]" },
                     { label: "Successful",   value: successCount, color: "text-green-500",          bg: "bg-green-500/10" },
                     { label: "Failed",       value: failedCount,  color: "text-red-500",            bg: "bg-red-500/10" },
-                    { label: "Cron Runs",    value: cronCount,    color: "text-purple-500",         bg: "bg-purple-500/10" },
+                    { label: "Manual Runs",  value: manualCount,  color: "text-blue-500",           bg: "bg-blue-500/10" },
                 ].map(({ label, value, color, bg }) => (
                     <div key={label} className={`${bg} border border-[var(--border)] rounded-xl p-4 flex flex-col gap-1`}>
                         <div className={`text-2xl font-black ${color}`}>{value}</div>
                         <div className="text-xs text-[var(--text-muted)] font-medium">{label}</div>
                     </div>
                 ))}
-            </div>
-
-            {/* ── Sync Control Card ─────────────────────────────────── */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm">
-                <div className="p-5 border-b border-[var(--border)] border-l-4 border-l-[hsl(214_89%_52%)]">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Zap size={18} className="text-[hsl(214_89%_52%)]" />
-                        <h2 className="text-lg font-bold text-[var(--text-primary)]">Sync Control</h2>
-                    </div>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                        Prices auto-sync every 6 hours via GitHub Actions cron. Use the button below to force an immediate refresh.
-                    </p>
-                </div>
-
-                <div className="p-6 space-y-5">
-                    {/* Force sync button */}
-                    <button
-                        onClick={() => handleSync(false)}
-                        disabled={syncStatus === "loading"}
-                        className={`flex items-center gap-3 px-6 py-3 rounded-md font-semibold text-sm transition-all duration-200 ${
-                            syncStatus === "loading"
-                                ? "bg-[var(--bg-elevated)] border border-[var(--border)] opacity-60 cursor-not-allowed"
-                                : "bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white shadow-md hover:shadow-lg"
-                        }`}
-                    >
-                        {syncStatus === "loading"
-                            ? <Loader2 size={16} className="animate-spin" />
-                            : <RefreshCw size={16} />}
-                        {syncStatus === "loading" ? "Syncing…" : "Force Sync Now"}
-                    </button>
-
-                    {/* Auto-sync progress */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="flex items-center gap-1.5 text-[var(--text-secondary)] font-medium">
-                                <Clock size={14} className="text-[var(--brand)]" />
-                                Next auto-sync
-                            </span>
-                            <span className="font-mono font-bold text-[var(--brand)]">{formatCountdown(nextSyncIn)}</span>
-                        </div>
-                        <div className="h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] rounded-full transition-all duration-1000"
-                                style={{ width: `${progress}%` }}
-                            />
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
-                            <span>
-                                {lastSync
-                                    ? `Last synced: ${lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}, ${lastSync.toLocaleDateString()}`
-                                    : "No sync recorded yet"}
-                            </span>
-                            <span>Resets every 6h</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Cron info footer */}
-                <div className="bg-[var(--bg-elevated)] border-t border-[var(--border)] px-6 py-3 flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
-                    <Bot size={13} className="text-purple-500 flex-shrink-0" />
-                    <span>GitHub Actions cron runs at <strong className="text-[var(--text-secondary)]">00:00, 06:00, 12:00, 18:00 UTC</strong> daily</span>
-                    <Link
-                        href="https://github.com/vrushabd/dealzone/actions"
-                        target="_blank"
-                        className="ml-auto flex items-center gap-1 text-[var(--brand)] hover:underline"
-                    >
-                        View runs <ArrowRight size={11} />
-                    </Link>
-                </div>
             </div>
 
             {/* ── Sync History Card ─────────────────────────────────── */}
@@ -266,7 +117,7 @@ export default function AdminSyncPage() {
                                 <h2 className="text-lg font-bold text-[var(--text-primary)]">Sync History</h2>
                             </div>
                             <p className="text-sm text-[var(--text-secondary)]">
-                                Complete log of all sync events — manual and automated. Last 20 entries shown.
+                                Complete log of recent sync events. Last 20 entries shown.
                             </p>
                         </div>
                         <button
@@ -291,8 +142,6 @@ export default function AdminSyncPage() {
                                             ? "bg-red-500/15 border-red-500/40 text-red-500"
                                             : key === "success"
                                             ? "bg-green-500/15 border-green-500/40 text-green-500"
-                                            : key === "cron"
-                                            ? "bg-purple-500/15 border-purple-500/40 text-purple-500"
                                             : "bg-[var(--brand-glow)] border-[var(--brand-glow-strong)] text-[var(--brand)]"
                                         : "bg-transparent border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                                 }`}
@@ -315,7 +164,7 @@ export default function AdminSyncPage() {
                 ) : filtered.length === 0 ? (
                     <div className="py-16 text-center text-[var(--text-muted)] text-sm italic">
                         {logs.length === 0
-                            ? "No syncs have run yet. Click \"Force Sync Now\" to create the first entry."
+                            ? "No syncs have run yet."
                             : "No records match the selected filter."}
                     </div>
                 ) : (

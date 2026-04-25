@@ -1,9 +1,6 @@
-name: Price Sync Cron
+name: Price Sync Manual
 
 on:
-  schedule:
-    # Runs every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
-    - cron: '0 */6 * * *'
   workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
 
 jobs:
@@ -14,7 +11,7 @@ jobs:
     steps:
       - name: Trigger price sync
         run: |
-          echo "⏰ Starting scheduled price sync at $(date -u)"
+          echo "⏰ Starting manual price sync at $(date -u)"
 
           HTTP_STATUS=$(curl -s -o /tmp/sync_response.json -w "%{http_code}" \
             -X GET "${{ secrets.APP_URL }}/api/sync" \

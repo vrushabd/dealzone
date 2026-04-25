@@ -137,7 +137,7 @@ export default function ProfilePage() {
                         {[
                             { label: "My Orders", href: "/orders", icon: Package, sub: "Track all orders" },
                             { label: "Browse Deals", href: "/products", icon: ShoppingBag, sub: "Find latest deals" },
-                            { label: "Price Tracker", href: "/price-tracker", icon: MapPin, sub: "Set price alerts" },
+                            { label: "My Cart", href: "/cart", icon: ShoppingBag, sub: "View your cart" },
                         ].map(item => (
                             <Link key={item.href} href={item.href}
                                 className="flex flex-col items-center text-center gap-2 p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl hover:border-[var(--border-brand)] hover:bg-[hsl(214_89%_52%/0.04)] transition-all group">

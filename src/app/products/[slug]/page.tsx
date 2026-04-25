@@ -17,9 +17,10 @@ import {
     jsonLdScript,
     truncateDescription,
 } from "@/lib/seo";
-import { Tag, Star, CreditCard, Truck } from "lucide-react";
+import { Tag, Star, ShieldCheck, CreditCard, Truck } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import BuyButtons from "@/components/products/BuyButtons";
+import ProductReviewSection from "@/components/products/ProductReviewSection";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -343,34 +344,10 @@ export default async function ProductDetailPage({ params }: Params) {
                     </div>
                 </div>
 
-                {/* Customer Reviews Section */}
-                {product.reviews.length > 0 && (
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6">What Buyers Are Saying</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {product.reviews.map((review: ProductReview) => (
-                                <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex flex-col h-full">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center gap-1 text-[var(--warning)]">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <Star key={i} size={14} className={i < Math.floor(review.rating) ? "fill-current" : "opacity-30"} />
-                                            ))}
-                                        </div>
-                                        <div className="text-xs text-[var(--text-muted)] font-semibold">{review.rating}/5</div>
-                                    </div>
-                                    {review.title && <h3 className="font-bold text-[var(--text-primary)] text-sm mb-2">{review.title}</h3>}
-                                    <p className="text-sm text-[var(--text-secondary)] italic leading-relaxed flex-1 mb-4">&quot;{review.comment}&quot;</p>
-                                    <div className="text-xs text-[var(--text-muted)] mt-auto pt-4 border-t border-[var(--border)] flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-[var(--bg-base)] flex flex-shrink-0 items-center justify-center font-bold text-[10px] text-[var(--text-primary)]">
-                                            {review.author?.[0]?.toUpperCase() || 'Buyer'}
-                                        </div>
-                                        <span className="truncate">{review.author || 'Verified Buyer'}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                <ProductReviewSection
+                    productSlug={product.slug}
+                    initialReviews={product.reviews.map(r => ({ ...r, createdAt: r.createdAt.toISOString() }))}
+                />
 
 
 

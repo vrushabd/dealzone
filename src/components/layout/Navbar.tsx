@@ -47,7 +47,7 @@ export default function Navbar() {
     const navLinks = [
         { href: "/products", label: "All Deals" },
         { href: "/categories", label: "Categories" },
-        { href: "/price-tracker", label: "Price Tracker" },
+
         { href: "/coupons", label: "Coupons" },
         { href: "/blog", label: "Blog" },
         { href: "/contact", label: "Contact" },

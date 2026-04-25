@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 // POST — submit a public review for a product by slug
 export async function POST(
     req: NextRequest,
-    { params }: { params: Promise<{ slug: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { slug } = await params;
+        const { id: slug } = await params;
         const { author, rating, title, comment } = await req.json();
 
         if (!comment?.trim()) {

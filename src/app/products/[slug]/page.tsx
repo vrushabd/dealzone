@@ -6,7 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductCard from "@/components/products/ProductCard";
-import PriceHistoryChart from "@/components/features/PriceHistoryChart";
+
 import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
 
@@ -372,10 +372,7 @@ export default async function ProductDetailPage({ params }: Params) {
                     </section>
                 )}
 
-                {/* Price History Chart */}
-                <section className="mb-12">
-                    <PriceHistoryChart productId={product.id} currentPrice={product.price ?? 0} />
-                </section>
+
 
                 {/* Related Products */}
                 {related.length > 0 && (

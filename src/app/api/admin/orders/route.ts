@@ -22,7 +22,19 @@ export async function GET(req: NextRequest) {
         prisma.order.findMany({
             where,
             include: {
-                items: true,
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                slug: true,
+                                originalUrl: true,
+                                amazonLink: true,
+                                flipkartLink: true,
+                                myntraLink: true,
+                            },
+                        },
+                    },
+                },
                 user: { select: { name: true, email: true, phone: true } },
             },
             orderBy: { createdAt: "desc" },

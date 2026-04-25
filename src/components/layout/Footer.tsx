@@ -4,9 +4,9 @@ import Logo from "@/components/ui/Logo";
 
 export default function Footer() {
     const stats = [
-        { icon: <TrendingUp size={14} />, label: "Deals Tracked", value: "10,000+" },
-        { icon: <Tag size={14} />,        label: "Avg. Discount",  value: "42%" },
-        { icon: <ShieldCheck size={14} />, label: "Verified Coupons", value: "500+" },
+        { icon: <TrendingUp size={14} />, label: "Products Curated", value: "Daily" },
+        { icon: <Tag size={14} />,        label: "Checkout Options", value: "COD + Online" },
+        { icon: <ShieldCheck size={14} />, label: "Support", value: "Order Updates" },
     ];
 
     return (
@@ -48,10 +48,7 @@ export default function Footer() {
                                 <Logo />
                             </div>
                             <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
-                                Discover the best deals and discounts from Amazon & Flipkart. Handpicked deals updated daily — so you never miss a bargain.
-                            </p>
-                            <p className="text-[var(--text-muted)] text-xs mt-4 leading-relaxed">
-                                As an Amazon Associate and Flipkart affiliate, we earn from qualifying purchases at no extra cost to you.
+                                Shop curated products on GenzLoots with secure checkout, order tracking, and direct customer support from one place.
                             </p>
                         </div>
 
@@ -60,7 +57,7 @@ export default function Footer() {
                             <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Browse</h3>
                             <ul className="space-y-2.5">
                                 {[
-                                    { href: "/products",   label: "All Deals" },
+                                    { href: "/products",   label: "All Products" },
                                     { href: "/categories", label: "Categories" },
                                     { href: "/coupons",    label: "Coupons" },
                                     { href: "/blog",       label: "Blog" },
@@ -81,7 +78,7 @@ export default function Footer() {
 
                         {/* Affiliates */}
                         <div>
-                            <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Shop On</h3>
+                            <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Catalog Sources</h3>
                             <ul className="space-y-3">
                                 {[
                                     { href: "https://www.amazon.in",   label: "Amazon India",  color: "text-yellow-400" },
@@ -106,7 +103,7 @@ export default function Footer() {
 
                     <div className="mt-10 rounded-md border border-[var(--border)] bg-[var(--bg-card)]/70 px-4 py-4 text-sm leading-6 text-[var(--text-secondary)]">
                         <span className="font-semibold text-[var(--text-primary)]">Disclaimer:</span>{" "}
-                        Prices, stock, coupons, and cashback can change quickly on merchant sites. Please verify all final details on the store page before you buy.
+                        Some catalog details may originate from marketplace listings and can change without notice. Final availability and fulfillment timing are confirmed after your order is reviewed.
                     </div>
 
                     {/* Bottom bar */}

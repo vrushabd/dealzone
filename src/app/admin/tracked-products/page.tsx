@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Loader2, TrendingUp, ExternalLink, Trash2, Search, Activity, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import Link from "next/link";
+import Image from "next/image";
 
 interface PricePoint { price: number; timestamp: string; platform: string; }
 
@@ -122,8 +122,10 @@ export default function AdminTrackedProductsPage() {
                                     {/* Top row: image + title + platform badge */}
                                     <div className="flex items-start gap-3 mb-3">
                                         {product.image && (
-                                            <img
+                                            <Image
                                                 src={product.image} alt=""
+                                                width={48}
+                                                height={48}
                                                 className="w-12 h-12 object-contain rounded-md bg-white p-1 flex-shrink-0 border border-[var(--border)]"
                                             />
                                         )}

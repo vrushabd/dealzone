@@ -28,6 +28,7 @@ export default function CheckoutPage() {
 
     const [step, setStep] = useState<"address" | "payment" | "done">("address");
     const [paymentMethod, setPaymentMethod] = useState<"COD" | "online">("COD");
+    const [completionState, setCompletionState] = useState<"cod" | "paid" | "pendingPayment" | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [orderId, setOrderId] = useState("");
@@ -47,6 +48,37 @@ export default function CheckoutPage() {
             setAddress(a => ({ ...a, name: session.user!.name! }));
         }
     }, [session]);
+
+    // Load saved profile details to speed up checkout
+    useEffect(() => {
+        if (status !== "authenticated") return;
+
+        let active = true;
+
+        (async () => {
+            try {
+                const res = await fetch("/api/user/profile");
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!active || !data.user) return;
+
+                setAddress((prev) => ({
+                    name: data.user.name || prev.name,
+                    phone: data.user.phone || "",
+                    address: data.user.address || "",
+                    city: data.user.city || "",
+                    state: data.user.state || "",
+                    pincode: data.user.pincode || "",
+                }));
+            } catch {
+                // Non-blocking: checkout still works without prefill.
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, [status]);
 
     // Redirect unauthenticated users to login
     useEffect(() => {
@@ -75,13 +107,6 @@ export default function CheckoutPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    items: items.map(i => ({
-                        productId: i.productId,
-                        quantity: i.quantity,
-                        price: i.product.price || 0,
-                        title: i.product.title,
-                        image: i.product.image,
-                    })),
                     paymentMethod,
                     shippingName: address.name,
                     shippingPhone: address.phone,
@@ -97,9 +122,10 @@ export default function CheckoutPage() {
 
             const newOrderId = orderData.order.id;
             setOrderId(newOrderId);
+            await clearCart();
 
             if (paymentMethod === "COD") {
-                await clearCart();
+                setCompletionState("cod");
                 setStep("done");
                 return;
             }
@@ -108,10 +134,14 @@ export default function CheckoutPage() {
             const payRes = await fetch("/api/payment/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: total, orderId: newOrderId }),
+                body: JSON.stringify({ orderId: newOrderId }),
             });
             const payData = await payRes.json();
-            if (!payRes.ok) throw new Error(payData.error || "Payment init failed");
+            if (!payRes.ok) {
+                setCompletionState("pendingPayment");
+                setStep("done");
+                throw new Error(payData.error || "Payment init failed");
+            }
 
             // Load Razorpay script dynamically
             if (!window.Razorpay) {
@@ -128,7 +158,7 @@ export default function CheckoutPage() {
                 key: payData.keyId,
                 amount: payData.amount,
                 currency: payData.currency,
-                name: "DealZone",
+                name: "GenzLoots",
                 description: `Order ${newOrderId}`,
                 order_id: payData.razorpayOrderId,
                 prefill: {
@@ -150,16 +180,19 @@ export default function CheckoutPage() {
                         }),
                     });
                     if (verRes.ok) {
-                        await clearCart();
+                        setCompletionState("paid");
                         setStep("done");
                     } else {
-                        setError("Payment verification failed. Contact support.");
+                        setError("Payment verification failed. Your order is saved and waiting for payment.");
+                        setCompletionState("pendingPayment");
+                        setStep("done");
                     }
                 },
                 modal: {
                     ondismiss: () => {
-                        setError("Payment cancelled. Your order is saved — complete payment from My Orders.");
-                        setStep("done"); // order still created
+                        setError("Payment cancelled. Your order is saved and waiting for payment.");
+                        setCompletionState("pendingPayment");
+                        setStep("done");
                     },
                 },
             });
@@ -203,18 +236,35 @@ export default function CheckoutPage() {
                             <div className="w-20 h-20 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-6">
                                 <CheckCircle2 size={40} className="text-green-500" />
                             </div>
-                            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-3">Order Placed! 🎉</h2>
+                            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-3">
+                                {completionState === "paid"
+                                    ? "Payment Successful!"
+                                    : completionState === "pendingPayment"
+                                        ? "Order Saved"
+                                        : "Order Placed!"}
+                            </h2>
                             <p className="text-[var(--text-secondary)] mb-2">
-                                {paymentMethod === "COD"
-                                    ? "Your COD order has been placed. We'll contact you shortly."
-                                    : "Payment received! Your order is confirmed."}
+                                {completionState === "paid"
+                                    ? "Payment received! Your order is confirmed."
+                                    : completionState === "pendingPayment"
+                                        ? "Your order is waiting for payment. Open the order details to complete payment or track updates."
+                                        : "Your COD order has been placed. We'll contact you shortly."}
                             </p>
                             {orderId && (
                                 <p className="text-xs text-[var(--text-muted)] font-mono mb-8">Order ID: {orderId}</p>
                             )}
+                            {error && completionState === "pendingPayment" && (
+                                <div className="mb-6 flex items-start gap-2 text-xs text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2.5 text-left">
+                                    <AlertCircle size={13} className="mt-0.5 flex-shrink-0" />
+                                    {error}
+                                </div>
+                            )}
                             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                                <Link href="/orders" className="btn-primary py-2.5 px-6 text-sm font-bold shine-on-hover">
-                                    Track My Orders
+                                <Link
+                                    href={orderId ? `/orders/${orderId}` : "/orders"}
+                                    className="btn-primary py-2.5 px-6 text-sm font-bold shine-on-hover"
+                                >
+                                    {completionState === "pendingPayment" ? "Open Order Details" : "Track My Orders"}
                                 </Link>
                                 <Link href="/products" className="py-2.5 px-6 text-sm font-semibold border border-[var(--border)] rounded-md hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)] transition-all">
                                     Continue Shopping

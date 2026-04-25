@@ -35,7 +35,7 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const [items, setItems] = useState<CartItemData[]>([]);
     const [loading, setLoading] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -84,7 +84,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         await fetch("/api/cart", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productId: product.id, quantity }),
+            body: JSON.stringify({ productId: product.id, quantity, mode: "increment" }),
         });
 
         setDrawerOpen(true);
@@ -97,7 +97,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         await fetch("/api/cart", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productId, quantity }),
+            body: JSON.stringify({ productId, quantity, mode: "set" }),
         });
     }, []);
 

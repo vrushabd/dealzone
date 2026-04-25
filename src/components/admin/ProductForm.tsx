@@ -5,13 +5,20 @@ import { inferCategoryIdFromText } from "@/lib/features/products/category";
 import { useRouter } from "next/navigation";
 
 interface Category { id: string; name: string; slug: string; }
+interface ProductReview {
+    rating: number;
+    title?: string | null;
+    comment: string;
+    author?: string | null;
+}
 interface Product {
     id: string; title: string; slug: string; image?: string | null; images: string[]; description?: string | null;
     price?: number | null; originalPrice?: number | null; discount?: number | null;
-    amazonLink?: string | null; flipkartLink?: string | null;
+    amazonLink?: string | null; flipkartLink?: string | null; myntraLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
     seller?: string | null; rating?: number | null; availability?: string | null;
     featured: boolean; categoryId?: string | null; category?: { name: string } | null;
+    reviews?: ProductReview[];
 }
 
 function dedupeStrings(values: Array<string | null | undefined>) {
@@ -31,10 +38,10 @@ export default function ProductForm({
 
     const [form, setForm] = useState<{
         title: string; image: string; images: string[]; price: string; originalPrice: string;
-        discount: string; amazonLink: string; flipkartLink: string;
+        discount: string; amazonLink: string; flipkartLink: string; myntraLink: string;
         featured: boolean; categoryId: string; description: string;
         cashbackAmazon: string; cashbackFlipkart: string;
-        seller: string; rating: string; availability: string;
+        seller: string; rating: string; availability: string; reviews: ProductReview[];
     }>({
         title: initial?.title || "",
         image: initial?.image || "",
@@ -44,6 +51,7 @@ export default function ProductForm({
         discount: initial?.discount?.toString() || "",
         amazonLink: initial?.amazonLink || "",
         flipkartLink: initial?.flipkartLink || "",
+        myntraLink: initial?.myntraLink || "",
         featured: initial?.featured || false,
         categoryId: initial?.categoryId || "",
         description: initial?.description || "",
@@ -52,8 +60,9 @@ export default function ProductForm({
         seller: initial?.seller || "",
         rating: initial?.rating?.toString() || "",
         availability: initial?.availability || "in_stock",
+        reviews: initial?.reviews || [],
     });
-    type StringFields = Omit<typeof form, 'featured'>;
+    type StringFields = Omit<typeof form, 'featured' | 'reviews'>;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -89,9 +98,11 @@ export default function ProductForm({
                 discount: data.discount ? data.discount.toString() : f.discount,
                 amazonLink: data.platform === "amazon" ? urlInput.trim() : f.amazonLink,
                 flipkartLink: data.platform === "flipkart" ? urlInput.trim() : f.flipkartLink,
+                myntraLink: data.platform === "myntra" ? urlInput.trim() : f.myntraLink,
                 seller: data.seller || f.seller,
                 rating: typeof data.rating === "number" && data.rating > 0 ? data.rating.toString() : f.rating,
                 categoryId: matchedCategoryId,
+                reviews: Array.isArray(data.reviews) && data.reviews.length > 0 ? data.reviews : f.reviews,
             }));
             setScraped(true);
         } catch (e: unknown) {
@@ -126,8 +137,9 @@ export default function ProductForm({
         { key: "price", label: "Price (₹)", placeholder: "e.g. 29999", type: "number" },
         { key: "originalPrice", label: "Original Price (₹)", placeholder: "e.g. 49999", type: "number" },
         { key: "discount", label: "Discount %", placeholder: "e.g. 40", type: "number" },
-        { key: "amazonLink", label: "Amazon Link", placeholder: "https://amzn.to/...", type: "url" },
-        { key: "flipkartLink", label: "Flipkart Link", placeholder: "https://fkrt.it/...", type: "url" },
+        { key: "amazonLink", label: "Amazon Link", placeholder: "https://www.amazon.in/...", type: "url" },
+        { key: "flipkartLink", label: "Flipkart Link", placeholder: "https://www.flipkart.com/...", type: "url" },
+        { key: "myntraLink", label: "Myntra Link", placeholder: "https://www.myntra.com/...", type: "url" },
         { key: "cashbackAmazon", label: "Amazon Cashback (₹)", placeholder: "0", type: "number" },
         { key: "cashbackFlipkart", label: "Flipkart Cashback (₹)", placeholder: "0", type: "number" },
         { key: "seller", label: "Seller Name", placeholder: "Appario Retail", type: "text" },
@@ -149,7 +161,7 @@ export default function ProductForm({
                     <div className="bg-[hsl(214_89%_52%/0.05)] border border-[hsl(214_89%_52%/0.20)] rounded-md p-4">
                         <label className="block text-xs font-bold text-[hsl(214_89%_55%)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                             <Zap size={11} fill="currentColor" />
-                            Auto-fill from Amazon / Flipkart URL
+                            Auto-fill from Amazon / Flipkart / Myntra URL
                         </label>
                         <div className="flex gap-2">
                             <input
@@ -172,6 +184,11 @@ export default function ProductForm({
                         </div>
                         {scrapeError && <p className="text-red-400 text-xs mt-2">{scrapeError}</p>}
                         {scraped && <p className="text-green-400 text-xs mt-2 flex items-center gap-1"><CheckCircle size={11} /> Details fetched! Review below before saving.</p>}
+                        {form.reviews.length > 0 && (
+                            <p className="text-[var(--text-secondary)] text-xs mt-2">
+                                {form.reviews.length} source review{form.reviews.length === 1 ? "" : "s"} will be saved with this product.
+                            </p>
+                        )}
                     </div>
                 )}
 

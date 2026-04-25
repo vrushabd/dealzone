@@ -81,7 +81,7 @@ export default function OrdersPage() {
                             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">No orders yet</h2>
                             <p className="text-[var(--text-secondary)] mb-6">Start shopping to see your orders here</p>
                             <Link href="/products" className="btn-primary px-6 py-2.5 text-sm font-bold shine-on-hover">
-                                Browse Deals
+                                Start Shopping
                             </Link>
                         </div>
                     ) : (

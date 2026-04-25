@@ -66,7 +66,7 @@ export default function RegisterPage() {
                         <div className="w-10 h-10 bg-[var(--brand)] rounded-xl flex items-center justify-center shadow-[var(--shadow-brand)]">
                             <ShoppingBag size={20} className="text-white" />
                         </div>
-                        <span className="text-2xl font-extrabold text-[var(--text-primary)]">DealZone</span>
+                        <span className="text-2xl font-extrabold text-[var(--text-primary)]">GenzLoots</span>
                     </Link>
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Create your account</h1>
                     <p className="text-sm text-[var(--text-secondary)] mt-1">Shop smarter with exclusive deals</p>

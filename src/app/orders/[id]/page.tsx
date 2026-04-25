@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, ChevronRight, MapPin, Phone, CreditCard, Loader2, CheckCircle2, Truck, Clock, XCircle } from "lucide-react";
+import { Package, ChevronRight, MapPin, Phone, CreditCard, Loader2, CheckCircle2, Truck, Clock, XCircle, AlertCircle, Lock } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -38,22 +38,129 @@ const statusConfig: Record<string, { label: string; icon: React.ElementType; col
 };
 
 export default function OrderDetailPage() {
-    const { status } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const params = useParams();
     const id = params?.id as string;
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
+    const [paymentLoading, setPaymentLoading] = useState(false);
+    const [paymentError, setPaymentError] = useState("");
+
+    const loadOrder = useCallback(async () => {
+        if (!id) return;
+        const res = await fetch(`/api/orders/${id}`);
+        const data = await res.json();
+        setOrder(data.order || null);
+    }, [id]);
 
     useEffect(() => {
         if (status === "unauthenticated") router.push("/login");
         if (status === "authenticated" && id) {
-            fetch(`/api/orders/${id}`)
-                .then(r => r.json())
-                .then(d => setOrder(d.order || null))
+            loadOrder()
                 .finally(() => setLoading(false));
         }
-    }, [status, id, router]);
+    }, [status, id, router, loadOrder]);
+
+    const retryOnlinePayment = async () => {
+        if (!order) return;
+
+        setPaymentLoading(true);
+        setPaymentError("");
+
+        try {
+            const payRes = await fetch("/api/payment/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: order.id }),
+            });
+            const payData = await payRes.json();
+            if (!payRes.ok) throw new Error(payData.error || "Unable to start payment");
+
+            if (!window.Razorpay) {
+                await new Promise<void>((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                    script.onload = () => resolve();
+                    script.onerror = () => reject(new Error("Failed to load Razorpay"));
+                    document.body.appendChild(script);
+                });
+            }
+
+            const RazorpayConstructor = window.Razorpay as new (options: {
+                key: string;
+                amount: number;
+                currency: string;
+                name: string;
+                description: string;
+                order_id: string;
+                prefill: {
+                    name: string;
+                    contact: string;
+                    email: string;
+                };
+                theme: { color: string };
+                handler: (response: {
+                    razorpay_order_id: string;
+                    razorpay_payment_id: string;
+                    razorpay_signature: string;
+                }) => Promise<void>;
+                modal?: {
+                    ondismiss?: () => void;
+                };
+            }) => { open: () => void };
+
+            const rzp = new RazorpayConstructor({
+                key: payData.keyId,
+                amount: payData.amount,
+                currency: payData.currency,
+                name: "GenzLoots",
+                description: `Order ${order.id}`,
+                order_id: payData.razorpayOrderId,
+                prefill: {
+                    name: order.shippingName,
+                    contact: order.shippingPhone,
+                    email: session?.user?.email || "",
+                },
+                theme: { color: "#1a6fe8" },
+                handler: async (response: {
+                    razorpay_order_id: string;
+                    razorpay_payment_id: string;
+                    razorpay_signature: string;
+                }) => {
+                    const verifyRes = await fetch("/api/payment/verify", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            razorpayOrderId: response.razorpay_order_id,
+                            razorpayPaymentId: response.razorpay_payment_id,
+                            razorpaySignature: response.razorpay_signature,
+                            orderId: order.id,
+                        }),
+                    });
+
+                    const verifyData = await verifyRes.json().catch(() => ({}));
+                    if (!verifyRes.ok) {
+                        throw new Error(verifyData.error || "Payment verification failed");
+                    }
+
+                    await loadOrder();
+                    setPaymentError("");
+                },
+                modal: {
+                    ondismiss: () => {
+                        setPaymentError("Payment was cancelled. Your order is still saved and waiting for payment.");
+                    },
+                },
+            });
+
+            rzp.open();
+        } catch (error) {
+            setPaymentError(error instanceof Error ? error.message : "Unable to complete payment right now");
+        } finally {
+            setPaymentLoading(false);
+        }
+    };
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)]">
@@ -178,12 +285,33 @@ export default function OrderDetailPage() {
                             <h2 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                                 <CreditCard size={16} className="text-[var(--brand)]" /> Payment
                             </h2>
-                            <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center justify-between text-sm mb-3">
                                 <span className="text-[var(--text-secondary)]">{order.paymentMethod === "COD" ? "Cash on Delivery" : "Online Payment"}</span>
                                 <span className={`font-semibold ${order.paymentStatus === "paid" ? "text-green-500" : "text-amber-500"}`}>
                                     {order.paymentStatus === "paid" ? "Paid" : order.paymentMethod === "COD" ? "Pay on delivery" : "Pending"}
                                 </span>
                             </div>
+                            {order.paymentMethod === "online" && order.paymentStatus !== "paid" && (
+                                <div className="space-y-3">
+                                    <p className="text-xs text-[var(--text-muted)]">
+                                        Your order is saved. Complete the payment to confirm it for processing.
+                                    </p>
+                                    <button
+                                        onClick={retryOnlinePayment}
+                                        disabled={paymentLoading}
+                                        className="inline-flex items-center gap-2 bg-[var(--brand)] hover:opacity-90 text-white text-sm font-bold px-4 py-2.5 rounded-lg transition-all disabled:opacity-60"
+                                    >
+                                        {paymentLoading ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+                                        Complete Payment
+                                    </button>
+                                    {paymentError && (
+                                        <div className="flex items-start gap-2 text-xs text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2.5">
+                                            <AlertCircle size={13} className="mt-0.5 flex-shrink-0" />
+                                            {paymentError}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Admin note */}

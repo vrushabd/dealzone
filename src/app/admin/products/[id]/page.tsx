@@ -39,7 +39,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
                 </p>
             </div>
 
-            <ProductForm initial={product as any} categories={categories} />
+            <ProductForm initial={product} categories={categories} />
         </div>
     );
 }

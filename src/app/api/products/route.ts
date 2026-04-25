@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import slugify from "slugify";
 import { inferCategoryIdFromText } from "@/lib/features/products/category";
+import { normalizeIncomingReviews } from "@/lib/features/reviews/service";
 
 const productApiSelect = {
     id: true,
@@ -18,6 +19,7 @@ const productApiSelect = {
     discount: true,
     amazonLink: true,
     flipkartLink: true,
+    myntraLink: true,
     featured: true,
     categoryId: true,
     cashbackAmazon: true,
@@ -99,9 +101,11 @@ export async function POST(request: NextRequest) {
             description: data.description,
         });
 
-        const platform = data.amazonLink?.includes('amazon') ? 'amazon' 
+        const platform = data.amazonLink?.includes('amazon') ? 'amazon'
                        : data.flipkartLink?.includes('flipkart') ? 'flipkart'
+                       : data.myntraLink?.includes('myntra') ? 'myntra'
                        : 'unknown';
+        const normalizedReviews = normalizeIncomingReviews(data.reviews);
 
         const product = await prisma.product.create({
             data: {
@@ -115,17 +119,18 @@ export async function POST(request: NextRequest) {
                 discount: data.discount ? parseFloat(data.discount) : null,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
+                myntraLink: data.myntraLink || null,
                 featured: data.featured || false,
                 categoryId: categoryId || null,
                 isPublic: true,
-                originalUrl: data.amazonLink || data.flipkartLink || null,
+                originalUrl: data.amazonLink || data.flipkartLink || data.myntraLink || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
                 availability: data.availability || "in_stock",
-                reviews: data.reviews && Array.isArray(data.reviews) ? {
-                    create: data.reviews.map((r: ProductReviewPayload) => ({
+                reviews: normalizedReviews.length > 0 ? {
+                    create: normalizedReviews.map((r: ProductReviewPayload) => ({
                         rating: r.rating,
                         title: r.title,
                         comment: r.comment,

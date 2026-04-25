@@ -136,7 +136,7 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-3 gap-3 mb-6">
                         {[
                             { label: "My Orders", href: "/orders", icon: Package, sub: "Track all orders" },
-                            { label: "Browse Deals", href: "/products", icon: ShoppingBag, sub: "Find latest deals" },
+                            { label: "Shop Products", href: "/products", icon: ShoppingBag, sub: "Browse the catalog" },
                             { label: "My Cart", href: "/cart", icon: ShoppingBag, sub: "View your cart" },
                         ].map(item => (
                             <Link key={item.href} href={item.href}

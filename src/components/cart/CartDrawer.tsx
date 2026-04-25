@@ -74,7 +74,7 @@ export default function CartDrawer() {
                                 onClick={() => setDrawerOpen(false)}
                                 className="btn-primary text-sm"
                             >
-                                Browse Deals
+                                Start Shopping
                             </button>
                         </div>
                     ) : (

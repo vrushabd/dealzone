@@ -44,15 +44,40 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Please login to add items to cart" }, { status: 401 });
     }
 
-    const { productId, quantity = 1 } = await req.json();
+    const { productId, quantity = 1, mode = "set" } = await req.json();
     if (!productId) {
         return NextResponse.json({ error: "productId is required" }, { status: 400 });
     }
 
+    if (!Number.isInteger(quantity) || quantity < 1) {
+        return NextResponse.json({ error: "quantity must be a positive integer" }, { status: 400 });
+    }
+
+    const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true, availability: true },
+    });
+
+    if (!product) {
+        return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    if (product.availability === "out_of_stock") {
+        return NextResponse.json({ error: "This product is currently out of stock" }, { status: 400 });
+    }
+
+    const existing = await prisma.cartItem.findUnique({
+        where: { userId_productId: { userId, productId } },
+    });
+
+    const nextQuantity = mode === "increment"
+        ? (existing?.quantity || 0) + quantity
+        : quantity;
+
     const item = await prisma.cartItem.upsert({
         where: { userId_productId: { userId, productId } },
-        update: { quantity },
-        create: { userId, productId, quantity },
+        update: { quantity: nextQuantity },
+        create: { userId, productId, quantity: nextQuantity },
         include: {
             product: { select: { title: true, price: true, image: true } },
         },

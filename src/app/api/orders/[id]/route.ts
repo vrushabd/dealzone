@@ -25,7 +25,22 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     const order = await prisma.order.findUnique({
         where: { id },
-        include: { items: true, user: { select: { name: true, email: true, phone: true } } },
+        include: {
+            items: {
+                include: {
+                    product: {
+                        select: {
+                            slug: true,
+                            originalUrl: true,
+                            amazonLink: true,
+                            flipkartLink: true,
+                            myntraLink: true,
+                        },
+                    },
+                },
+            },
+            user: { select: { name: true, email: true, phone: true } },
+        },
     });
 
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -55,7 +70,21 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
             ...(adminNote !== undefined && { adminNote }),
             ...(paymentStatus && { paymentStatus }),
         },
-        include: { items: true },
+        include: {
+            items: {
+                include: {
+                    product: {
+                        select: {
+                            slug: true,
+                            originalUrl: true,
+                            amazonLink: true,
+                            flipkartLink: true,
+                            myntraLink: true,
+                        },
+                    },
+                },
+            },
+        },
     });
 
     return NextResponse.json({ order: updated });

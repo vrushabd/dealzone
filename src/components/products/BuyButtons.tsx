@@ -30,7 +30,7 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
     const requireLogin = (next: () => void) => {
         if (status === "loading") return;
         if (!session) {
-            router.push(`/login?callbackUrl=/products/${productSlug}`);
+            router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productSlug}`)}`);
             return;
         }
         next();
@@ -43,7 +43,7 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
                 const res = await fetch("/api/cart", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ productId, quantity: 1 }),
+                    body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
                 });
                 if (res.ok) {
                     setCartAdded(true);
@@ -65,7 +65,7 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
                 await fetch("/api/cart", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ productId, quantity: 1 }),
+                    body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
                 });
                 window.dispatchEvent(new CustomEvent("cart-updated"));
                 router.push("/checkout");

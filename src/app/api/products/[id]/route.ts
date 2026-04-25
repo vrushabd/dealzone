@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import slugify from "slugify";
 import { inferCategoryIdFromText } from "@/lib/features/products/category";
 import { triggerPriceDropAlerts } from "@/lib/features/alerts/service";
+import { mergeProductReviews, normalizeIncomingReviews } from "@/lib/features/reviews/service";
 
 const productDetailSelect = {
     id: true,
@@ -18,6 +19,7 @@ const productDetailSelect = {
     discount: true,
     amazonLink: true,
     flipkartLink: true,
+    myntraLink: true,
     featured: true,
     categoryId: true,
     cashbackAmazon: true,
@@ -29,13 +31,6 @@ const productDetailSelect = {
     updatedAt: true,
     category: { select: { id: true, name: true, slug: true, icon: true } },
     reviews: true,
-};
-
-type ProductReviewPayload = {
-    rating: number;
-    title?: string | null;
-    comment: string;
-    author?: string | null;
 };
 
 // GET single product by id
@@ -62,6 +57,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         const { id } = await params;
         const data = await request.json();
         const slug = slugify(data.title, { lower: true, strict: true });
+        const normalizedReviews = normalizeIncomingReviews(data.reviews);
         const categories = await prisma.category.findMany({
             select: { id: true, name: true, slug: true },
         });
@@ -89,6 +85,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 discount: data.discount ? parseFloat(data.discount) : null,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
+                myntraLink: data.myntraLink || null,
+                originalUrl: data.amazonLink || data.flipkartLink || data.myntraLink || null,
                 featured: !!data.featured,
                 categoryId: categoryId || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
@@ -96,20 +94,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
                 availability: data.availability || "in_stock",
-                reviews: data.reviews && Array.isArray(data.reviews) ? {
-                    deleteMany: {},
-                    create: data.reviews.map((r: ProductReviewPayload) => ({
-                        rating: r.rating,
-                        title: r.title,
-                        comment: r.comment,
-                        author: r.author
-                    }))
-                } : undefined,
                 bankOffers: data.bankOffers && Array.isArray(data.bankOffers) ? data.bankOffers : [],
                 deliveryInfo: data.deliveryInfo || null,
             },
             select: productDetailSelect,
         });
+
+        if (normalizedReviews.length > 0) {
+            await mergeProductReviews(product.id, normalizedReviews);
+        }
 
         // Fire price drop alerts if price changed downward
         const newPrice = data.price ? parseFloat(data.price) : null;

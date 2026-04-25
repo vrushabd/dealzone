@@ -35,7 +35,7 @@ const DEAL_TIERS = [99, 199, 299, 399, 499, 599, 799, 999];
 const DISCOUNT_TIERS = [40, 50, 60, 70];
 
 const QUICK_LINKS = [
-    { href: "/products", label: "Browse All Deals" },
+    { href: "/products", label: "Shop All Products" },
     { href: "/categories", label: "Shop by Category" },
     { href: "/contact", label: "Contact Us" },
 ];

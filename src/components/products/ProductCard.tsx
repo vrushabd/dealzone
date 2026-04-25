@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Tag, ShoppingCart, Zap, Bell, X, Check, TrendingDown, ArrowRight, Star } from "lucide-react";
+import { Tag, ShoppingCart, Bell, X, Check, TrendingDown, ArrowRight, Star } from "lucide-react";
 import { useCart, CartProduct } from "@/components/cart/CartContext";
 
 
@@ -39,12 +39,11 @@ export default function ProductCard({ product }: { product: Product }) {
     const { data: session } = useSession();
     const router = useRouter();
 
-    const hasBuyLinks = !!(product.amazonLink || product.flipkartLink);
     const canSetAlert = Boolean(product.price && product.price > 1);
 
     const handleAddToCart = async () => {
         if (!session) {
-            router.push("/login");
+            router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${product.slug}`)}`);
             return;
         }
         const cartProduct: CartProduct = {
@@ -68,17 +67,6 @@ export default function ProductCard({ product }: { product: Product }) {
 
     const savings = product.originalPrice && product.price
         ? product.originalPrice - product.price
-        : null;
-
-    const cashbacks = [
-        { name: "Amazon",   value: product.cashbackAmazon },
-        { name: "Flipkart", value: product.cashbackFlipkart },
-        { name: "Paytm",    value: product.cashbackPaytm },
-        { name: "PhonePe",  value: product.cashbackPhonePe },
-    ].filter((c) => c.value && c.value > 0);
-
-    const highestCashback = cashbacks.length > 0
-        ? cashbacks.reduce((prev, cur) => (cur.value! > prev.value! ? cur : prev))
         : null;
 
     const handleAlertSubmit = async (e: React.FormEvent) => {
@@ -257,13 +245,6 @@ export default function ProductCard({ product }: { product: Product }) {
                             <span className="text-[10px] font-semibold text-green-500 bg-green-500/10 border border-green-500/20 px-1.5 py-0.5 rounded-md">
                                 Save ₹{savings.toLocaleString("en-IN")}
                             </span>
-                        </div>
-                    )}
-
-                    {highestCashback && (
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-green-500 uppercase tracking-tight bg-green-500/10 w-fit px-2 py-0.5 rounded-md border border-green-500/20">
-                            <Zap size={9} fill="currentColor" />
-                            +₹{highestCashback.value} cashback via {highestCashback.name}
                         </div>
                     )}
                 </div>

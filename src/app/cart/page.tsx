@@ -10,7 +10,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 export default function CartPage() {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter();
     const { items, cartCount, cartTotal, loading, updateQuantity, removeFromCart } = useCart();
 
@@ -55,9 +55,9 @@ export default function CartPage() {
                                 <ShoppingCart size={32} className="text-[var(--text-muted)]" />
                             </div>
                             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Your cart is empty</h2>
-                            <p className="text-[var(--text-secondary)] mb-6">Discover amazing deals and add them here</p>
+                            <p className="text-[var(--text-secondary)] mb-6">Browse products and add your favorites here</p>
                             <Link href="/products" className="btn-primary px-6 py-2.5 text-sm font-bold shine-on-hover">
-                                Browse Deals
+                                Start Shopping
                             </Link>
                         </div>
                     ) : (

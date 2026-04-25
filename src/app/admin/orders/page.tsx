@@ -15,6 +15,13 @@ interface OrderItem {
     productImage?: string;
     quantity: number;
     price: number;
+    product?: {
+        slug?: string;
+        originalUrl?: string | null;
+        amazonLink?: string | null;
+        flipkartLink?: string | null;
+        myntraLink?: string | null;
+    };
 }
 
 interface Order {
@@ -70,6 +77,7 @@ export default function AdminOrdersPage() {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [editNote, setEditNote] = useState<Record<string, string>>({});
     const [editStatus, setEditStatus] = useState<Record<string, string>>({});
+    const [editPaymentStatus, setEditPaymentStatus] = useState<Record<string, string>>({});
 
     const fetchOrders = useCallback(async () => {
         setLoading(true);
@@ -91,7 +99,11 @@ export default function AdminOrdersPage() {
             await fetch(`/api/orders/${orderId}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: editStatus[orderId], adminNote: editNote[orderId] }),
+                body: JSON.stringify({
+                    status: editStatus[orderId],
+                    paymentStatus: editPaymentStatus[orderId],
+                    adminNote: editNote[orderId],
+                }),
             });
             await fetchOrders();
             setExpandedId(null);
@@ -102,6 +114,7 @@ export default function AdminOrdersPage() {
         const id = order.id;
         setExpandedId(prev => prev === id ? null : id);
         if (!editStatus[id]) setEditStatus(s => ({ ...s, [id]: order.status }));
+        if (!editPaymentStatus[id]) setEditPaymentStatus(s => ({ ...s, [id]: order.paymentStatus }));
         if (!editNote[id]) setEditNote(n => ({ ...n, [id]: order.adminNote || "" }));
     };
 
@@ -118,6 +131,23 @@ export default function AdminOrdersPage() {
 
     const fullAddress = (o: Order) =>
         `${o.shippingName}\n${o.shippingAddress}\n${o.shippingCity}, ${o.shippingState} - ${o.shippingPincode}\nPhone: ${o.shippingPhone}`;
+
+    const getFulfillmentLinks = (item: OrderItem) => {
+        const links = [
+            { label: "Original", href: item.product?.originalUrl },
+            { label: "Amazon", href: item.product?.amazonLink },
+            { label: "Flipkart", href: item.product?.flipkartLink },
+            { label: "Myntra", href: item.product?.myntraLink },
+        ].filter((link): link is { label: string; href: string } => Boolean(link.href));
+
+        if (links.length > 0) return links;
+
+        return [
+            { label: "Amazon Search", href: `https://www.amazon.in/s?k=${encodeURIComponent(item.productTitle)}` },
+            { label: "Flipkart Search", href: `https://www.flipkart.com/search?q=${encodeURIComponent(item.productTitle)}` },
+            { label: "Myntra Search", href: `https://www.myntra.com/${encodeURIComponent(item.productTitle)}` },
+        ];
+    };
 
     return (
         <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] p-4 md:p-6">
@@ -277,35 +307,26 @@ export default function AdminOrdersPage() {
                                         </div>
 
                                         {/* ── Manual Fulfillment Quick Links — always visible ── */}
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            <p className="w-full text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-1">
-                                                <ShoppingBag size={10} /> Place Order On
-                                            </p>
-                                            {order.items.map(item => (
-                                                <div key={item.id} className="flex flex-wrap gap-2">
-                                                    <a href={`https://www.amazon.in/s?k=${encodeURIComponent(item.productTitle)}`}
-                                                        target="_blank" rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-300 bg-orange-400/10 hover:bg-orange-400/20 border border-orange-400/20 px-3 py-1.5 rounded-lg transition-all font-medium">
-                                                        <ExternalLink size={11} /> Amazon
-                                                    </a>
-                                                    <a href={`https://www.flipkart.com/search?q=${encodeURIComponent(item.productTitle)}`}
-                                                        target="_blank" rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 bg-blue-400/10 hover:bg-blue-400/20 border border-blue-400/20 px-3 py-1.5 rounded-lg transition-all font-medium">
-                                                        <ExternalLink size={11} /> Flipkart
-                                                    </a>
-                                                    <a href={`https://www.meesho.com/search?q=${encodeURIComponent(item.productTitle)}`}
-                                                        target="_blank" rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 text-xs text-pink-400 hover:text-pink-300 bg-pink-400/10 hover:bg-pink-400/20 border border-pink-400/20 px-3 py-1.5 rounded-lg transition-all font-medium">
-                                                        <ExternalLink size={11} /> Meesho
-                                                    </a>
-                                                    <a href={`https://www.myntra.com/${encodeURIComponent(item.productTitle)}`}
-                                                        target="_blank" rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 text-xs text-fuchsia-400 hover:text-fuchsia-300 bg-fuchsia-400/10 hover:bg-fuchsia-400/20 border border-fuchsia-400/20 px-3 py-1.5 rounded-lg transition-all font-medium">
-                                                        <ExternalLink size={11} /> Myntra
-                                                    </a>
-                                                </div>
-                                            ))}
-                                        </div>
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                <p className="w-full text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-1">
+                                                    <ShoppingBag size={10} /> Place Order On
+                                                </p>
+                                                {order.items.map(item => (
+                                                    <div key={item.id} className="flex flex-wrap gap-2">
+                                                        {getFulfillmentLinks(item).map((link) => (
+                                                            <a
+                                                                key={`${item.id}-${link.label}`}
+                                                                href={link.href}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 bg-blue-400/10 hover:bg-blue-400/20 border border-blue-400/20 px-3 py-1.5 rounded-lg transition-all font-medium"
+                                                            >
+                                                                <ExternalLink size={11} /> {link.label}
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                            </div>
                                     </div>
 
                                     {/* ── Expandable: status update + note ── */}
@@ -347,6 +368,21 @@ export default function AdminOrdersPage() {
                                                         className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] focus:outline-none focus:border-[var(--brand)] transition-colors"
                                                     >
                                                         {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs text-[var(--text-muted)] mb-1.5 font-medium">Payment Status</label>
+                                                    <select
+                                                        value={editPaymentStatus[order.id] || order.paymentStatus}
+                                                        onChange={e => setEditPaymentStatus(s => ({ ...s, [order.id]: e.target.value }))}
+                                                        className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] focus:outline-none focus:border-[var(--brand)] transition-colors"
+                                                    >
+                                                        {["pending", "paid", "failed"].map((value) => (
+                                                            <option key={value} value={value}>
+                                                                {value.charAt(0).toUpperCase() + value.slice(1)}
+                                                            </option>
+                                                        ))}
                                                     </select>
                                                 </div>
 

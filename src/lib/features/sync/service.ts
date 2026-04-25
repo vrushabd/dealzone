@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { scrapeProduct, type ScrapedProduct } from "@/lib/features/scraper/scraper";
 import { triggerPriceDropAlerts } from "@/lib/features/alerts/service";
 import { recordPriceHistoryPoint } from "@/lib/features/history/service";
+import { mergeProductReviews } from "@/lib/features/reviews/service";
 
 type ScrapedReview = NonNullable<ScrapedProduct["reviews"]>[number];
 
@@ -62,7 +63,11 @@ export async function runProductSync(triggeredBy: "manual" | "cron" = "manual") 
                     continue;
                 }
 
-                const platform = url.includes("amazon") ? "amazon" : "flipkart";
+                const platform = url.includes("amazon")
+                    ? "amazon"
+                    : url.includes("myntra")
+                        ? "myntra"
+                        : "flipkart";
                 const updateData: Prisma.ProductUpdateInput = {
                     price: scraped.price,
                     originalPrice: scraped.originalPrice || product.originalPrice,
@@ -73,22 +78,15 @@ export async function runProductSync(triggeredBy: "manual" | "cron" = "manual") 
                 if (scraped.description) updateData.description = scraped.description;
                 if (scraped.seller) updateData.seller = scraped.seller;
                 if (typeof scraped.rating === "number") updateData.rating = scraped.rating;
-                if (scraped.reviews && scraped.reviews.length > 0) {
-                    updateData.reviews = {
-                        deleteMany: {},
-                        create: scraped.reviews.map((review: ScrapedReview) => ({
-                            rating: review.rating,
-                            title: review.title,
-                            comment: review.comment,
-                            author: review.author,
-                        })),
-                    };
-                }
 
                 await prisma.product.update({
                     where: { id: product.id },
                     data: updateData,
                 });
+
+                if (scraped.reviews && scraped.reviews.length > 0) {
+                    await mergeProductReviews(product.id, scraped.reviews as ScrapedReview[]);
+                }
 
                 await recordPriceHistoryPoint({
                     productId: product.id,

@@ -30,7 +30,7 @@ export default function HeroSearch() {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search deals, products, categories..."
+                    placeholder="Search products, categories..."
                     className="w-full pl-12 pr-4 py-4 bg-white text-gray-800 text-sm outline-none border-0 placeholder:text-gray-400"
                     autoComplete="off"
                     spellCheck={false}

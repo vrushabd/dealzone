@@ -45,7 +45,7 @@ export default function Navbar() {
     };
 
     const navLinks = [
-        { href: "/products", label: "All Deals" },
+        { href: "/products", label: "Shop" },
         { href: "/categories", label: "Categories" },
 
         { href: "/coupons", label: "Coupons" },
@@ -104,7 +104,7 @@ export default function Navbar() {
                         <div className="relative group flex items-center">
                             <input
                                 type="text"
-                                placeholder="Search deals..."
+                                placeholder="Search products..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md pl-4 pr-10 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[hsl(214_89%_52%)] focus:shadow-[0_0_0_3px_hsl(214_89%_52%/0.12)] w-44 transition-all duration-300 focus:w-56"
@@ -214,7 +214,7 @@ export default function Navbar() {
                                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                 <input
                                     type="text"
-                                    placeholder="Search deals..."
+                                    placeholder="Search products..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-md pl-8 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[hsl(214_89%_52%)]"

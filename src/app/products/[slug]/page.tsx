@@ -17,8 +17,7 @@ import {
     jsonLdScript,
     truncateDescription,
 } from "@/lib/seo";
-import { Tag, Star, ShieldCheck, CreditCard, Truck } from "lucide-react";
-import type { Prisma } from "@prisma/client";
+import { Tag, Star, ShieldCheck, Truck } from "lucide-react";
 import BuyButtons from "@/components/products/BuyButtons";
 import ProductReviewSection from "@/components/products/ProductReviewSection";
 
@@ -80,8 +79,6 @@ const productCardSelect = {
     rating: true,
     category: { select: { name: true, slug: true } },
 };
-
-type ProductReview = Prisma.ProductReviewGetPayload<Record<string, never>>;
 
 export default async function ProductDetailPage({ params }: Params) {
     const { slug } = await params;
@@ -305,27 +302,6 @@ export default async function ProductDetailPage({ params }: Params) {
                                     currentPrice={product.price!}
                                     productName={product.title}
                                 />
-                            </div>
-                        )}
-
-                        {/* Special Bank Offers & Coupons */}
-                        {product.bankOffers && product.bankOffers.length > 0 && (
-                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 mb-8 overflow-hidden relative group">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <CreditCard size={100} />
-                                </div>
-                                <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                                    <Tag size={18} className="text-[hsl(214_89%_55%)]" />
-                                    Special Offers & Coupons
-                                </h3>
-                                <div className="space-y-3 relative z-10">
-                                    {product.bankOffers.map((offer: string, idx: number) => (
-                                        <div key={idx} className="flex gap-3 items-start p-3 bg-[var(--bg-base)] border border-[var(--border)] border-l-4 border-l-[hsl(214_89%_55%)] rounded-r-md">
-                                            <CreditCard size={16} className="mt-1 text-[var(--text-secondary)]" />
-                                            <p className="text-sm text-[var(--text-primary)] leading-relaxed">{offer}</p>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
                         )}
 

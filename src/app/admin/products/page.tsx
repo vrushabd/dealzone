@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, ShoppingBag, Search, Loader2, Star, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
-interface Category { id: string; name: string; slug: string; }
 interface Product {
     id: string; title: string; slug: string; image?: string | null; images: string[]; description?: string | null;
     price?: number | null; originalPrice?: number | null; discount?: number | null;
-    amazonLink?: string | null; flipkartLink?: string | null;
+    amazonLink?: string | null; flipkartLink?: string | null; myntraLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
     seller?: string | null; rating?: number | null;
     availability?: string | null;
@@ -16,7 +15,6 @@ interface Product {
 
 export default function AdminProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState("");
     const [search, setSearch] = useState("");
@@ -26,29 +24,18 @@ export default function AdminProductsPage() {
         setLoading(true);
         setLoadError("");
         try {
-            const [productsRes, categoriesRes] = await Promise.all([
-                fetch("/api/products?publicOnly=true"),
-                fetch("/api/categories"),
-            ]);
-            const [productsData, categoriesData] = await Promise.all([
-                productsRes.json(),
-                categoriesRes.json(),
-            ]);
+            const productsRes = await fetch("/api/products?publicOnly=true");
+            const productsData = await productsRes.json();
 
             if (!productsRes.ok) {
                 throw new Error(productsData?.error || "Failed to load products");
             }
-            if (!categoriesRes.ok) {
-                throw new Error(categoriesData?.error || "Failed to load categories");
-            }
 
             setProducts(Array.isArray(productsData) ? productsData : []);
-            setCategories(Array.isArray(categoriesData) ? categoriesData : []);
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : "Failed to load admin data";
             setLoadError(message);
             setProducts([]);
-            setCategories([]);
         } finally {
             setLoading(false);
         }
@@ -73,7 +60,7 @@ export default function AdminProductsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Products</h1>
-                    <p className="text-[var(--text-secondary)] text-sm mt-1">{products.length} total deals</p>
+                    <p className="text-[var(--text-secondary)] text-sm mt-1">{products.length} total products</p>
                 </div>
                 <Link href="/admin/products/new"
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
@@ -105,7 +92,7 @@ export default function AdminProductsPage() {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-[var(--text-muted)]">
                     <ShoppingBag size={40} className="mx-auto mb-3 opacity-30" />
-                    <p>No products found. <Link href="/admin/products/new" className="text-[var(--brand)] hover:underline">Add your first deal →</Link></p>
+                    <p>No products found. <Link href="/admin/products/new" className="text-[var(--brand)] hover:underline">Add your first product →</Link></p>
                 </div>
             ) : (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
@@ -129,6 +116,7 @@ export default function AdminProductsPage() {
                                         {p.category && <span className="text-xs text-[var(--text-muted)]">{p.category.name}</span>}
                                         {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-600 px-1.5 py-0.5 rounded-full">Amazon</span>}
                                         {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-600 px-1.5 py-0.5 rounded-full">Flipkart</span>}
+                                        {p.myntraLink && <span className="text-xs bg-pink-500/15 text-pink-600 px-1.5 py-0.5 rounded-full">Myntra</span>}
                                         {(p.availability || "in_stock") === "out_of_stock" && (
                                             <span className="text-xs bg-red-500/15 text-red-500 px-1.5 py-0.5 rounded-full">Out of Stock</span>
                                         )}

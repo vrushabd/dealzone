@@ -34,6 +34,8 @@ type StructuredDataProduct = {
     availability?: string;
 };
 
+type ScrapedReview = NonNullable<ScrapedProduct['reviews']>[number];
+
 type FetchResult = {
     html: string;
     status: number;
@@ -116,6 +118,64 @@ function normalizeImageSource(value: string): string {
         .replace(/\\\//g, '/')
         .replace(/&amp;/gi, '&')
         .trim();
+}
+
+function extractJsonAssignment(html: string, variableName: string): string | null {
+    const start = html.indexOf(variableName);
+    if (start === -1) return null;
+
+    const equalsIndex = html.indexOf('=', start);
+    if (equalsIndex === -1) return null;
+
+    const firstBrace = html.indexOf('{', equalsIndex);
+    if (firstBrace === -1) return null;
+
+    let depth = 0;
+    let inString = false;
+    let quote = '';
+    let escaped = false;
+
+    for (let index = firstBrace; index < html.length; index += 1) {
+        const char = html[index];
+
+        if (inString) {
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+
+            if (char === '\\') {
+                escaped = true;
+                continue;
+            }
+
+            if (char === quote) {
+                inString = false;
+            }
+
+            continue;
+        }
+
+        if (char === '"' || char === "'") {
+            inString = true;
+            quote = char;
+            continue;
+        }
+
+        if (char === '{') {
+            depth += 1;
+            continue;
+        }
+
+        if (char === '}') {
+            depth -= 1;
+            if (depth === 0) {
+                return html.slice(firstBrace, index + 1);
+            }
+        }
+    }
+
+    return null;
 }
 
 function extractImageCandidates(value: string): string[] {
@@ -609,6 +669,75 @@ function parseFlipkartWindowState(html: string): StructuredDataProduct {
             images,
             price: normalizePrice(isRecord(pricing?.finalPrice) ? pricing.finalPrice.value : undefined),
             originalPrice: normalizePrice(isRecord(pricing?.mrp) ? pricing.mrp.value : undefined),
+        };
+    } catch {
+        return {};
+    }
+}
+
+function parseMyntraWindowState(html: string): Partial<ScrapedProduct> {
+    try {
+        const assignment = extractJsonAssignment(html, 'window.__myx');
+        if (!assignment) return {};
+
+        const state = JSON.parse(assignment) as JsonRecord;
+        const pdpData = isRecord(state.pdpData) ? state.pdpData : undefined;
+        if (!pdpData) return {};
+
+        const ratings = isRecord(pdpData.ratings) ? pdpData.ratings : undefined;
+        const reviewInfo = isRecord(ratings?.reviewInfo) ? ratings.reviewInfo : undefined;
+        const media = isRecord(pdpData.media) ? pdpData.media : undefined;
+        const albums = Array.isArray(media?.albums) ? media.albums : [];
+
+        const images = dedupeImages(
+            albums.flatMap((album) => {
+                if (!isRecord(album) || !Array.isArray(album.images)) return [];
+
+                return album.images
+                    .map((image) => {
+                        if (!isRecord(image)) return undefined;
+
+                        return (
+                            (typeof image.secureSrc === 'string' && image.secureSrc) ||
+                            (typeof image.imageURL === 'string' && image.imageURL) ||
+                            (typeof image.src === 'string' && image.src) ||
+                            undefined
+                        );
+                    })
+                    .filter((value): value is string => typeof value === 'string');
+            }),
+            'myntra'
+        );
+
+        const reviews = (Array.isArray(reviewInfo?.topReviews) ? reviewInfo.topReviews : [])
+            .map((review): ScrapedReview | null => {
+                if (!isRecord(review)) return null;
+
+                const comment = normalizeText(
+                    typeof review.reviewText === 'string' ? review.reviewText.replace(/\\n/g, ' ') : ''
+                );
+
+                if (comment.length <= 5) return null;
+
+                return {
+                    rating: normalizePrice(review.userRating) || 5,
+                    title: undefined,
+                    comment,
+                    author: normalizeText(
+                        typeof review.userName === 'string' ? review.userName : 'Myntra Customer'
+                    ) || 'Myntra Customer',
+                };
+            })
+            .filter((review): review is ScrapedReview => Boolean(review));
+
+        return {
+            title: typeof pdpData.name === 'string' ? normalizeProductTitle(pdpData.name) : undefined,
+            price: normalizePrice(pdpData.price) || normalizePrice(pdpData.discountedPrice),
+            originalPrice: normalizePrice(pdpData.mrp),
+            image: images[0],
+            images,
+            rating: normalizePrice(ratings?.averageRating),
+            reviews,
         };
     } catch {
         return {};
@@ -1225,16 +1354,20 @@ function parseFlipkartMobile(root: HTMLElement, url: string): ScrapedProduct {
 }
 
 function parseMyntra(root: HTMLElement, url: string, html?: string): ScrapedProduct {
+    const windowState = html ? parseMyntraWindowState(html) : {};
     const title = normalizeProductTitle([
         root.querySelector('.pdp-title')?.text,
         root.querySelector('.pdp-name')?.text,
+        windowState.title,
     ].filter(Boolean).join(' '));
-    const price = normalizePrice(root.querySelector('.pdp-price strong')?.text || '') || 0;
-    const originalPrice = normalizePrice(root.querySelector('.pdp-mrp s')?.text || '');
+    const price = normalizePrice(root.querySelector('.pdp-price strong')?.text || '') || windowState.price || 0;
+    const originalPrice = normalizePrice(root.querySelector('.pdp-mrp s')?.text || '') || windowState.originalPrice;
     const image = dedupeImages([
         root.querySelector('.pdp-main-img')?.getAttribute('src'),
         root.querySelector('img.image-grid-image')?.getAttribute('src'),
         root.querySelector('img[data-testid="pdp-image"]')?.getAttribute('src'),
+        windowState.image,
+        ...(windowState.images || []),
     ], 'myntra')[0] || '';
 
     const category = normalizeText(
@@ -1255,9 +1388,12 @@ function parseMyntra(root: HTMLElement, url: string, html?: string): ScrapedProd
         price,
         originalPrice,
         image,
+        images: windowState.images,
+        rating: windowState.rating,
         platform: 'myntra',
         url,
         category,
         description,
+        reviews: windowState.reviews,
     };
 }

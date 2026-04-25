@@ -35,8 +35,9 @@ const DEAL_TIERS = [99, 199, 299, 399, 499, 599, 799, 999];
 const DISCOUNT_TIERS = [40, 50, 60, 70];
 
 const QUICK_LINKS = [
-    { href: "/price-tracker", label: "Amazon Price History Tracker" },
-    { href: "/price-tracker", label: "Flipkart Price History Tracker" },
+    { href: "/products", label: "Browse All Deals" },
+    { href: "/categories", label: "Shop by Category" },
+    { href: "/contact", label: "Contact Us" },
 ];
 
 type HomeProduct = {

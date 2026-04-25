@@ -9,7 +9,7 @@ import ProductCard from "@/components/products/ProductCard";
 import PriceHistoryChart from "@/components/features/PriceHistoryChart";
 import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
-import TrackedLink from "@/components/products/TrackedLink";
+
 import {
     absoluteUrl,
     breadcrumbJsonLd,
@@ -17,8 +17,9 @@ import {
     jsonLdScript,
     truncateDescription,
 } from "@/lib/seo";
-import { ExternalLink, Tag, Star, ShieldCheck, CreditCard, Truck } from "lucide-react";
+import { Tag, Star, CreditCard, Truck } from "lucide-react";
 import type { Prisma } from "@prisma/client";
+import BuyButtons from "@/components/products/BuyButtons";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -289,84 +290,12 @@ export default async function ProductDetailPage({ params }: Params) {
                                 </div>
                             )}
                         </div>
-                        {/* Compare Prices / Buying Options */}
-                        {product.amazonLink && product.flipkartLink ? (
-                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 mb-8">
-                                <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                                    <ShieldCheck size={18} className="text-green-500" />
-                                    Compare Store Prices
-                                </h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-base)] border border-[var(--border)]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold text-yellow-600 text-xs">AMZ</div>
-                                            <span className="font-semibold text-[var(--text-primary)]">Amazon</span>
-                                        </div>
-                                        {product.availability === "out_of_stock" ? (
-                                            <span className="bg-red-500/10 text-red-500/80 text-sm font-bold py-2 px-4 rounded cursor-not-allowed">Out of Stock</span>
-                                        ) : (
-                                            <TrackedLink productId={product.id} platform="amazon" href={product.amazonLink} className="bg-yellow-500 hover:bg-yellow-400 text-gray-950 text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
-                                                Check Deal <ExternalLink size={14} />
-                                            </TrackedLink>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-md bg-[var(--bg-base)] border border-[var(--border)]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white text-xs">FLK</div>
-                                            <span className="font-semibold text-[var(--text-primary)]">Flipkart</span>
-                                        </div>
-                                        {product.availability === "out_of_stock" ? (
-                                            <span className="bg-red-500/10 text-red-500/80 text-sm font-bold py-2 px-4 rounded cursor-not-allowed">Out of Stock</span>
-                                        ) : (
-                                            <TrackedLink productId={product.id} platform="flipkart" href={product.flipkartLink} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 px-4 rounded transition-all flex items-center gap-1">
-                                                Check Deal <ExternalLink size={14} />
-                                            </TrackedLink>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                                {product.amazonLink && (
-                                    <>
-                                        {product.availability === "out_of_stock" ? (
-                                            <span className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/20 text-red-500 font-bold py-4 px-6 rounded-md text-base cursor-not-allowed">
-                                                Out of Stock
-                                            </span>
-                                        ) : (
-                                            <TrackedLink
-                                                productId={product.id}
-                                                platform="amazon"
-                                                href={product.amazonLink}
-                                                className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-yellow-500/20 text-base"
-                                            >
-                                                <ExternalLink size={18} />
-                                                Buy on Amazon
-                                            </TrackedLink>
-                                        )}
-                                    </>
-                                )}
-                                {product.flipkartLink && (
-                                    <>
-                                        {product.availability === "out_of_stock" ? (
-                                            <span className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/20 text-red-500 font-bold py-4 px-6 rounded-md text-base cursor-not-allowed">
-                                                Out of Stock
-                                            </span>
-                                        ) : (
-                                            <TrackedLink
-                                                productId={product.id}
-                                                platform="flipkart"
-                                                href={product.flipkartLink}
-                                                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-md transition-all hover:shadow-lg hover:shadow-blue-600/20 text-base"
-                                            >
-                                                <ExternalLink size={18} />
-                                                Buy on Flipkart
-                                            </TrackedLink>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                        )}
+                        {/* Buy Buttons */}
+                        <BuyButtons
+                            productId={product.id}
+                            productSlug={product.slug}
+                            outOfStock={product.availability === "out_of_stock"}
+                        />
 
                         {(product.price ?? 0) > 0 && product.availability !== "out_of_stock" && (
                             <div className="mb-8">
@@ -410,9 +339,7 @@ export default async function ProductDetailPage({ params }: Params) {
                             </div>
                         )}
 
-                        <p className="text-xs text-[var(--text-muted)] mt-6">
-                            * As an affiliate partner, we may earn a commission from purchases made through these links at no extra cost to you.
-                        </p>
+
                     </div>
                 </div>
 

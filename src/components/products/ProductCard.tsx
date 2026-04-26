@@ -223,7 +223,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     </h2>
                 </Link>
 
-                <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] min-h-[20px]">
+                <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] min-h-[20px]">
                     {typeof product.rating === "number" && product.rating > 1.5 ? (
                         <>
                             <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
@@ -233,7 +233,9 @@ export default function ProductCard({ product }: { product: Product }) {
                             <span className="text-[var(--text-muted)]">/ 5 rating</span>
                         </>
                     ) : null}
-                    <span className="flex items-center gap-1 text-[11px] text-[hsl(24_95%_53%)] bg-[hsl(24_95%_53%/0.1)] px-1.5 py-0.5 rounded-full whitespace-nowrap ml-auto">
+                </div>
+                <div className="mb-2">
+                    <span className="inline-flex items-center gap-1 text-[11px] text-[hsl(24_95%_53%)] bg-[hsl(24_95%_53%/0.1)] px-1.5 py-0.5 rounded-full whitespace-nowrap">
                         🔥 {totalBought}+ bought
                     </span>
                 </div>

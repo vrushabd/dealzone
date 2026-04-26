@@ -50,6 +50,7 @@ const productCardSelect = {
     cashbackPhonePe: true,
     rating: true,
     category: { select: { name: true, slug: true } },
+    _count: { select: { orderItems: true } },
 };
 
 export default async function ProductsPage({

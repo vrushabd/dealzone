@@ -32,7 +32,10 @@ export default async function CategoryPage({ params }: Params) {
         include: { 
             products: { 
                 where: { isPublic: true },
-                include: { category: true }, 
+                include: { 
+                    category: true,
+                    _count: { select: { orderItems: true } }
+                }, 
                 orderBy: { createdAt: "desc" } 
             } 
         },

@@ -29,6 +29,7 @@ const productCardSelect = {
     cashbackPaytm: true, cashbackPhonePe: true,
     rating: true,
     category: { select: { name: true, slug: true } },
+    _count: { select: { orderItems: true } },
 };
 
 const DEAL_TIERS = [99, 199, 299, 399, 499, 599, 799, 999];

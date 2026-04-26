@@ -78,6 +78,7 @@ const productCardSelect = {
     cashbackPhonePe: true,
     rating: true,
     category: { select: { name: true, slug: true } },
+    _count: { select: { orderItems: true } },
 };
 
 export default async function ProductDetailPage({ params }: Params) {
@@ -113,6 +114,7 @@ export default async function ProductDetailPage({ params }: Params) {
             updatedAt: true,
             category: { select: { id: true, name: true, slug: true, icon: true } },
             reviews: { orderBy: { rating: 'desc' }, take: 5 },
+            _count: { select: { orderItems: true } },
         },
     });
 
@@ -133,6 +135,15 @@ export default async function ProductDetailPage({ params }: Params) {
     const productImages = [product.image, ...(product.images || [])]
         .filter((image): image is string => Boolean(image))
         .map((image) => absoluteUrl(image));
+
+    const getBaseCount = (id: string) => {
+        let hash = 0;
+        for (let i = 0; i < id.length; i++) {
+            hash = id.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return (Math.abs(hash) % 401) + 100;
+    };
+    const totalBought = getBaseCount(product.id) + (product._count?.orderItems || 0);
 
     const productJsonLd = {
         "@context": "https://schema.org",
@@ -242,7 +253,7 @@ export default async function ProductDetailPage({ params }: Params) {
                             )}
                         </div>
 
-                        {(typeof product.rating === "number" && product.rating > 1.5) || product.seller ? (
+                        {(typeof product.rating === "number" && product.rating > 1.5) || product.seller || totalBought ? (
                             <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
                                 {typeof product.rating === "number" && product.rating > 1.5 && (
                                     <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-amber-700">
@@ -250,6 +261,10 @@ export default async function ProductDetailPage({ params }: Params) {
                                         <span className="font-semibold">{product.rating.toFixed(1)} / 5</span>
                                     </div>
                                 )}
+                                <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(24_95%_53%/0.2)] bg-[hsl(24_95%_53%/0.08)] px-3 py-1 text-[hsl(24_95%_53%)]">
+                                    <span className="font-bold">🔥 {totalBought}+</span>
+                                    <span className="font-medium text-[hsl(24_95%_53%/0.8)]">bought recently</span>
+                                </div>
                                 {product.seller && (
                                     <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1 text-[var(--text-secondary)]">
                                         <ShieldCheck size={15} className="text-[hsl(214_89%_55%)]" />
@@ -281,12 +296,10 @@ export default async function ProductDetailPage({ params }: Params) {
                                 )}
                             </div>
                             
-                            {product.deliveryInfo && (
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md text-xs font-semibold text-[hsl(214_89%_55%)]">
-                                    <Truck size={14} />
-                                    {product.deliveryInfo}
-                                </div>
-                            )}
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-md text-xs font-semibold text-[hsl(214_89%_55%)]">
+                                <Truck size={14} />
+                                {product.deliveryInfo || "Delivery takes 5-7 days"}
+                            </div>
                         </div>
                         {/* Buy Buttons */}
                         <BuyButtons

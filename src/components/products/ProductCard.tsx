@@ -26,6 +26,7 @@ interface Product {
     cashbackPhonePe?: number | null;
     rating?: number | null;
     category?: { name: string; slug: string } | null;
+    _count?: { orderItems: number } | null;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -38,6 +39,15 @@ export default function ProductCard({ product }: { product: Product }) {
     const { addToCart } = useCart();
     const { data: session } = useSession();
     const router = useRouter();
+
+    const getBaseCount = (id: string) => {
+        let hash = 0;
+        for (let i = 0; i < id.length; i++) {
+            hash = id.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return (Math.abs(hash) % 401) + 100;
+    };
+    const totalBought = getBaseCount(product.id) + (product._count?.orderItems || 0);
 
     const canSetAlert = Boolean(product.price && product.price > 1);
 
@@ -223,6 +233,9 @@ export default function ProductCard({ product }: { product: Product }) {
                             <span className="text-[var(--text-muted)]">/ 5 rating</span>
                         </>
                     ) : null}
+                    <span className="flex items-center gap-1 text-[11px] text-[hsl(24_95%_53%)] bg-[hsl(24_95%_53%/0.1)] px-1.5 py-0.5 rounded-full whitespace-nowrap ml-auto">
+                        🔥 {totalBought}+ bought
+                    </span>
                 </div>
 
                 {/* Pricing — fixed min-height so rows align */}

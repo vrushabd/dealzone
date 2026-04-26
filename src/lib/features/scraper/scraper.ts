@@ -902,6 +902,45 @@ async function fetchHtml(url: string, headers: Record<string, string>): Promise<
     return null;
 }
 
+/** Fetch Meesho via ScrapingBee (renders JS and bypasses Akamai WAF) */
+async function fetchMeeshoViaScrapingBee(url: string): Promise<FetchResult | null> {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    if (!apiKey) {
+        console.warn('[ScrapingBee] SCRAPINGBEE_API_KEY not set, skipping.');
+        return null;
+    }
+
+    try {
+        const params = new URLSearchParams({
+            api_key: apiKey,
+            url,
+            render_js: 'true',
+            premium_proxy: 'true',
+            country_code: 'in',
+            block_ads: 'true',
+            wait: '2000',
+        });
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?${params.toString()}`, {
+            signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            console.error(`[ScrapingBee] HTTP ${response.status} for ${url}`);
+            return null;
+        }
+
+        const html = await response.text();
+        return { html, status: 200, finalUrl: url };
+    } catch (err) {
+        console.error('[ScrapingBee] fetch failed:', err);
+        return null;
+    }
+}
+
 export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | null> {
     let url: string;
     let hostname: string;
@@ -947,6 +986,42 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
             : BASE_HEADERS;
 
     let result: ScrapedProduct | null = null;
+
+    // For Meesho: always use ScrapingBee (direct fetch is blocked by Akamai WAF)
+    if (platform === 'meesho') {
+        const sbResult = await fetchMeeshoViaScrapingBee(url);
+        if (sbResult) {
+            const root = parse(sbResult.html);
+            const pageTitle = normalizeText(root.querySelector('title')?.text || '');
+            const blockedOrInvalid = isBotPage(sbResult.html, pageTitle) ||
+                isErrorPage(sbResult.html, pageTitle, sbResult.status) ||
+                isGenericSiteTitle(pageTitle, 'meesho');
+
+            if (!blockedOrInvalid) {
+                result = parseMeesho(root, url, sbResult.html);
+                result = applyStructuredData(result, parseJsonLd(sbResult.html, 'meesho'), 'meesho', url);
+            }
+        }
+
+        result = sanitizeScrapedProduct(result);
+        if (hasMeaningfulProductData(result)) return result;
+
+        // Fallback: title from URL slug
+        const slugTitle = titleFromSlug(url);
+        if (!slugTitle) return null;
+        return {
+            title: slugTitle,
+            image: '',
+            price: 0,
+            originalPrice: result?.originalPrice,
+            discount: result?.discount,
+            description: result?.description,
+            platform: 'meesho',
+            url,
+            fromUrl: true,
+        };
+    }
+
     const desktop = await fetchHtml(url, platformHeaders);
 
     if (desktop) {

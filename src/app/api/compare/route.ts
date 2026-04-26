@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { scrapeProduct, type ScrapedProduct } from '@/lib/features/scraper/scraper';
-import { AffiliateService } from '@/lib/features/affiliate/service';
 import { prisma } from '@/lib/prisma';
 import slugify from 'slugify';
 import crypto from 'crypto';
@@ -33,15 +32,6 @@ export async function POST(req: NextRequest) {
                     const baseSlug = slugify(scraped.title, { lower: true, strict: true, trim: true }) || 'product';
                     const slug = `${baseSlug.slice(0, 100)}-${scraped.platform}-${urlHash}`;
 
-                    // Process Affiliate Link
-                    let affiliateUrl = undefined;
-                    try {
-                        const aff = await AffiliateService.processProductUrl(url);
-                        if (aff) affiliateUrl = aff.affiliateUrl;
-                    } catch (e) {
-                        console.error('Affiliate generation failed:', e);
-                    }
-
                     const product = await prisma.product.upsert({
                         where: { slug },
                         update: {
@@ -50,7 +40,6 @@ export async function POST(req: NextRequest) {
                             discount: scraped.discount,
                             image: scraped.image,
                             availability: scraped.availability,
-                            affiliateUrl: affiliateUrl || undefined,
                             originalUrl: url,
                         },
                         create: {
@@ -68,7 +57,6 @@ export async function POST(req: NextRequest) {
                                 }
                             },
                             availability: scraped.availability,
-                            affiliateUrl: affiliateUrl || undefined,
                             originalUrl: url,
                         },
                     });

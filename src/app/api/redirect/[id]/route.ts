@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { AffiliateService } from '@/lib/features/affiliate/service';
 
 export async function GET(
     req: NextRequest,
@@ -13,18 +12,18 @@ export async function GET(
             where: { id },
         });
 
-        if (!product || !product.affiliateUrl) {
-            return NextResponse.json({ error: 'Product or affiliate link not found' }, { status: 404 });
+        if (!product) {
+            return NextResponse.json({ error: 'Product not found' }, { status: 404 });
         }
 
-        // Track click asynchronously
-        const ip = req.headers.get('x-forwarded-for') || 'unknown';
-        const userAgent = req.headers.get('user-agent') || 'unknown';
+        const targetUrl = product.originalUrl || product.affiliateUrl || product.amazonLink || product.flipkartLink || product.meeshoLink;
 
-        await AffiliateService.trackClick(product.id, ip, userAgent);
+        if (!targetUrl) {
+            return NextResponse.json({ error: 'No target link found for this product' }, { status: 404 });
+        }
 
-        // Redirect to affiliate link
-        return NextResponse.redirect(product.affiliateUrl);
+        // Redirect to external link
+        return NextResponse.redirect(targetUrl);
     } catch (error) {
         console.error('Redirect API Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -27,7 +27,7 @@ export default function CheckoutPage() {
     const { items, cartTotal, clearCart, loading: cartLoading, refreshCart } = useCart();
 
     const [step, setStep] = useState<"address" | "payment" | "done">("address");
-    const [paymentMethod, setPaymentMethod] = useState<"COD" | "online">("COD");
+    const [paymentMethod, setPaymentMethod] = useState<"COD" | "online">("online");
     const [completionState, setCompletionState] = useState<"cod" | "paid" | "pendingPayment" | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");

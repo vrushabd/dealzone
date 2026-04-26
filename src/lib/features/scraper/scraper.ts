@@ -32,6 +32,7 @@ type StructuredDataProduct = {
     category?: string;
     description?: string;
     availability?: string;
+    reviews?: ScrapedReview[];
 };
 
 type ScrapedReview = NonNullable<ScrapedProduct['reviews']>[number];
@@ -557,7 +558,7 @@ function applyStructuredData(
         description: base?.description || structured.description,
         bankOffers: base?.bankOffers,
         deliveryInfo: base?.deliveryInfo,
-        reviews: base?.reviews,
+        reviews: (base?.reviews && base.reviews.length > 0) ? base.reviews : structured.reviews,
         fromUrl: base?.fromUrl,
     };
 
@@ -597,7 +598,14 @@ function parseJsonLd(html: string, platform: ScrapedProduct['platform']): Struct
             try {
                 const data = JSON.parse(match[1]) as unknown;
                 const graph = isRecord(data) ? data['@graph'] : undefined;
-                const nodes = Array.isArray(graph) ? graph : [data];
+                let nodes: unknown[];
+                if (Array.isArray(graph)) {
+                    nodes = graph;
+                } else if (Array.isArray(data)) {
+                    nodes = data;
+                } else {
+                    nodes = [data];
+                }
                 const product = nodes.find((node): node is JsonRecord => {
                     if (!isRecord(node)) return false;
                     const type = node['@type'];
@@ -619,6 +627,26 @@ function parseJsonLd(html: string, platform: ScrapedProduct['platform']): Struct
                 const offer = Array.isArray(product['offers']) ? product['offers'][0] : product['offers'];
                 const aggregateRating = isRecord(product['aggregateRating']) ? product['aggregateRating'] : undefined;
 
+                let reviews: ScrapedReview[] | undefined;
+                if (Array.isArray(product['review'])) {
+                    reviews = product['review']
+                        .filter(isRecord)
+                        .map(r => {
+                            const rRating = isRecord(r['reviewRating']) ? r['reviewRating'] : undefined;
+                            const ratingVal = normalizePrice(rRating?.['ratingValue']) || 5;
+                            const authorNode = isRecord(r['author']) ? r['author'] : undefined;
+                            const authorName = typeof authorNode?.['name'] === 'string' ? authorNode['name'] : 'Customer';
+                            return {
+                                rating: ratingVal,
+                                title: typeof r['name'] === 'string' ? normalizeText(r['name']) : undefined,
+                                comment: typeof r['reviewBody'] === 'string' ? normalizeText(r['reviewBody']) : '',
+                                author: normalizeText(authorName)
+                            };
+                        })
+                        .filter(r => r.comment.length > 5)
+                        .slice(0, 5);
+                }
+
                 return {
                     title: typeof product['name'] === 'string' ? normalizeProductTitle(product['name']) : undefined,
                     image: images[0],
@@ -633,6 +661,7 @@ function parseJsonLd(html: string, platform: ScrapedProduct['platform']): Struct
                     category: typeof product['category'] === 'string' ? normalizeText(product['category']) : undefined,
                     description: typeof product['description'] === 'string' ? normalizeText(product['description']) : undefined,
                     availability: normalizeAvailability(isRecord(offer) ? offer['availability'] : undefined),
+                    reviews: reviews && reviews.length > 0 ? reviews : undefined,
                 };
             } catch {
                 continue;

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
     try {
         const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
-        return NextResponse.json({ 
+        return NextResponse.json({
             defaultTheme: settings?.defaultTheme || "dark",
             siteName: settings?.siteName || "GenzLoots",
             siteTagline: settings?.siteTagline || "Best Amazon, Flipkart & Myntra Deals",
@@ -14,6 +14,9 @@ export async function GET() {
             faviconUrl: settings?.faviconUrl || "",
             geminiApiKey: settings?.geminiApiKey || "",
             resendApiKey: settings?.resendApiKey || "",
+            scrapingBeeApiKey: settings?.scrapingBeeApiKey || "",
+            razorpayKeyId: settings?.razorpayKeyId || "",
+            razorpayKeySecret: settings?.razorpayKeySecret || "",
         });
     } catch (error) {
         console.error("Settings GET error:", error);
@@ -24,21 +27,16 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
-        const { defaultTheme, siteName, siteTagline, logoUrl, faviconUrl, geminiApiKey, resendApiKey } = await req.json();
+        const {
+            defaultTheme, siteName, siteTagline, logoUrl, faviconUrl,
+            geminiApiKey, resendApiKey, scrapingBeeApiKey, razorpayKeyId, razorpayKeySecret,
+        } = await req.json();
 
-        const updateData: { 
-            defaultTheme?: string;
-            siteName?: string;
-            siteTagline?: string;
-            logoUrl?: string | null;
-            faviconUrl?: string | null;
-            geminiApiKey?: string;
-            resendApiKey?: string;
-        } = {};
+        const updateData: Record<string, string | null | undefined> = {};
 
         if (defaultTheme) {
             if (!["light", "dark"].includes(defaultTheme)) {
@@ -51,21 +49,27 @@ export async function POST(req: NextRequest) {
         if (siteTagline !== undefined) updateData.siteTagline = siteTagline.trim() || "Best Amazon, Flipkart & Myntra Deals";
         if (logoUrl !== undefined) updateData.logoUrl = logoUrl.trim() || null;
         if (faviconUrl !== undefined) updateData.faviconUrl = faviconUrl.trim() || null;
-        if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey;
-        if (resendApiKey !== undefined) updateData.resendApiKey = resendApiKey;
+        if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey.trim() || null;
+        if (resendApiKey !== undefined) updateData.resendApiKey = resendApiKey.trim() || null;
+        if (scrapingBeeApiKey !== undefined) updateData.scrapingBeeApiKey = scrapingBeeApiKey.trim() || null;
+        if (razorpayKeyId !== undefined) updateData.razorpayKeyId = razorpayKeyId.trim() || null;
+        if (razorpayKeySecret !== undefined) updateData.razorpayKeySecret = razorpayKeySecret.trim() || null;
 
         const settings = await prisma.siteSettings.upsert({
             where: { id: "default" },
             update: updateData,
-            create: { 
-                id: "default", 
-                defaultTheme: updateData.defaultTheme || "dark",
-                siteName: updateData.siteName || "GenzLoots",
-                siteTagline: updateData.siteTagline || "Best Amazon, Flipkart & Myntra Deals",
-                logoUrl: updateData.logoUrl || null,
-                faviconUrl: updateData.faviconUrl || null,
-                geminiApiKey: updateData.geminiApiKey || null,
-                resendApiKey: updateData.resendApiKey || null,
+            create: {
+                id: "default",
+                defaultTheme: (updateData.defaultTheme as string) || "dark",
+                siteName: (updateData.siteName as string) || "GenzLoots",
+                siteTagline: (updateData.siteTagline as string) || "Best Amazon, Flipkart & Myntra Deals",
+                logoUrl: updateData.logoUrl as string | null,
+                faviconUrl: updateData.faviconUrl as string | null,
+                geminiApiKey: updateData.geminiApiKey as string | null,
+                resendApiKey: updateData.resendApiKey as string | null,
+                scrapingBeeApiKey: updateData.scrapingBeeApiKey as string | null,
+                razorpayKeyId: updateData.razorpayKeyId as string | null,
+                razorpayKeySecret: updateData.razorpayKeySecret as string | null,
             },
         });
 

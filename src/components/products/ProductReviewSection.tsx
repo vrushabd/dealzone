@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
-import { Star, Send, Loader2, CheckCircle2, AlertCircle, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Send, Loader2, CheckCircle2, AlertCircle, User, Lock } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 interface Review {
     id: string;
@@ -30,7 +31,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
                     className="transition-transform hover:scale-110"
                 >
                     <Star
-                        size={20}
+                        size={22}
                         className={`transition-colors ${n <= (hovered || value) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"}`}
                     />
                 </button>
@@ -40,30 +41,48 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
 }
 
 export default function ProductReviewSection({ productSlug, initialReviews }: Props) {
+    const { data: session, status } = useSession();
     const [reviews, setReviews] = useState<Review[]>(initialReviews);
-    const [form, setForm] = useState({ author: "", rating: 0, title: "", comment: "" });
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
+    const [canReview, setCanReview] = useState<boolean | null>(null);
+
+    // Check if this logged-in user has a delivered order for this product
+    useEffect(() => {
+        if (status !== "authenticated") { setCanReview(false); return; }
+        fetch(`/api/products/${productSlug}/can-review`)
+            .then(r => r.json())
+            .then(d => setCanReview(Boolean(d.canReview)))
+            .catch(() => setCanReview(false));
+    }, [productSlug, status]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
-        if (form.rating === 0) { setError("Please select a star rating"); return; }
-        if (!form.comment.trim()) { setError("Please write a comment"); return; }
+        if (rating === 0) { setError("Please select a star rating"); return; }
+        if (!comment.trim()) { setError("Please write a comment"); return; }
 
         setLoading(true);
         try {
             const res = await fetch(`/api/products/${productSlug}/reviews`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
+                body: JSON.stringify({ rating, comment }),
             });
             const data = await res.json();
             if (!res.ok) { setError(data.error || "Failed to submit"); return; }
-            setReviews(prev => [{ ...data.review, createdAt: new Date().toISOString() }, ...prev]);
-            setForm({ author: "", rating: 0, title: "", comment: "" });
+            setReviews(prev => [{
+                ...data.review,
+                author: session?.user?.name || "Verified Buyer",
+                createdAt: new Date().toISOString()
+            }, ...prev]);
+            setRating(0);
+            setComment("");
             setSuccess(true);
+            setCanReview(false);
             setTimeout(() => setSuccess(false), 4000);
         } catch {
             setError("Network error. Please try again.");
@@ -72,129 +91,133 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
         }
     };
 
+    const avgRating = reviews.length > 0
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length)
+        : 0;
+
     return (
-        <section className="mt-12">
-            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
-                Customer Reviews
+        <section className="mt-10">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">Customer Reviews</h2>
                 {reviews.length > 0 && (
-                    <span className="ml-2 text-sm font-normal text-[var(--text-muted)]">({reviews.length})</span>
+                    <span className="flex items-center gap-1 text-amber-500 text-sm font-semibold">
+                        <Star size={14} className="fill-amber-400 text-amber-400" />
+                        {avgRating.toFixed(1)}
+                        <span className="text-[var(--text-muted)] font-normal">({reviews.length})</span>
+                    </span>
                 )}
-            </h2>
+            </div>
 
-            {/* Submit Form */}
-            <div className="max-w-3xl bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 sm:p-5 mb-6">
-                <h3 className="font-semibold text-[var(--text-primary)] mb-3 text-sm">Write a Review</h3>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                    {/* Name */}
-                    <div>
-                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                            Your Name <span className="text-[var(--text-muted)] font-normal">(optional)</span>
-                        </label>
-                        <div className="relative">
-                            <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
-                            <input
-                                type="text"
-                                value={form.author}
-                                onChange={e => setForm(f => ({ ...f, author: e.target.value }))}
-                                placeholder="Anonymous"
-                                className="input-base pl-9 w-full"
-                            />
-                        </div>
+            {/* Write Review Panel */}
+            <div className="max-w-2xl mb-5">
+                {/* Not logged in */}
+                {status === "unauthenticated" && (
+                    <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-lg px-4 py-3">
+                        <Lock size={14} />
+                        <span>Log in to write a review (only verified buyers can review)</span>
                     </div>
+                )}
 
-                    {/* Rating */}
-                    <div>
-                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                            Rating <span className="text-red-400">*</span>
-                        </label>
-                        <StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} />
+                {/* Logged in but can't review */}
+                {status === "authenticated" && canReview === false && !success && (
+                    <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-lg px-4 py-3">
+                        <Lock size={14} />
+                        <span>You can write a review once your order is delivered.</span>
                     </div>
+                )}
 
-                    {/* Title */}
-                    <div>
-                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                            Review Title <span className="text-[var(--text-muted)] font-normal">(optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={form.title}
-                            onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                            placeholder="Summarise your experience"
-                            className="input-base w-full"
-                        />
+                {/* Success */}
+                {success && (
+                    <div className="flex items-center gap-2 text-sm text-green-600 bg-green-500/10 border border-green-500/20 rounded-lg px-4 py-3">
+                        <CheckCircle2 size={15} />
+                        <span className="font-semibold">Review posted! Thank you.</span>
                     </div>
+                )}
 
-                    {/* Comment */}
-                    <div>
-                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                            Comment <span className="text-red-400">*</span>
-                        </label>
-                        <textarea
-                            value={form.comment}
-                            onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
-                            placeholder="Share your experience with this product..."
-                            rows={3}
-                            className="input-base w-full resize-none"
-                        />
-                    </div>
-
-                    {error && (
-                        <p className="flex items-center gap-1.5 text-sm text-red-400">
-                            <AlertCircle size={14} /> {error}
-                        </p>
-                    )}
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex items-center gap-2 btn-primary px-4 py-2 text-sm font-bold disabled:opacity-60"
-                        >
-                            {loading ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
-                            Submit Review
-                        </button>
-                        {success && (
-                            <span className="flex items-center gap-1.5 text-sm text-green-500 font-semibold">
-                                <CheckCircle2 size={15} /> Review posted!
+                {/* Review form — only for eligible buyers */}
+                {status === "authenticated" && canReview === true && (
+                    <div className="bg-[var(--bg-card)] border border-[var(--brand)]/30 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="w-7 h-7 rounded-full bg-[var(--brand-glow)] border border-[var(--border)] flex items-center justify-center text-[var(--brand)]">
+                                <User size={13} />
+                            </div>
+                            <span className="text-sm font-semibold text-[var(--text-primary)]">
+                                {session?.user?.name || "Verified Buyer"}
                             </span>
-                        )}
+                            <span className="text-[10px] bg-green-500/10 text-green-600 border border-green-500/20 rounded-full px-2 py-0.5 font-semibold">
+                                ✓ Verified Purchase
+                            </span>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-3">
+                            {/* Stars */}
+                            <div className="flex items-center gap-3">
+                                <StarPicker value={rating} onChange={setRating} />
+                                {rating > 0 && (
+                                    <span className="text-xs text-[var(--text-muted)]">
+                                        {["", "Poor", "Fair", "Good", "Very Good", "Excellent"][rating]}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Comment */}
+                            <textarea
+                                value={comment}
+                                onChange={e => setComment(e.target.value)}
+                                placeholder="Share your experience with this product..."
+                                rows={2}
+                                className="input-base w-full resize-none text-sm"
+                            />
+
+                            {error && (
+                                <p className="flex items-center gap-1.5 text-xs text-red-400">
+                                    <AlertCircle size={13} /> {error}
+                                </p>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="flex items-center gap-2 btn-primary px-4 py-2 text-sm font-bold disabled:opacity-60"
+                            >
+                                {loading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                                Post Review
+                            </button>
+                        </form>
                     </div>
-                </form>
+                )}
             </div>
 
             {/* Reviews List */}
             {reviews.length === 0 ? (
-                <div className="text-center py-10 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-xl">
-                    <Star size={28} className="mx-auto mb-2 opacity-30" />
-                    <p className="font-medium">No reviews yet — be the first!</p>
+                <div className="text-center py-8 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-xl max-w-2xl">
+                    <Star size={24} className="mx-auto mb-2 opacity-30" />
+                    <p className="text-sm font-medium">No reviews yet</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl">
                     {reviews.map(review => (
-                        <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4 flex flex-col">
+                        <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3.5">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex gap-0.5">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star key={i} size={13} className={`${i < Math.floor(review.rating) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"}`} />
+                                        <Star key={i} size={12} className={i < Math.floor(review.rating) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"} />
                                     ))}
                                 </div>
-                                <span className="text-xs text-[var(--text-muted)]">
+                                <span className="text-[11px] text-[var(--text-muted)]">
                                     {new Date(review.createdAt).toLocaleDateString("en-IN")}
                                 </span>
                             </div>
-                            {review.title && (
-                                <h4 className="font-bold text-sm text-[var(--text-primary)] mb-1">{review.title}</h4>
-                            )}
-                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed flex-1 mb-3 italic">
+                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-2 italic">
                                 &quot;{review.comment}&quot;
                             </p>
-                            <div className="flex items-center gap-2 pt-3 border-t border-[var(--border)] mt-auto">
-                                <div className="w-7 h-7 rounded-full bg-[var(--brand-glow)] border border-[var(--border)] flex items-center justify-center text-[var(--brand)]">
-                                    <User size={13} />
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-5 h-5 rounded-full bg-[var(--brand-glow)] border border-[var(--border)] flex items-center justify-center text-[var(--brand)]">
+                                    <User size={10} />
                                 </div>
-                                <span className="text-xs text-[var(--text-muted)] font-medium">
-                                    {review.author || "Anonymous"}
-                                </span>
+                                <span className="text-[11px] text-[var(--text-muted)] font-medium">{review.author || "Verified Buyer"}</span>
+                                <span className="text-[9px] bg-green-500/10 text-green-600 rounded-full px-1.5 py-0.5 font-semibold">✓ Verified</span>
                             </div>
                         </div>
                     ))}

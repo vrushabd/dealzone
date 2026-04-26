@@ -143,17 +143,18 @@ model AffiliateClick {
 }
 
 model SiteSettings {
-  id                  String   @id @default("default")
-  defaultTheme        String   @default("dark")
-  siteName            String   @default("GenzLoots")
-  siteTagline         String   @default("Best Amazon, Flipkart & Myntra Deals")
-  logoUrl             String?
-  faviconUrl          String?
-  geminiApiKey        String?
-  amazonAffiliateTag  String?
-  flipkartAffiliateId String?
-  resendApiKey        String?
-  updatedAt           DateTime @updatedAt
+  id                 String   @id @default("default")
+  defaultTheme       String   @default("dark")
+  siteName           String   @default("GenzLoots")
+  siteTagline        String   @default("Best Amazon, Flipkart & Myntra Deals")
+  logoUrl            String?
+  faviconUrl         String?
+  geminiApiKey       String?
+  resendApiKey       String?
+  scrapingBeeApiKey  String?
+  razorpayKeyId      String?
+  razorpayKeySecret  String?
+  updatedAt          DateTime @updatedAt
 }
 
 model PageView {

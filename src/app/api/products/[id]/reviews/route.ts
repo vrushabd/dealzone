@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// POST — submit a public review for a product by slug
+// POST — submit a review; only users with a delivered order for this product may review
 export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id: slug } = await params;
-        const { author, rating, title, comment } = await req.json();
+        const session = await getServerSession(authOptions);
+
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: "You must be logged in to write a review" }, { status: 401 });
+        }
+
+        const { rating, comment } = await req.json();
 
         if (!comment?.trim()) {
             return NextResponse.json({ error: "Comment is required" }, { status: 400 });
@@ -25,12 +33,40 @@ export async function POST(
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
 
+        // Only allow review if user has a DELIVERED order containing this product
+        const deliveredOrder = await prisma.order.findFirst({
+            where: {
+                userId: session.user.id,
+                status: "delivered",
+                items: {
+                    some: { productId: product.id },
+                },
+            },
+            select: { id: true },
+        });
+
+        if (!deliveredOrder) {
+            return NextResponse.json(
+                { error: "You can only review products you have received" },
+                { status: 403 }
+            );
+        }
+
+        // Prevent duplicate reviews
+        const existing = await prisma.productReview.findFirst({
+            where: { productId: product.id, author: session.user.name || session.user.email || "Customer" },
+            select: { id: true },
+        });
+        if (existing) {
+            return NextResponse.json({ error: "You have already reviewed this product" }, { status: 409 });
+        }
+
         const review = await prisma.productReview.create({
             data: {
                 productId: product.id,
-                author: author?.trim() || "Anonymous",
+                author: session.user.name || session.user.email || "Verified Buyer",
                 rating: Number(rating),
-                title: title?.trim() || null,
+                title: null,
                 comment: comment.trim(),
             },
         });

@@ -192,9 +192,9 @@ export default function ChatbotWidget() {
                                                 <div className="mt-2 flex gap-2">
                                                     <Link
                                                         href={p.href}
-                                                        className="inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white text-xs font-bold transition-colors"
+                                                        className="inline-flex items-center justify-center px-4 py-1.5 rounded-md bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white text-xs font-bold transition-colors shadow-md shadow-[hsl(214_89%_52%)]/20 animate-pulse"
                                                     >
-                                                        Buy / View
+                                                        Buy Now! ⚡️
                                                     </Link>
                                                 </div>
                                             </div>

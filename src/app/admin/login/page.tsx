@@ -17,7 +17,7 @@ function LoginForm() {
         e.preventDefault();
         setLoading(true);
         setError("");
-        const res = await signIn("credentials", { email, password, redirect: false });
+        const res = await signIn("admin-credentials", { email, password, redirect: false });
         setLoading(false);
         if (res?.error) {
             setError("Invalid email or password. Please try again.");

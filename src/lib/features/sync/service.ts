@@ -65,8 +65,8 @@ export async function runProductSync(triggeredBy: "manual" | "cron" = "manual") 
 
                 const platform = url.includes("amazon")
                     ? "amazon"
-                    : url.includes("myntra")
-                        ? "myntra"
+                    : url.includes("meesho")
+                        ? "meesho"
                         : "flipkart";
                 const updateData: Prisma.ProductUpdateInput = {
                     price: scraped.price,

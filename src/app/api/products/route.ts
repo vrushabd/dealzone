@@ -19,7 +19,7 @@ const productApiSelect = {
     discount: true,
     amazonLink: true,
     flipkartLink: true,
-    myntraLink: true,
+    meeshoLink: true,
     featured: true,
     categoryId: true,
     cashbackAmazon: true,
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
         const platform = data.amazonLink?.includes('amazon') ? 'amazon'
                        : data.flipkartLink?.includes('flipkart') ? 'flipkart'
-                       : data.myntraLink?.includes('myntra') ? 'myntra'
+                       : data.meeshoLink?.includes('meesho') ? 'meesho'
                        : 'unknown';
         const normalizedReviews = normalizeIncomingReviews(data.reviews);
 
@@ -119,11 +119,11 @@ export async function POST(request: NextRequest) {
                 discount: data.discount ? parseFloat(data.discount) : null,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
-                myntraLink: data.myntraLink || null,
+                meeshoLink: data.meeshoLink || null,
                 featured: data.featured || false,
                 categoryId: categoryId || null,
                 isPublic: true,
-                originalUrl: data.amazonLink || data.flipkartLink || data.myntraLink || null,
+                originalUrl: data.amazonLink || data.flipkartLink || data.meeshoLink || null,
                 cashbackAmazon: data.cashbackAmazon ? parseFloat(data.cashbackAmazon) : 0,
                 cashbackFlipkart: data.cashbackFlipkart ? parseFloat(data.cashbackFlipkart) : 0,
                 seller: data.seller || null,

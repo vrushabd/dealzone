@@ -10,7 +10,7 @@ export interface ScrapedProduct {
     seller?: string;
     rating?: number;
     availability?: string;
-    platform: 'amazon' | 'flipkart' | 'myntra' | 'unknown';
+    platform: 'amazon' | 'flipkart' | 'meesho' | 'unknown';
     url: string;
     category?: string;
     description?: string;
@@ -208,7 +208,7 @@ function toAbsoluteImageUrl(value: string, platform: ScrapedProduct['platform'])
 
     if (platform === 'amazon') return `https://www.amazon.in${normalized}`;
     if (platform === 'flipkart') return `https://www.flipkart.com${normalized}`;
-    if (platform === 'myntra') return `https://www.myntra.com${normalized}`;
+    if (platform === 'meesho') return `https://www.meesho.com${normalized}`;
 
     return normalized;
 }
@@ -256,9 +256,9 @@ function isGenericSiteTitle(title: string, platform: ScrapedProduct['platform'])
             normalized.includes('page not found');
     }
 
-    if (platform === 'myntra') {
-        return normalized.includes('online shopping for women, men, kids fashion') ||
-            normalized === 'myntra';
+    if (platform === 'meesho') {
+        return normalized.includes('online shopping') ||
+            normalized === 'meesho';
     }
 
     return false;
@@ -402,9 +402,9 @@ function isLikelyProductUrl(url: string, platform: ScrapedProduct['platform']): 
             return pathname.includes('/p/') || parsed.searchParams.has('pid');
         }
 
-        if (platform === 'myntra') {
+        if (platform === 'meesho') {
             const segments = pathname.split('/').filter(Boolean);
-            return segments.length >= 2 && !pathname.includes('/shop');
+            return segments.length >= 2;
         }
 
         return false;
@@ -430,7 +430,7 @@ function normalizeProductUrl(parsed: URL, platform: ScrapedProduct['platform']):
         return normalized.toString();
     }
 
-    if (platform === 'myntra') {
+    if (platform === 'meesho') {
         return `${parsed.origin}${parsed.pathname}`;
     }
 
@@ -680,93 +680,107 @@ function parseFlipkartWindowState(html: string): StructuredDataProduct {
     }
 }
 
-function parseMyntraWindowState(html: string): Partial<ScrapedProduct> {
-    try {
-        const assignment = extractJsonAssignment(html, 'window.__myx');
-        if (!assignment) return {};
+function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProduct {
+    const title = normalizeProductTitle(
+        root.querySelector('h1')?.text || 
+        html?.match(/"name"\s*:\s*"([^"]+)"/)?.[1] || 
+        ''
+    );
 
-        const state = JSON.parse(assignment) as JsonRecord;
-        const pdpData = isRecord(state.pdpData) ? state.pdpData : undefined;
-        if (!pdpData) return {};
-
-        const ratings = isRecord(pdpData.ratings) ? pdpData.ratings : undefined;
-        const reviewInfo = isRecord(ratings?.reviewInfo) ? ratings.reviewInfo : undefined;
-        const media = isRecord(pdpData.media) ? pdpData.media : undefined;
-        const albums = Array.isArray(media?.albums) ? media.albums : [];
-        const analytics = isRecord(pdpData.analytics) ? pdpData.analytics : undefined;
-        const descriptors = Array.isArray(pdpData.descriptors) ? pdpData.descriptors : [];
-        const productDetails = Array.isArray(pdpData.productDetails) ? pdpData.productDetails : [];
-
-        const images = dedupeImages(
-            albums.flatMap((album) => {
-                if (!isRecord(album) || !Array.isArray(album.images)) return [];
-
-                return album.images
-                    .map((image) => {
-                        if (!isRecord(image)) return undefined;
-
-                        return (
-                            (typeof image.secureSrc === 'string' && image.secureSrc) ||
-                            (typeof image.imageURL === 'string' && image.imageURL) ||
-                            (typeof image.src === 'string' && image.src) ||
-                            undefined
-                        );
-                    })
-                    .filter((value): value is string => typeof value === 'string');
-            }),
-            'myntra'
-        );
-
-        const reviews = (Array.isArray(reviewInfo?.topReviews) ? reviewInfo.topReviews : [])
-            .map((review): ScrapedReview | null => {
-                if (!isRecord(review)) return null;
-
-                const comment = normalizeText(
-                    typeof review.reviewText === 'string' ? review.reviewText.replace(/\\n/g, ' ') : ''
-                );
-
-                if (comment.length <= 5) return null;
-
-                return {
-                    rating: normalizePrice(review.userRating) || 5,
-                    title: undefined,
-                    comment,
-                    author: normalizeText(
-                        typeof review.userName === 'string' ? review.userName : 'Myntra Customer'
-                    ) || 'Myntra Customer',
-                };
-            })
-            .filter((review): review is ScrapedReview => Boolean(review));
-
-        const descriptorDescription = descriptors
-            .map((entry) => isRecord(entry) ? stripHtml(typeof entry.description === 'string' ? entry.description : '') : '')
-            .find((value) => value.length > 20);
-
-        const detailDescription = productDetails
-            .map((entry) => isRecord(entry) ? stripHtml(typeof entry.description === 'string' ? entry.description : '') : '')
-            .find((value) => value.length > 20);
-
-        const category = normalizeText(
-            (typeof analytics?.articleType === 'string' && analytics.articleType) ||
-            (typeof analytics?.subCategory === 'string' && analytics.subCategory) ||
-            (typeof analytics?.masterCategory === 'string' && analytics.masterCategory) ||
-            ''
-        );
-
-        return {
-            title: typeof pdpData.name === 'string' ? normalizeProductTitle(pdpData.name) : undefined,
-            price: normalizePrice(pdpData.price) || normalizePrice(pdpData.discountedPrice),
-            originalPrice: normalizePrice(pdpData.mrp),
-            image: images[0],
-            images,
-            rating: normalizePrice(ratings?.averageRating),
-            category: category || undefined,
-            description: descriptorDescription || detailDescription || undefined,
-            reviews,
-        };
-    } catch {
-        return {};
+    let price = 0;
+    const priceMatch = html?.match(/"price"\s*:\s*(\d+(?:\.\d+)?)/) || 
+                       html?.match(/"discounted_price"\s*:\s*(\d+(?:\.\d+)?)/);
+    if (priceMatch) {
+        price = normalizePrice(priceMatch[1]) || 0;
     }
+    if (!price) {
+        const textPrice = root.querySelector('h4')?.text || root.querySelector('.Text__StyledText-sc-oo0kvp-0')?.text;
+        if (textPrice?.includes('₹')) price = normalizePrice(textPrice) || 0;
+    }
+
+    const originalPrice = normalizePrice(
+        html?.match(/"original_price"\s*:\s*(\d+(?:\.\d+)?)/)?.[1] ||
+        html?.match(/"mrp"\s*:\s*(\d+(?:\.\d+)?)/)?.[1] ||
+        root.querySelector('.Text__StyledText-sc-oo0kvp-0 strike')?.text || 
+        ''
+    );
+
+    const images = dedupeImages([
+        root.querySelector('img[src*="images.meesho.com"]')?.getAttribute('src'),
+        ...(html?.match(/"(https:\/\/images\.meesho\.com[^"]+)"/g) || []).map(s => s.replace(/"/g, '')),
+    ], 'meesho');
+
+    const category = normalizeText(
+        html?.match(/"category"\s*:\s*"([^"]+)"/)?.[1] ||
+        root.querySelectorAll('.breadcrumb-item').pop()?.text || ''
+    );
+
+    const description = normalizeText(
+        html?.match(/"description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') ||
+        root.querySelector('.product-description')?.text || ''
+    );
+
+    const rating = normalizePrice(html?.match(/"rating"\s*:\s*(\d+(?:\.\d+)?)/)?.[1]);
+
+    const reviews: ScrapedReview[] = [];
+    if (html) {
+        const reviewMatches = html.matchAll(/"reviewText"\s*:\s*"([^"]+)".*?"rating"\s*:\s*(\d+(?:\.\d+)?).*?"author"\s*:\s*"([^"]+)"/g);
+        for (const match of reviewMatches) {
+            const comment = normalizeText(match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"'));
+            if (comment.length > 5) {
+                reviews.push({
+                    rating: normalizePrice(match[2]) || 5,
+                    comment,
+                    author: normalizeText(match[3]) || "Meesho Customer"
+                });
+            }
+            if (reviews.length >= 5) break;
+        }
+        
+        // Alternative review parsing pattern for Meesho
+        if (reviews.length === 0) {
+            const altReviewMatches = html.matchAll(/"review"\s*:\s*"([^"]+)".*?"rating"\s*:\s*(\d+)/g);
+            for (const match of altReviewMatches) {
+                const comment = normalizeText(match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"'));
+                if (comment.length > 5) {
+                    reviews.push({
+                        rating: normalizePrice(match[2]) || 5,
+                        comment,
+                        author: "Meesho Customer"
+                    });
+                }
+                if (reviews.length >= 5) break;
+            }
+        }
+    }
+
+    if (reviews.length === 0) {
+        const reviewEls = root.querySelectorAll('.review-text, [class*="ReviewText"]');
+        for (const el of reviewEls.slice(0, 5)) {
+            const comment = normalizeText(el.text);
+            if (comment.length > 5) {
+                reviews.push({
+                    rating: 5,
+                    comment,
+                    author: "Meesho Customer"
+                });
+            }
+        }
+    }
+
+    return {
+        title,
+        price,
+        originalPrice,
+        image: images[0] || '',
+        images,
+        rating,
+        platform: 'meesho',
+        url,
+        category,
+        description,
+        reviews,
+    };
 }
 
 function parseOpenGraph(root: HTMLElement, platform: ScrapedProduct['platform']): { title?: string; image?: string; price?: number } {
@@ -878,8 +892,8 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
         'www.flipkart.com',
         'flipkart.com',
         'm.flipkart.com',
-        'www.myntra.com',
-        'myntra.com',
+        'www.meesho.com',
+        'meesho.com',
     ];
     if (!allowedHosts.includes(hostname)) {
         return null;
@@ -888,7 +902,7 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
     const platform: ScrapedProduct['platform'] =
         hostname.includes('amazon') ? 'amazon' :
         hostname.includes('flipkart') ? 'flipkart' :
-        hostname.includes('myntra') ? 'myntra' :
+        hostname.includes('meesho') ? 'meesho' :
         'unknown';
 
     url = normalizeProductUrl(new URL(url), platform);
@@ -918,8 +932,8 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
                 result = parseAmazon(root, url);
             } else if (platform === 'flipkart') {
                 result = parseFlipkart(root, url, desktop.html);
-            } else if (platform === 'myntra') {
-                result = parseMyntra(root, url, desktop.html);
+            } else if (platform === 'meesho') {
+                result = parseMeesho(root, url, desktop.html);
             }
 
             result = applyStructuredData(result, parseJsonLd(desktop.html, platform), platform, url);

@@ -96,7 +96,7 @@ export default async function ProductDetailPage({ params }: Params) {
             discount: true,
             amazonLink: true,
             flipkartLink: true,
-            myntraLink: true,
+            meeshoLink: true,
             categoryId: true,
             featured: true,
             availability: true,

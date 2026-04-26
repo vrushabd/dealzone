@@ -6,7 +6,7 @@ import Link from "next/link";
 interface Product {
     id: string; title: string; slug: string; image?: string | null; images: string[]; description?: string | null;
     price?: number | null; originalPrice?: number | null; discount?: number | null;
-    amazonLink?: string | null; flipkartLink?: string | null; myntraLink?: string | null;
+    amazonLink?: string | null; flipkartLink?: string | null; meeshoLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
     seller?: string | null; rating?: number | null;
     availability?: string | null;
@@ -116,7 +116,7 @@ export default function AdminProductsPage() {
                                         {p.category && <span className="text-xs text-[var(--text-muted)]">{p.category.name}</span>}
                                         {p.amazonLink && <span className="text-xs bg-yellow-500/15 text-yellow-600 px-1.5 py-0.5 rounded-full">Amazon</span>}
                                         {p.flipkartLink && <span className="text-xs bg-blue-500/15 text-blue-600 px-1.5 py-0.5 rounded-full">Flipkart</span>}
-                                        {p.myntraLink && <span className="text-xs bg-pink-500/15 text-pink-600 px-1.5 py-0.5 rounded-full">Myntra</span>}
+                                        {p.meeshoLink && <span className="text-xs bg-pink-500/15 text-pink-600 px-1.5 py-0.5 rounded-full">Meesho</span>}
                                         {(p.availability || "in_stock") === "out_of_stock" && (
                                             <span className="text-xs bg-red-500/15 text-red-500 px-1.5 py-0.5 rounded-full">Out of Stock</span>
                                         )}

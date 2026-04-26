@@ -20,7 +20,7 @@ interface OrderItem {
         originalUrl?: string | null;
         amazonLink?: string | null;
         flipkartLink?: string | null;
-        myntraLink?: string | null;
+        meeshoLink?: string | null;
     };
 }
 
@@ -137,7 +137,7 @@ export default function AdminOrdersPage() {
             { label: "Original", href: item.product?.originalUrl },
             { label: "Amazon", href: item.product?.amazonLink },
             { label: "Flipkart", href: item.product?.flipkartLink },
-            { label: "Myntra", href: item.product?.myntraLink },
+            { label: "Meesho", href: item.product?.meeshoLink },
         ].filter((link): link is { label: string; href: string } => Boolean(link.href));
 
         if (links.length > 0) return links;
@@ -145,7 +145,7 @@ export default function AdminOrdersPage() {
         return [
             { label: "Amazon Search", href: `https://www.amazon.in/s?k=${encodeURIComponent(item.productTitle)}` },
             { label: "Flipkart Search", href: `https://www.flipkart.com/search?q=${encodeURIComponent(item.productTitle)}` },
-            { label: "Myntra Search", href: `https://www.myntra.com/${encodeURIComponent(item.productTitle)}` },
+            { label: "Meesho Search", href: `https://www.meesho.com/search?q=${encodeURIComponent(item.productTitle)}` },
         ];
     };
 

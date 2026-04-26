@@ -27,7 +27,7 @@ model Product {
   cashbackPaytm    Float?                @default(0)
   cashbackPhonePe  Float?                @default(0)
   availability     String?
-  myntraLink       String?
+  meeshoLink       String?
   rating           Float?
   seller           String?
   affiliateUrl     String?

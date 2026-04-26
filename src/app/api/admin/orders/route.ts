@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
                                 originalUrl: true,
                                 amazonLink: true,
                                 flipkartLink: true,
-                                myntraLink: true,
+                                meeshoLink: true,
                             },
                         },
                     },

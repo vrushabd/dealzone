@@ -9,7 +9,7 @@ async function updatePrices() {
             OR: [
                 { amazonLink: { not: null } },
                 { flipkartLink: { not: null } },
-                { myntraLink: { not: null } },
+                { meeshoLink: { not: null } },
             ],
         },
         select: {
@@ -17,14 +17,14 @@ async function updatePrices() {
             title: true,
             amazonLink: true,
             flipkartLink: true,
-            myntraLink: true,
+            meeshoLink: true,
         },
     });
 
     console.log(`Updating ${products.length} products...`);
 
     for (const product of products) {
-        const url = product.amazonLink || product.flipkartLink || product.myntraLink;
+        const url = product.amazonLink || product.flipkartLink || product.meeshoLink;
         if (!url) continue;
 
         console.log(`Checking ${product.title}...`);

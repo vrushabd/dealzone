@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -24,6 +24,8 @@ const SHIPPING_FEE_COD = 40;
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isBuyNow = searchParams.get("buynow") === "1";
     const { items, cartTotal, clearCart, loading: cartLoading, refreshCart } = useCart();
 
     const [step, setStep] = useState<"address" | "payment" | "done">("address");
@@ -32,6 +34,7 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [orderId, setOrderId] = useState("");
+    const autoAdvancedRef = useRef(false);
 
     const [address, setAddress] = useState({
         name: session?.user?.name || "",
@@ -70,6 +73,12 @@ export default function CheckoutPage() {
                     state: data.user.state || "",
                     pincode: data.user.pincode || "",
                 }));
+
+                // Auto-advance to payment step for Buy Now flow
+                if (isBuyNow && !autoAdvancedRef.current && data.user.phone && data.user.address && data.user.city && data.user.pincode) {
+                    autoAdvancedRef.current = true;
+                    setStep("payment");
+                }
             } catch {
                 // Non-blocking: checkout still works without prefill.
             }
@@ -78,7 +87,7 @@ export default function CheckoutPage() {
         return () => {
             active = false;
         };
-    }, [status]);
+    }, [status, isBuyNow]);
 
     // Redirect unauthenticated users to login
     useEffect(() => {

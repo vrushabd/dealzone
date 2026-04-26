@@ -37,7 +37,7 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
             }
 
             window.dispatchEvent(new CustomEvent("cart-updated"));
-            router.push("/checkout");
+            router.push("/checkout?buynow=1");
         } catch (error: unknown) {
             setBuyError(error instanceof Error ? error.message : "Buy now failed");
         } finally {

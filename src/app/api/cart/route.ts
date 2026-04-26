@@ -44,6 +44,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Please login to add items to cart" }, { status: 401 });
     }
 
+    if (token?.role === "admin") {
+        return NextResponse.json({ error: "Admins cannot add items to cart. Please login as a regular user." }, { status: 403 });
+    }
+
     const { productId, quantity = 1, mode = "set" } = await req.json();
     if (!productId) {
         return NextResponse.json({ error: "productId is required" }, { status: 400 });
@@ -74,16 +78,20 @@ export async function POST(req: NextRequest) {
         ? (existing?.quantity || 0) + quantity
         : quantity;
 
-    const item = await prisma.cartItem.upsert({
-        where: { userId_productId: { userId, productId } },
-        update: { quantity: nextQuantity },
-        create: { userId, productId, quantity: nextQuantity },
-        include: {
-            product: { select: { title: true, price: true, image: true } },
-        },
-    });
-
-    return NextResponse.json({ item });
+    try {
+        const item = await prisma.cartItem.upsert({
+            where: { userId_productId: { userId, productId } },
+            update: { quantity: nextQuantity },
+            create: { userId, productId, quantity: nextQuantity },
+            include: {
+                product: { select: { title: true, price: true, image: true } },
+            },
+        });
+        return NextResponse.json({ item });
+    } catch (error: any) {
+        console.error("Cart API Error:", error);
+        return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    }
 }
 
 // DELETE /api/cart — remove item (body: { productId }) or clear all (body: { clear: true })

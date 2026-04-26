@@ -141,7 +141,7 @@ export default async function ProductDetailPage({ params }: Params) {
         for (let i = 0; i < id.length; i++) {
             hash = id.charCodeAt(i) + ((hash << 5) - hash);
         }
-        return (Math.abs(hash) % 401) + 100;
+        return (Math.abs(hash) % 221) + 80;
     };
     const totalBought = getBaseCount(product.id) + (product._count?.orderItems || 0);
 

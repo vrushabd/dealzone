@@ -9,7 +9,7 @@ type OrderEmailItem = {
 };
 
 type OrderEmailInput = {
-    kind: "placed" | "paid";
+    kind: "placed" | "paid" | "shipped" | "delivered";
     userEmail: string;
     shippingName: string;
     orderId: string;
@@ -57,12 +57,19 @@ export async function sendOrderEmail(input: OrderEmailInput) {
     const orderUrl = `${baseUrl}/orders/${encodeURIComponent(input.orderId)}`;
     const orderShortId = input.orderId.slice(-8).toUpperCase();
     const paymentLabel = input.paymentMethod === "COD" ? "Cash on Delivery" : "Online Payment";
-    const heading = input.kind === "paid" ? "Payment received. Your order is confirmed." : "Your order has been placed.";
+    const heading = input.kind === "paid" ? "Payment received. Your order is confirmed." 
+                  : input.kind === "shipped" ? "Your order has been shipped!"
+                  : input.kind === "delivered" ? "Your order has been delivered."
+                  : "Your order has been placed.";
     const intro = input.kind === "paid"
-        ? "We have received your payment and started processing your order."
-        : input.paymentMethod === "COD"
-            ? "Your cash on delivery order is confirmed. We will start processing it shortly."
-            : "Your order is saved and awaiting payment confirmation.";
+        ? "We have received your payment and started processing your order. Estimated delivery is 5-7 days."
+        : input.kind === "shipped"
+            ? "Great news! Your order has been shipped and is on its way to you. Delivery takes 5-7 days."
+            : input.kind === "delivered"
+                ? "Your order has been successfully delivered. Thank you for shopping with us!"
+                : input.paymentMethod === "COD"
+                    ? "Your cash on delivery order is confirmed. We will start processing it shortly. Estimated delivery is 5-7 days."
+                    : "Your order is saved and awaiting payment confirmation.";
 
     const itemsHtml = input.items.map((item) => {
         const title = escapeHtml(item.productTitle);
@@ -95,7 +102,11 @@ export async function sendOrderEmail(input: OrderEmailInput) {
 
     const subject = input.kind === "paid"
         ? `Payment confirmed for order #${orderShortId} - ${siteName}`
-        : `Order #${orderShortId} placed successfully - ${siteName}`;
+        : input.kind === "shipped"
+            ? `Order #${orderShortId} shipped - ${siteName}`
+            : input.kind === "delivered"
+                ? `Order #${orderShortId} delivered - ${siteName}`
+                : `Order #${orderShortId} placed successfully - ${siteName}`;
 
     const plainText = [
         `${siteName}`,
@@ -227,4 +238,12 @@ export async function sendOrderPlacedEmail(input: Omit<OrderEmailInput, "kind">)
 
 export async function sendPaymentConfirmedEmail(input: Omit<OrderEmailInput, "kind">) {
     return sendOrderEmail({ ...input, kind: "paid" });
+}
+
+export async function sendOrderShippedEmail(input: Omit<OrderEmailInput, "kind">) {
+    return sendOrderEmail({ ...input, kind: "shipped" });
+}
+
+export async function sendOrderDeliveredEmail(input: Omit<OrderEmailInput, "kind">) {
+    return sendOrderEmail({ ...input, kind: "delivered" });
 }

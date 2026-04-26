@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendOrderShippedEmail, sendOrderDeliveredEmail } from "@/lib/features/email/orders";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -63,6 +64,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     const { status, adminNote, paymentStatus } = await req.json();
 
+    const existingOrder = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+
     const updated = await prisma.order.update({
         where: { id },
         data: {
@@ -71,6 +74,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
             ...(paymentStatus && { paymentStatus }),
         },
         include: {
+            user: { select: { email: true } },
             items: {
                 include: {
                     product: {
@@ -86,6 +90,42 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
             },
         },
     });
+
+    if (existingOrder && status && existingOrder.status !== status) {
+        if (status === "shipped" && updated.user?.email) {
+            await sendOrderShippedEmail({
+                userEmail: updated.user.email,
+                shippingName: updated.shippingName,
+                orderId: updated.id,
+                paymentMethod: updated.paymentMethod,
+                items: updated.items.map((item) => ({
+                    productTitle: item.productTitle,
+                    productImage: item.productImage,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+                subtotal: updated.subtotal,
+                shippingFee: updated.shippingFee,
+                total: updated.total,
+            });
+        } else if (status === "delivered" && updated.user?.email) {
+            await sendOrderDeliveredEmail({
+                userEmail: updated.user.email,
+                shippingName: updated.shippingName,
+                orderId: updated.id,
+                paymentMethod: updated.paymentMethod,
+                items: updated.items.map((item) => ({
+                    productTitle: item.productTitle,
+                    productImage: item.productImage,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+                subtotal: updated.subtotal,
+                shippingFee: updated.shippingFee,
+                total: updated.total,
+            });
+        }
+    }
 
     return NextResponse.json({ order: updated });
 }

@@ -17,8 +17,7 @@ export default function AdminSettingsPage() {
 
     // API Keys
     const [geminiApiKey, setGeminiApiKey] = useState("");
-    const [amazonAffiliateTag, setAmazonAffiliateTag] = useState("");
-    const [flipkartAffiliateId, setFlipkartAffiliateId] = useState("");
+
     const [resendApiKey, setResendApiKey] = useState("");
 
     useEffect(() => {
@@ -32,8 +31,7 @@ export default function AdminSettingsPage() {
                 setLogoUrl(data.logoUrl || "");
                 setFaviconUrl(data.faviconUrl || "");
                 setGeminiApiKey(data.geminiApiKey || "");
-                setAmazonAffiliateTag(data.amazonAffiliateTag || "");
-                setFlipkartAffiliateId(data.flipkartAffiliateId || "");
+
                 setResendApiKey(data.resendApiKey || "");
             } catch (err) {
                 console.error(err);
@@ -64,8 +62,7 @@ export default function AdminSettingsPage() {
                     logoUrl: logoUrl.trim(),
                     faviconUrl: faviconUrl.trim(),
                     geminiApiKey: geminiApiKey.trim(),
-                    amazonAffiliateTag: amazonAffiliateTag.trim(),
-                    flipkartAffiliateId: flipkartAffiliateId.trim(),
+
                     resendApiKey: resendApiKey.trim(),
                 }),
             });
@@ -238,34 +235,7 @@ export default function AdminSettingsPage() {
                         </p>
                     </div>
 
-                    <hr className="border-[var(--border)]" />
 
-                    {/* Affiliate Links */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-[var(--text-primary)]">Affiliate Configurations</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Amazon Affiliate Tag</label>
-                                <input
-                                    type="text"
-                                    placeholder="yourtag-21"
-                                    value={amazonAffiliateTag}
-                                    onChange={(e) => setAmazonAffiliateTag(e.target.value)}
-                                    className="input-base w-full text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Flipkart Affiliate ID</label>
-                                <input
-                                    type="text"
-                                    placeholder="yourfkrtid"
-                                    value={flipkartAffiliateId}
-                                    onChange={(e) => setFlipkartAffiliateId(e.target.value)}
-                                    className="input-base w-full text-sm"
-                                />
-                            </div>
-                        </div>
-                    </div>
 
                     <hr className="border-[var(--border)]" />
 

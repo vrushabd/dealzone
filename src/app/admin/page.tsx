@@ -40,7 +40,7 @@ type TrendingProduct = {
     image: string | null;
     price: number | null;
     category: { name: string } | null;
-    _count: { affiliateClicks: number };
+    _count: { orderItems: number };
 };
 
 export default async function AdminDashboard() {
@@ -61,7 +61,7 @@ export default async function AdminDashboard() {
         const stats_counts = await Promise.all([
             prisma.product.count(),
             prisma.product.count({ where: { featured: true } }),
-            prisma.affiliateClick.count(),
+            prisma.order.count(),
         ]);
         [productCount, featuredCount, totalClicks] = stats_counts;
     } catch (e) {
@@ -94,16 +94,16 @@ export default async function AdminDashboard() {
                 select: productListSelect,
             }),
             prisma.product.findMany({
-                where: { isPublic: true, affiliateClicks: { some: {} } },
+                where: { isPublic: true, orderItems: { some: {} } },
                 take: 5,
-                orderBy: { affiliateClicks: { _count: 'desc' } },
+                orderBy: { orderItems: { _count: 'desc' } },
                 select: {
                     id: true,
                     title: true,
                     slug: true,
                     image: true,
                     price: true,
-                    _count: { select: { affiliateClicks: true } },
+                    _count: { select: { orderItems: true } },
                     category: { select: { name: true } },
                 }
             })
@@ -115,7 +115,7 @@ export default async function AdminDashboard() {
 
     const stats = [
         { label: "Total Products", value: productCount, icon: ShoppingBag, href: "/admin/products", color: "orange" },
-        { label: "Affiliate Clicks", value: totalClicks, icon: TrendingUp, href: "#", color: "blue" },
+        { label: "Total Orders", value: totalClicks, icon: TrendingUp, href: "/admin/orders", color: "blue" },
         { label: "Featured Deals", value: featuredCount, icon: Star, href: "/admin/products", color: "yellow" },
         { label: "Online Now", value: onlineUsers, icon: Activity, href: "#", color: "green" },
     ];
@@ -250,18 +250,18 @@ export default async function AdminDashboard() {
                              <TrendingUp size={16} className="text-[var(--brand)]" />
                              <h2 className="font-bold text-[var(--text-primary)]">Trending Now</h2>
                         </div>
-                        <span className="text-[10px] font-bold text-[var(--brand)] uppercase tracking-widest">Most Clicked</span>
+                        <span className="text-[10px] font-bold text-[var(--brand)] uppercase tracking-widest">Most Ordered</span>
                     </div>
 
                     {trendingProducts.length === 0 ? (
                         <div className="py-12 text-center text-[var(--text-muted)] text-sm italic">
-                            No affiliate clicks recorded yet correctly.
+                            No orders recorded yet.
                         </div>
                     ) : (
                         <div className="divide-y divide-[var(--border)]">
                             {trendingProducts.map((p, idx) => {
-                                const maxClicks = trendingProducts[0]?._count.affiliateClicks || 1;
-                                const barPct = Math.round((p._count.affiliateClicks / maxClicks) * 100);
+                                const maxOrders = trendingProducts[0]?._count.orderItems || 1;
+                                const barPct = Math.round((p._count.orderItems / maxOrders) * 100);
                                 return (
                                 <div key={p.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-[var(--bg-base)]/50 transition-colors relative group">
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--brand)] scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
@@ -281,7 +281,7 @@ export default async function AdminDashboard() {
                                             {p.category?.name && <span>{p.category.name}</span>}
                                             {p.category?.name && <span>•</span>}
                                             <span className="inline-flex items-center gap-1 text-[var(--brand)] font-bold">
-                                                 <Activity size={10} /> {p._count.affiliateClicks} CLICKS
+                                                 <Activity size={10} /> {p._count.orderItems} ORDERS
                                             </span>
                                         </div>
                                     </div>

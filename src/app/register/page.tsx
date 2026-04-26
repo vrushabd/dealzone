@@ -97,7 +97,7 @@ export default function RegisterPage() {
                                         <div className="relative">
                                             <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                             <input id="reg-name" type="text" value={form.name} onChange={e => update("name", e.target.value)}
-                                                className="input-base pl-9" placeholder="Your full name" required autoComplete="name" />
+                                                className="input-base !pl-9" placeholder="Your full name" required autoComplete="name" />
                                         </div>
                                     </div>
 
@@ -106,7 +106,7 @@ export default function RegisterPage() {
                                         <div className="relative">
                                             <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                             <input id="reg-email" type="email" value={form.email} onChange={e => update("email", e.target.value)}
-                                                className="input-base pl-9" placeholder="you@example.com" required autoComplete="email" />
+                                                className="input-base !pl-9" placeholder="you@example.com" required autoComplete="email" />
                                         </div>
                                     </div>
 
@@ -115,7 +115,7 @@ export default function RegisterPage() {
                                         <div className="relative">
                                             <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                             <input id="reg-phone" type="tel" value={form.phone} onChange={e => update("phone", e.target.value)}
-                                                className="input-base pl-9" placeholder="+91 98765 43210" autoComplete="tel" />
+                                                className="input-base !pl-9" placeholder="+91 98765 43210" autoComplete="tel" />
                                         </div>
                                     </div>
 
@@ -137,7 +137,7 @@ export default function RegisterPage() {
                                         <div className="relative">
                                             <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                             <input id="reg-confirm-password" type={showPassword ? "text" : "password"} value={form.confirmPassword} onChange={e => update("confirmPassword", e.target.value)}
-                                                className="input-base pl-9" placeholder="Repeat password" required autoComplete="new-password" />
+                                                className="input-base !pl-9" placeholder="Repeat password" required autoComplete="new-password" />
                                         </div>
                                     </div>
                                 </div>

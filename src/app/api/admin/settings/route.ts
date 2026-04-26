@@ -13,8 +13,6 @@ export async function GET() {
             logoUrl: settings?.logoUrl || "",
             faviconUrl: settings?.faviconUrl || "",
             geminiApiKey: settings?.geminiApiKey || "",
-            amazonAffiliateTag: settings?.amazonAffiliateTag || "",
-            flipkartAffiliateId: settings?.flipkartAffiliateId || "",
             resendApiKey: settings?.resendApiKey || "",
         });
     } catch (error) {
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { defaultTheme, siteName, siteTagline, logoUrl, faviconUrl, geminiApiKey, amazonAffiliateTag, flipkartAffiliateId, resendApiKey } = await req.json();
+        const { defaultTheme, siteName, siteTagline, logoUrl, faviconUrl, geminiApiKey, resendApiKey } = await req.json();
 
         const updateData: { 
             defaultTheme?: string;
@@ -39,8 +37,6 @@ export async function POST(req: NextRequest) {
             logoUrl?: string | null;
             faviconUrl?: string | null;
             geminiApiKey?: string;
-            amazonAffiliateTag?: string;
-            flipkartAffiliateId?: string;
             resendApiKey?: string;
         } = {};
 
@@ -56,8 +52,6 @@ export async function POST(req: NextRequest) {
         if (logoUrl !== undefined) updateData.logoUrl = logoUrl.trim() || null;
         if (faviconUrl !== undefined) updateData.faviconUrl = faviconUrl.trim() || null;
         if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey;
-        if (amazonAffiliateTag !== undefined) updateData.amazonAffiliateTag = amazonAffiliateTag;
-        if (flipkartAffiliateId !== undefined) updateData.flipkartAffiliateId = flipkartAffiliateId;
         if (resendApiKey !== undefined) updateData.resendApiKey = resendApiKey;
 
         const settings = await prisma.siteSettings.upsert({
@@ -71,8 +65,6 @@ export async function POST(req: NextRequest) {
                 logoUrl: updateData.logoUrl || null,
                 faviconUrl: updateData.faviconUrl || null,
                 geminiApiKey: updateData.geminiApiKey || null,
-                amazonAffiliateTag: updateData.amazonAffiliateTag || null,
-                flipkartAffiliateId: updateData.flipkartAffiliateId || null,
                 resendApiKey: updateData.resendApiKey || null,
             },
         });

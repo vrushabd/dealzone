@@ -295,7 +295,7 @@ export default function CheckoutPage() {
                                             <div className="relative">
                                                 <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                                 <input type="text" value={address.name} onChange={e => setAddress(a => ({ ...a, name: e.target.value }))}
-                                                    className="input-base pl-9" placeholder="Full name" required />
+                                                    className="input-base !pl-9" placeholder="Full name" required />
                                             </div>
                                         </div>
                                         <div>
@@ -303,7 +303,7 @@ export default function CheckoutPage() {
                                             <div className="relative">
                                                 <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                                                 <input type="tel" value={address.phone} onChange={e => setAddress(a => ({ ...a, phone: e.target.value }))}
-                                                    className="input-base pl-9" placeholder="10-digit mobile" required />
+                                                    className="input-base !pl-9" placeholder="10-digit mobile" required />
                                             </div>
                                         </div>
                                         <div className="sm:col-span-2">

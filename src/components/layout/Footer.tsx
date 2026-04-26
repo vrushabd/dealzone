@@ -76,29 +76,7 @@ export default function Footer() {
                             </ul>
                         </div>
 
-                        {/* Affiliates */}
-                        <div>
-                            <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Catalog Sources</h3>
-                            <ul className="space-y-3">
-                                {[
-                                    { href: "https://www.amazon.in",   label: "Amazon India",  color: "text-yellow-400" },
-                                    { href: "https://www.flipkart.com", label: "Flipkart",      color: "text-blue-400" },
-                                    { href: "https://www.myntra.com",   label: "Myntra",        color: "text-pink-400" },
-                                ].map((a) => (
-                                    <li key={a.href}>
-                                        <a
-                                            href={a.href}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`flex items-center gap-2 text-sm transition-all duration-200 group ${a.color} opacity-70 hover:opacity-100`}
-                                        >
-                                            <span>{a.label}</span>
-                                            <ExternalLink size={11} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+
                     </div>
 
                     <div className="mt-10 rounded-md border border-[var(--border)] bg-[var(--bg-card)]/70 px-4 py-4 text-sm leading-6 text-[var(--text-secondary)]">

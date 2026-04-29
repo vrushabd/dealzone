@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Logo from "@/components/ui/Logo";
 import { useCart } from "@/components/cart/CartContext";
 import { useSession, signOut } from "next-auth/react";
+import ComplaintButton from "@/components/layout/ComplaintButton";
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -97,6 +98,7 @@ export default function Navbar() {
                                 </Link>
                             );
                         })}
+                        <ComplaintButton />
                     </div>
 
                     {/* Search */}
@@ -244,6 +246,9 @@ export default function Navbar() {
                                 </Link>
                             );
                         })}
+                        <div className="px-1">
+                            <ComplaintButton />
+                        </div>
                         {/* Mobile auth links */}
                         <div className="pt-2 border-t border-[var(--border)] mt-2">
                             {status === "authenticated" ? (

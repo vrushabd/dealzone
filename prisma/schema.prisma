@@ -33,6 +33,7 @@ model Product {
   affiliateUrl     String?
   originalUrl      String?
   isPublic         Boolean               @default(true)
+  boughtCount      Int?
   bankOffers       String[]              @default([])
   deliveryInfo     String?
   affiliateClicks  AffiliateClick[]
@@ -81,6 +82,17 @@ model Admin {
   id       String @id @default(cuid())
   email    String @unique
   password String
+}
+
+model Complaint {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("open") // open | in_review | resolved
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Coupon {

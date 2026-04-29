@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { SignJWT } from "jose";
-
-const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "fallback-secret");
+import { encode } from "next-auth/jwt";
 
 export async function POST(req: NextRequest) {
     try {
@@ -23,20 +21,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
-        // Build a NextAuth-compatible JWT (HS256)
-        const now = Math.floor(Date.now() / 1000);
-        const exp = now + 30 * 24 * 60 * 60; // 30 days
+        // Use NextAuth's own encode() so getServerSession() can decode it correctly
+        const secret = process.env.NEXTAUTH_SECRET!;
+        const maxAge = 30 * 24 * 60 * 60; // 30 days in seconds
 
-        const token = await new SignJWT({
-            id: admin.id,
-            email: admin.email,
-            role: "admin",
-            sub: admin.id,
-        })
-            .setProtectedHeader({ alg: "HS256" })
-            .setIssuedAt(now)
-            .setExpirationTime(exp)
-            .sign(SECRET);
+        const token = await encode({
+            token: {
+                sub: admin.id,
+                id: admin.id,
+                email: admin.email,
+                role: "admin",
+            },
+            secret,
+            maxAge,
+        });
 
         const isProduction = process.env.NODE_ENV === "production";
         const cookieName = isProduction
@@ -50,7 +48,7 @@ export async function POST(req: NextRequest) {
             httpOnly: true,
             secure: isProduction,
             sameSite: "lax",
-            maxAge: 30 * 24 * 60 * 60,
+            maxAge,
             path: "/",
         });
 

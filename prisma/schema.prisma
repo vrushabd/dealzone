@@ -157,7 +157,7 @@ model AffiliateClick {
 model SiteSettings {
   id                 String   @id @default("default")
   defaultTheme       String   @default("dark")
-  siteName           String   @default("GenzLoots")
+  siteName           String   @default("ZenCult")
   siteTagline        String   @default("Best Amazon, Flipkart & Myntra Deals")
   logoUrl            String?
   faviconUrl         String?
@@ -166,6 +166,16 @@ model SiteSettings {
   scrapingBeeApiKey  String?
   razorpayKeyId      String?
   razorpayKeySecret  String?
+  contactEmail       String?
+  whatsappNumber     String?
+  instagramUrl       String?
+  facebookUrl        String?
+  twitterUrl         String?
+  youtubeUrl         String?
+  announcementText   String?
+  announcementLink   String?
+  shippingFee        Float?   @default(0)
+  freeShippingThreshold Float? @default(500)
   updatedAt          DateTime @updatedAt
 }
 

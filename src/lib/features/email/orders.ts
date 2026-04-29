@@ -40,7 +40,7 @@ function appUrl() {
 async function getMailConfig() {
     const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
     const apiKey = settings?.resendApiKey || process.env.RESEND_API_KEY;
-    const siteName = settings?.siteName || "GenzLoots";
+    const siteName = settings?.siteName || "ZenCult";
     const senderEmail = process.env.RESEND_SENDER_EMAIL || "onboarding@resend.dev";
     return { apiKey, siteName, senderEmail };
 }

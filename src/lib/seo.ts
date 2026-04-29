@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "GenzLoots";
+export const SITE_NAME = "ZenCult";
 export const SITE_HANDLE = "@genzloots";
 export const DEFAULT_SITE_URL = "https://genzloots.com";
 export const DEFAULT_OG_IMAGE = "/og-default.png";

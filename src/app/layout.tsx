@@ -22,7 +22,7 @@ const getSettings = cache(async () => {
 // ── Dynamic metadata (title/favicon from DB) ──────────────────────────────────
 export async function generateMetadata(): Promise<Metadata> {
     const settings = await getSettings();
-    const siteName = settings?.siteName || "GenzLoots";
+    const siteName = settings?.siteName || "ZenCult";
     const siteTagline = settings?.siteTagline || "Best Amazon, Flipkart & Myntra Deals";
     const faviconUrl = settings?.faviconUrl || null;
     const favicon = faviconUrl || "/favicon.svg";

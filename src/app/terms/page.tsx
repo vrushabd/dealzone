@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
     title: "Terms of Use",
-    description: "Read the GenzLoots terms covering website use, purchases, account responsibilities, and store policies.",
+    description: "Read the ZenCult terms covering website use, purchases, account responsibilities, and store policies.",
     path: "/terms",
 });
 
@@ -13,7 +13,7 @@ export default function TermsPage() {
         <InfoPage
             eyebrow="Terms"
             title="Use the site responsibly and understand our policies."
-            intro="By accessing and using GenzLoots, you agree to comply with these terms of use. These terms govern your use of our website and any purchases made through our store."
+            intro="By accessing and using ZenCult, you agree to comply with these terms of use. These terms govern your use of our website and any purchases made through our store."
             sections={[
                 {
                     title: "Using the Website",
@@ -33,7 +33,7 @@ export default function TermsPage() {
                 {
                     title: "Content Ownership",
                     body: [
-                        "The branding, layout, original imagery, and editorial content on GenzLoots remain the property of the site owner unless otherwise stated.",
+                        "The branding, layout, original imagery, and editorial content on ZenCult remain the property of the site owner unless otherwise stated.",
                         "You may not reproduce, distribute, or use our content for commercial purposes without explicit written permission.",
                     ],
                 },

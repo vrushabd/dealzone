@@ -9,7 +9,7 @@ const SUPPORT_EMAIL = "zencultstore@gmail.com";
 
 export const metadata: Metadata = buildMetadata({
     title: "Contact Us",
-    description: "Contact GenzLoots for support, order inquiries, shipping questions, and partnership enquiries.",
+    description: "Contact ZenCult for support, order inquiries, shipping questions, and partnership enquiries.",
     path: "/contact",
 });
 
@@ -26,14 +26,14 @@ export default function ContactPage() {
             title: "Order & Shipping",
             description: "Need help with an existing order, tracking, or delivery issues?",
             value: "Check order status",
-            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("GenzLoots Order Support")}`,
+            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("ZenCult Order Support")}`,
             icon: Package,
         },
         {
             title: "Business & Partnerships",
             description: "For wholesale inquiries, brand collaborations, or media requests.",
             value: "Partnership enquiries",
-            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("GenzLoots Partnership Enquiry")}`,
+            href: `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("ZenCult Partnership Enquiry")}`,
             icon: ShieldCheck,
         },
     ];
@@ -50,7 +50,7 @@ export default function ContactPage() {
                         We are happy to hear from you.
                     </h1>
                     <p className="mt-4 text-base leading-7 text-[var(--text-secondary)]">
-                        Reach out for support, order questions, or anything else related to GenzLoots.
+                        Reach out for support, order questions, or anything else related to ZenCult.
                         The fastest way to get a response right now is email.
                     </p>
                 </div>

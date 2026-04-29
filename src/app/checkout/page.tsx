@@ -173,7 +173,7 @@ export default function CheckoutPage() {
                 key: payData.keyId,
                 amount: payData.amount,
                 currency: payData.currency,
-                name: "GenzLoots",
+                name: "ZenCult",
                 description: `Order ${newOrderId}`,
                 order_id: payData.razorpayOrderId,
                 prefill: {

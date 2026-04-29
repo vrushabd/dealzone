@@ -31,7 +31,7 @@ function appUrl() {
 export async function sendPriceDropEmail(data: PriceDropData) {
     const settings = await prisma.siteSettings.findFirst({ where: { id: "default" } });
     const apiKey = settings?.resendApiKey || process.env.RESEND_API_KEY;
-    const siteName = settings?.siteName || "GenzLoots";
+    const siteName = settings?.siteName || "ZenCult";
 
     if (!apiKey) {
         console.warn("Emails not configured. Missing RESEND_API_KEY.");

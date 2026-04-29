@@ -5,7 +5,7 @@ import Logo from "@/components/ui/Logo";
 import { useEffect, useState } from "react";
 
 export default function Footer() {
-    const [siteName, setSiteName] = useState("GenzLoots");
+    const [siteName, setSiteName] = useState("ZenCult");
 
     useEffect(() => {
         fetch("/api/settings/public")

@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
         title: `${product.title} Best Price${product.price ? ` ₹${product.price.toLocaleString("en-IN")}` : ""}`,
         description: truncateDescription(
             product.description ||
-            `Compare ${product.title} price, offers, price history, buyer rating, and availability on GenzLoots.${savingsText}`
+            `Compare ${product.title} price, offers, price history, buyer rating, and availability on ZenCult.${savingsText}`
         ),
         path: `/products/${product.slug}`,
         image: product.image,

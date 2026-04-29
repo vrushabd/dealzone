@@ -46,11 +46,11 @@ export default async function BlogPostPage({ params }: Params) {
         dateModified: post.updatedAt.toISOString(),
         author: {
             "@type": "Organization",
-            name: "GenzLoots",
+            name: "ZenCult",
         },
         publisher: {
             "@type": "Organization",
-            name: "GenzLoots",
+            name: "ZenCult",
             logo: {
                 "@type": "ImageObject",
                 url: absoluteUrl("/favicon.svg"),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Key, Save, AlertCircle, CheckCircle, Globe, Image as ImageIcon, CreditCard, Bug } from "lucide-react";
+import { Loader2, Key, Save, AlertCircle, CheckCircle, Globe, Image as ImageIcon, CreditCard, Bug, Mail, Phone, Share2, Megaphone, Truck } from "lucide-react";
 
 export default function AdminSettingsPage() {
     const [loading, setLoading] = useState(true);
@@ -22,13 +22,29 @@ export default function AdminSettingsPage() {
     const [razorpayKeyId, setRazorpayKeyId] = useState("");
     const [razorpayKeySecret, setRazorpayKeySecret] = useState("");
 
+    // Contact & Social
+    const [contactEmail, setContactEmail] = useState("");
+    const [whatsappNumber, setWhatsappNumber] = useState("");
+    const [instagramUrl, setInstagramUrl] = useState("");
+    const [facebookUrl, setFacebookUrl] = useState("");
+    const [twitterUrl, setTwitterUrl] = useState("");
+    const [youtubeUrl, setYoutubeUrl] = useState("");
+
+    // Announcement Banner
+    const [announcementText, setAnnouncementText] = useState("");
+    const [announcementLink, setAnnouncementLink] = useState("");
+
+    // Shipping
+    const [shippingFee, setShippingFee] = useState(0);
+    const [freeShippingThreshold, setFreeShippingThreshold] = useState(500);
+
     useEffect(() => {
         async function fetchSettings() {
             try {
                 const res = await fetch("/api/admin/settings");
                 if (!res.ok) throw new Error("Failed to load settings");
                 const data = await res.json();
-                setSiteName(data.siteName || "GenzLoots");
+                setSiteName(data.siteName || "ZenCult");
                 setSiteTagline(data.siteTagline || "");
                 setLogoUrl(data.logoUrl || "");
                 setFaviconUrl(data.faviconUrl || "");
@@ -37,6 +53,16 @@ export default function AdminSettingsPage() {
                 setScrapingBeeApiKey(data.scrapingBeeApiKey || "");
                 setRazorpayKeyId(data.razorpayKeyId || "");
                 setRazorpayKeySecret(data.razorpayKeySecret || "");
+                setContactEmail(data.contactEmail || "");
+                setWhatsappNumber(data.whatsappNumber || "");
+                setInstagramUrl(data.instagramUrl || "");
+                setFacebookUrl(data.facebookUrl || "");
+                setTwitterUrl(data.twitterUrl || "");
+                setYoutubeUrl(data.youtubeUrl || "");
+                setAnnouncementText(data.announcementText || "");
+                setAnnouncementLink(data.announcementLink || "");
+                setShippingFee(data.shippingFee ?? 0);
+                setFreeShippingThreshold(data.freeShippingThreshold ?? 500);
             } catch (err) {
                 console.error(err);
                 setError("Could not load current settings.");
@@ -67,6 +93,16 @@ export default function AdminSettingsPage() {
                     scrapingBeeApiKey: scrapingBeeApiKey.trim(),
                     razorpayKeyId: razorpayKeyId.trim(),
                     razorpayKeySecret: razorpayKeySecret.trim(),
+                    contactEmail: contactEmail.trim(),
+                    whatsappNumber: whatsappNumber.trim(),
+                    instagramUrl: instagramUrl.trim(),
+                    facebookUrl: facebookUrl.trim(),
+                    twitterUrl: twitterUrl.trim(),
+                    youtubeUrl: youtubeUrl.trim(),
+                    announcementText: announcementText.trim(),
+                    announcementLink: announcementLink.trim(),
+                    shippingFee: Number(shippingFee),
+                    freeShippingThreshold: Number(freeShippingThreshold),
                 }),
             });
 
@@ -131,7 +167,7 @@ export default function AdminSettingsPage() {
                 <div className="p-6 space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Site Name <span className="text-red-400">*</span></label>
-                        <input type="text" placeholder="GenzLoots" value={siteName} onChange={e => setSiteName(e.target.value)} className="input-base w-full max-w-sm" />
+                        <input type="text" placeholder="ZenCult" value={siteName} onChange={e => setSiteName(e.target.value)} className="input-base w-full max-w-sm" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Tagline</label>
@@ -191,6 +227,71 @@ export default function AdminSettingsPage() {
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Razorpay Key Secret</label>
                         <input type="password" placeholder="••••••••••••••••••••••••" value={razorpayKeySecret} onChange={e => setRazorpayKeySecret(e.target.value)} className="input-base w-full max-w-lg font-mono text-sm" />
                         <p className="text-xs text-[var(--text-muted)] mt-1.5">Get from <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline">Razorpay Dashboard → API Keys</a>.</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Contact & Social ── */}
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm">
+                {sectionHeader(<Share2 size={18} className="text-[hsl(214_89%_52%)]" />, "Contact & Social Links", "Display support channels and social media profiles in the footer.")}
+                <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5 flex items-center gap-1.5"><Mail size={14} className="text-[var(--text-muted)]" /> Support Email</label>
+                            <input type="email" placeholder="support@zencult.com" value={contactEmail} onChange={e => setContactEmail(e.target.value)} className="input-base w-full text-sm" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5 flex items-center gap-1.5"><Phone size={14} className="text-[var(--text-muted)]" /> WhatsApp Number</label>
+                            <input type="text" placeholder="+91 9876543210" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)} className="input-base w-full text-sm" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Instagram URL</label>
+                            <input type="url" placeholder="https://instagram.com/zencult" value={instagramUrl} onChange={e => setInstagramUrl(e.target.value)} className="input-base w-full text-sm" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Facebook URL</label>
+                            <input type="url" placeholder="https://facebook.com/zencult" value={facebookUrl} onChange={e => setFacebookUrl(e.target.value)} className="input-base w-full text-sm" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Twitter/X URL</label>
+                            <input type="url" placeholder="https://x.com/zencult" value={twitterUrl} onChange={e => setTwitterUrl(e.target.value)} className="input-base w-full text-sm" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">YouTube URL</label>
+                            <input type="url" placeholder="https://youtube.com/@zencult" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} className="input-base w-full text-sm" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Shipping & Fees ── */}
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm">
+                {sectionHeader(<Truck size={18} className="text-[hsl(214_89%_52%)]" />, "Shipping Rules", "Configure delivery fees and free shipping thresholds for checkout.")}
+                <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Standard Shipping Fee (₹)</label>
+                            <input type="number" min="0" value={shippingFee} onChange={e => setShippingFee(Number(e.target.value))} className="input-base w-full text-sm max-w-[200px]" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Free Shipping Threshold (₹)</label>
+                            <input type="number" min="0" value={freeShippingThreshold} onChange={e => setFreeShippingThreshold(Number(e.target.value))} className="input-base w-full text-sm max-w-[200px]" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Announcement Banner ── */}
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm">
+                {sectionHeader(<Megaphone size={18} className="text-[hsl(214_89%_52%)]" />, "Announcement Banner", "Top bar banner to show site-wide messages or sales.")}
+                <div className="p-6 space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Banner Text</label>
+                        <input type="text" placeholder="🎉 Festive Sale: Get 50% OFF everything!" value={announcementText} onChange={e => setAnnouncementText(e.target.value)} className="input-base w-full max-w-lg" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Banner Link (Optional)</label>
+                        <input type="text" placeholder="/products?category=sale" value={announcementLink} onChange={e => setAnnouncementLink(e.target.value)} className="input-base w-full max-w-lg" />
                     </div>
                 </div>
             </div>

@@ -13,7 +13,7 @@ interface LogoProps {
 }
 
 export default function Logo({ className = "", href = "/", onClick, siteName: initialName, logoUrl: initialLogo }: LogoProps) {
-    const [siteName, setSiteName] = useState(initialName || "GenzLoots");
+    const [siteName, setSiteName] = useState(initialName || "ZenCult");
     const [logoUrl, setLogoUrl] = useState<string | null>(initialLogo || null);
 
     useEffect(() => {

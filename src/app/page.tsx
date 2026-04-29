@@ -15,7 +15,7 @@ import {
 
 export const metadata: Metadata = buildMetadata({
     title: "Best Amazon, Flipkart & Myntra Deals in India",
-    description: "Track real price drops, browse verified coupons, and shop smarter with GenzLoots deal alerts.",
+    description: "Track real price drops, browse verified coupons, and shop smarter with ZenCult deal alerts.",
     path: "/",
 });
 

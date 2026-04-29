@@ -9,7 +9,7 @@ import { BookOpen, Calendar } from "lucide-react";
 
 export const metadata: Metadata = buildMetadata({
     title: "Shopping Tips, Deal Guides & Product Reviews",
-    description: "Read GenzLoots shopping tips, deal guides, product reviews, and price tracking advice for Amazon, Flipkart, and Myntra shoppers.",
+    description: "Read ZenCult shopping tips, deal guides, product reviews, and price tracking advice for Amazon, Flipkart, and Myntra shoppers.",
     path: "/blog",
 });
 
@@ -36,7 +36,7 @@ export default async function BlogPage() {
                 <div className="mb-8">
                     <div className="flex items-center gap-2 text-[hsl(214_89%_52%)] font-bold text-xs uppercase tracking-widest mb-2">
                         <BookOpen size={13} />
-                        GenzLoots Blog
+                        ZenCult Blog
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">Shopping Tips &amp; Guides</h1>
                     <p className="text-[var(--text-secondary)] text-sm mt-1">Expert deal guides and product reviews — updated regularly.</p>

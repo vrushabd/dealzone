@@ -114,7 +114,7 @@ export default function OrderDetailPage() {
                 key: payData.keyId,
                 amount: payData.amount,
                 currency: payData.currency,
-                name: "GenzLoots",
+                name: "ZenCult",
                 description: `Order ${order.id}`,
                 order_id: payData.razorpayOrderId,
                 prefill: {

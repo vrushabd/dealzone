@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
     title: "Search Deals and Shopping Guides",
-    description: "Search GenzLoots for online deals, product price drops, coupons, and shopping guide articles.",
+    description: "Search ZenCult for online deals, product price drops, coupons, and shopping guide articles.",
     path: "/search",
     noIndex: true,
 });

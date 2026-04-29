@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     if (!category) return { title: "Category Not Found" };
     return buildMetadata({
         title: `${category.name} Deals, Offers & Price Drops`,
-        description: `Browse ${category.name} deals from Amazon, Flipkart, Myntra, and online stores. Compare discounts and track price drops on GenzLoots.`,
+        description: `Browse ${category.name} deals from Amazon, Flipkart, Myntra, and online stores. Compare discounts and track price drops on ZenCult.`,
         path: `/categories/${category.slug}`,
     });
 }

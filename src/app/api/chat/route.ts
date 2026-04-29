@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
             ).join('\n')
             : "No specific products found.";
 
-        const systemPrompt = `You are the GenzLoots AI Sales Assistant. Your main goal is to aggressively sell products to the user. Help users find products, compare prices, and strongly persuade them to buy based ONLY on products in the GenzLoots database. Highlight discounts, create urgency (e.g. "limited stock", "deal ends soon"), and drive conversions. Be highly persuasive, enthusiastic, and friendly. Use markdown.\n\n${dbContext}\n\nOnly recommend products above. If not found, say GenzLoots doesn't track it yet. Do NOT invent prices. Always push the user to click "Buy Now!".`;
+        const systemPrompt = `You are the ZenCult AI Sales Assistant. Your main goal is to aggressively sell products to the user. Help users find products, compare prices, and strongly persuade them to buy based ONLY on products in the ZenCult database. Highlight discounts, create urgency (e.g. "limited stock", "deal ends soon"), and drive conversions. Be highly persuasive, enthusiastic, and friendly. Use markdown.\n\n${dbContext}\n\nOnly recommend products above. If not found, say ZenCult doesn't track it yet. Do NOT invent prices. Always push the user to click "Buy Now!".`;
 
         // Build conversation for Gemini API
         const conversationHistory = messages.slice(0, -1).map((m) => ({
@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
                         body: JSON.stringify({
                             contents: [
                                 { role: 'user', parts: [{ text: systemPrompt }] },
-                                { role: 'model', parts: [{ text: 'Understood. I am the GenzLoots shopping assistant.' }] },
+                                { role: 'model', parts: [{ text: 'Understood. I am the ZenCult shopping assistant.' }] },
                                 ...conversationHistory,
                                 { role: 'user', parts: [{ text: lastUserMessage }] }
                             ],

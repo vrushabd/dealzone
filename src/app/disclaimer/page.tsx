@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
     title: "Disclaimer",
-    description: "Read the GenzLoots disclaimer covering product availability, shipping, returns, and general store policies.",
+    description: "Read the ZenCult disclaimer covering product availability, shipping, returns, and general store policies.",
     path: "/disclaimer",
 });
 
@@ -13,7 +13,7 @@ export default function DisclaimerPage() {
         <InfoPage
             eyebrow="Disclaimer"
             title="General Store Policies and Information."
-            intro="GenzLoots is committed to providing high-quality products and excellent service. Please read this disclaimer to understand our policies regarding product availability, shipping, and general use of our store."
+            intro="ZenCult is committed to providing high-quality products and excellent service. Please read this disclaimer to understand our policies regarding product availability, shipping, and general use of our store."
             sections={[
                 {
                     title: "Product Information & Availability",

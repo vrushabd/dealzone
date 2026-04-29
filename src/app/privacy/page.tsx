@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
     title: "Privacy Policy",
-    description: "Read the GenzLoots privacy policy covering data collection, order processing, and customer privacy.",
+    description: "Read the ZenCult privacy policy covering data collection, order processing, and customer privacy.",
     path: "/privacy",
 });
 
@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <InfoPage
             eyebrow="Privacy"
             title="We respect your privacy and protect your data."
-            intro="GenzLoots collects only the necessary information to process your orders securely and provide a seamless shopping experience. We are committed to safeguarding your personal data."
+            intro="ZenCult collects only the necessary information to process your orders securely and provide a seamless shopping experience. We are committed to safeguarding your personal data."
             sections={[
                 {
                     title: "What We Collect",

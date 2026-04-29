@@ -27,6 +27,7 @@ const productDetailSelect = {
     seller: true,
     rating: true,
     availability: true,
+    boughtCount: true,
     createdAt: true,
     updatedAt: true,
     category: { select: { id: true, name: true, slug: true, icon: true } },
@@ -94,6 +95,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
                 availability: data.availability || "in_stock",
+                boughtCount: data.boughtCount ? parseInt(data.boughtCount, 10) : undefined,
                 reviews: Array.isArray(data.reviews) ? {
                     deleteMany: {},
                     ...(normalizedReviews.length > 0 ? {
@@ -148,6 +150,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             prisma.trackedProduct.deleteMany({ where: { productId: id } }),
             prisma.priceAlert.deleteMany({ where: { productId: id } }),
             prisma.productReview.deleteMany({ where: { productId: id } }),
+            prisma.cartItem.deleteMany({ where: { productId: id } }),
+            prisma.orderItem.deleteMany({ where: { productId: id } }),
             prisma.product.delete({ where: { id } }),
         ]);
 

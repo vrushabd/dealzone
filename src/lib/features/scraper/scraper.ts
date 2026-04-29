@@ -709,93 +709,146 @@ function parseFlipkartWindowState(html: string): StructuredDataProduct {
     }
 }
 
-function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProduct {
-    const title = normalizeProductTitle(
-        root.querySelector('h1')?.text || 
-        html?.match(/"name"\s*:\s*"([^"]+)"/)?.[1] || 
-        ''
-    );
+function parseMeeshoNextData(html: string): Partial<ScrapedProduct> {
+    try {
+        const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([^<]+)<\/script>/);
+        if (!match) return {};
+        const data = JSON.parse(match[1]) as JsonRecord;
 
-    let price = 0;
-    const priceMatch = html?.match(/"price"\s*:\s*(\d+(?:\.\d+)?)/) || 
-                       html?.match(/"discounted_price"\s*:\s*(\d+(?:\.\d+)?)/);
-    if (priceMatch) {
-        price = normalizePrice(priceMatch[1]) || 0;
+        // Traverse common Meesho data paths
+        const pageProps = isRecord(data.props) && isRecord(data.props.pageProps) ? data.props.pageProps : null;
+        if (!pageProps) return {};
+
+        // Try product from pageData or data.product
+        const productData: JsonRecord =
+            (isRecord(pageProps.data) && isRecord(pageProps.data.product) ? pageProps.data.product : null) ||
+            (isRecord(pageProps.product) ? pageProps.product : null) ||
+            (isRecord(pageProps.productDetails) ? pageProps.productDetails : null) ||
+            {};
+
+        const name = typeof productData.name === 'string' ? productData.name :
+                     typeof productData.product_name === 'string' ? productData.product_name : '';
+
+        const price = normalizePrice(productData.discounted_price ?? productData.price ?? productData.finalPrice ?? 0);
+        const originalPrice = normalizePrice(productData.mrp ?? productData.original_price ?? productData.originalPrice);
+
+        // Images — can be array of objects or strings
+        const rawImages: string[] = [];
+        const imgArr = Array.isArray(productData.images) ? productData.images :
+                       Array.isArray(productData.product_images) ? productData.product_images : [];
+        for (const img of imgArr) {
+            if (typeof img === 'string') rawImages.push(img);
+            else if (isRecord(img)) {
+                const src = img.url ?? img.src ?? img.image_url ?? img.link;
+                if (typeof src === 'string') rawImages.push(src);
+            }
+        }
+
+        const rating = normalizePrice(productData.rating ?? productData.average_rating ?? productData.ratings_count);
+        const description = typeof productData.description === 'string' ? normalizeText(productData.description) :
+                           typeof productData.product_description === 'string' ? normalizeText(productData.product_description) : '';
+
+        const category = typeof productData.primary_category_name === 'string' ? productData.primary_category_name :
+                        typeof productData.category_name === 'string' ? productData.category_name : '';
+
+        // Reviews
+        const reviews: ScrapedReview[] = [];
+        const reviewArr = Array.isArray(productData.reviews) ? productData.reviews :
+                         Array.isArray(pageProps.reviews) ? pageProps.reviews : [];
+        for (const r of reviewArr.slice(0, 5)) {
+            if (!isRecord(r)) continue;
+            const comment = normalizeText(String(r.review_text ?? r.reviewText ?? r.comment ?? ''));
+            if (comment.length > 5) {
+                reviews.push({
+                    rating: normalizePrice(r.rating) || 5,
+                    comment,
+                    author: normalizeText(String(r.reviewer_name ?? r.author ?? 'Meesho Customer')) || 'Meesho Customer',
+                    title: r.review_title ? normalizeText(String(r.review_title)) : undefined,
+                });
+            }
+        }
+
+        return {
+            title: normalizeProductTitle(name),
+            price: price || 0,
+            originalPrice,
+            images: rawImages,
+            image: rawImages[0] || '',
+            rating: rating && rating > 0 && rating <= 5 ? rating : undefined,
+            description: description || undefined,
+            category: category || undefined,
+            reviews: reviews.length > 0 ? reviews : undefined,
+        };
+    } catch {
+        return {};
+    }
+}
+
+function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProduct {
+    // 1. Try __NEXT_DATA__ JSON first (most reliable)
+    const nextData = html ? parseMeeshoNextData(html) : {};
+
+    // 2. Regex fallbacks for price
+    let price = nextData.price || 0;
+    if (!price && html) {
+        const priceMatch = html.match(/"discounted_price"\s*:\s*(\d+(?:\.\d+)?)/) ||
+                           html.match(/"price"\s*:\s*(\d+(?:\.\d+)?)/) ||
+                           html.match(/"finalPrice"\s*:\s*(\d+(?:\.\d+)?)/);
+        if (priceMatch) price = normalizePrice(priceMatch[1]) || 0;
     }
     if (!price) {
-        const textPrice = root.querySelector('h4')?.text || root.querySelector('.Text__StyledText-sc-oo0kvp-0')?.text;
-        if (textPrice?.includes('₹')) price = normalizePrice(textPrice) || 0;
+        const textPrice = root.querySelector('h4')?.text || '';
+        if (textPrice.includes('₹')) price = normalizePrice(textPrice) || 0;
     }
 
-    const originalPrice = normalizePrice(
-        html?.match(/"original_price"\s*:\s*(\d+(?:\.\d+)?)/)?.[1] ||
-        html?.match(/"mrp"\s*:\s*(\d+(?:\.\d+)?)/)?.[1] ||
-        root.querySelector('.Text__StyledText-sc-oo0kvp-0 strike')?.text || 
-        ''
-    );
+    // 3. Original price fallback
+    let originalPrice = nextData.originalPrice;
+    if (!originalPrice && html) {
+        const mrpMatch = html.match(/"mrp"\s*:\s*(\d+(?:\.\d+)?)/) ||
+                        html.match(/"original_price"\s*:\s*(\d+(?:\.\d+)?)/);
+        if (mrpMatch) originalPrice = normalizePrice(mrpMatch[1]);
+    }
 
-    const images = dedupeImages([
-        root.querySelector('img[src*="images.meesho.com"]')?.getAttribute('src'),
-        ...(html?.match(/"(https:\/\/images\.meesho\.com[^"]+)"/g) || []).map(s => s.replace(/"/g, '')),
-    ], 'meesho');
+    // 4. Title fallback
+    let title = nextData.title || '';
+    if (!title) {
+        title = normalizeProductTitle(
+            root.querySelector('h1')?.text ||
+            html?.match(/"name"\s*:\s*"([^"]+)"/)?.[1] || ''
+        );
+    }
 
-    const category = normalizeText(
-        html?.match(/"category"\s*:\s*"([^"]+)"/)?.[1] ||
-        root.querySelectorAll('.breadcrumb-item').pop()?.text || ''
-    );
+    // 5. Images fallback
+    let images = nextData.images && nextData.images.length > 0 ? nextData.images : [];
+    if (images.length === 0 && html) {
+        images = dedupeImages([
+            root.querySelector('img[src*="images.meesho.com"]')?.getAttribute('src'),
+            ...(html.match(/"(https:\/\/images\.meesho\.com[^"]+)"/g) || []).map(s => s.replace(/"/g, '')),
+        ], 'meesho');
+    }
 
-    const description = normalizeText(
-        html?.match(/"description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') ||
-        root.querySelector('.product-description')?.text || ''
-    );
+    // 6. Rating fallback
+    const rating = nextData.rating ||
+        normalizePrice(html?.match(/"rating"\s*:\s*(\d+(?:\.\d+)?)/)?.[1]);
 
-    const rating = normalizePrice(html?.match(/"rating"\s*:\s*(\d+(?:\.\d+)?)/)?.[1]);
-
-    const reviews: ScrapedReview[] = [];
-    if (html) {
+    // 7. Reviews fallback
+    let reviews: ScrapedReview[] = nextData.reviews || [];
+    if (reviews.length === 0 && html) {
         const reviewMatches = html.matchAll(/"reviewText"\s*:\s*"([^"]+)".*?"rating"\s*:\s*(\d+(?:\.\d+)?).*?"author"\s*:\s*"([^"]+)"/g);
         for (const match of reviewMatches) {
             const comment = normalizeText(match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"'));
             if (comment.length > 5) {
-                reviews.push({
-                    rating: normalizePrice(match[2]) || 5,
-                    comment,
-                    author: normalizeText(match[3]) || "Meesho Customer"
-                });
+                reviews.push({ rating: normalizePrice(match[2]) || 5, comment, author: normalizeText(match[3]) || 'Meesho Customer' });
             }
             if (reviews.length >= 5) break;
         }
-        
-        // Alternative review parsing pattern for Meesho
-        if (reviews.length === 0) {
-            const altReviewMatches = html.matchAll(/"review"\s*:\s*"([^"]+)".*?"rating"\s*:\s*(\d+)/g);
-            for (const match of altReviewMatches) {
-                const comment = normalizeText(match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"'));
-                if (comment.length > 5) {
-                    reviews.push({
-                        rating: normalizePrice(match[2]) || 5,
-                        comment,
-                        author: "Meesho Customer"
-                    });
-                }
-                if (reviews.length >= 5) break;
-            }
-        }
     }
 
-    if (reviews.length === 0) {
-        const reviewEls = root.querySelectorAll('.review-text, [class*="ReviewText"]');
-        for (const el of reviewEls.slice(0, 5)) {
-            const comment = normalizeText(el.text);
-            if (comment.length > 5) {
-                reviews.push({
-                    rating: 5,
-                    comment,
-                    author: "Meesho Customer"
-                });
-            }
-        }
-    }
+    const description = nextData.description ||
+        normalizeText(html?.match(/"description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || '');
+
+    const category = nextData.category ||
+        normalizeText(root.querySelectorAll('.breadcrumb-item').pop()?.text || '');
 
     return {
         title,

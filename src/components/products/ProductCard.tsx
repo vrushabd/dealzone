@@ -25,6 +25,7 @@ interface Product {
     cashbackPaytm?: number | null;
     cashbackPhonePe?: number | null;
     rating?: number | null;
+    boughtCount?: number | null;
     category?: { name: string; slug: string } | null;
     _count?: { orderItems: number } | null;
 }
@@ -40,14 +41,14 @@ export default function ProductCard({ product }: { product: Product }) {
     const { data: session } = useSession();
     const router = useRouter();
 
-    const getBaseCount = (id: string) => {
+    const getHashCount = (id: string) => {
         let hash = 0;
         for (let i = 0; i < id.length; i++) {
             hash = id.charCodeAt(i) + ((hash << 5) - hash);
         }
         return (Math.abs(hash) % 221) + 80;
     };
-    const totalBought = getBaseCount(product.id) + (product._count?.orderItems || 0);
+    const totalBought = (product.boughtCount ?? getHashCount(product.id)) + (product._count?.orderItems || 0);
 
     const canSetAlert = Boolean(product.price && product.price > 1);
 

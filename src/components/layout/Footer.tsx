@@ -1,8 +1,19 @@
+"use client";
 import Link from "next/link";
 import { ExternalLink, ShieldCheck, TrendingUp, Tag } from "lucide-react";
 import Logo from "@/components/ui/Logo";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
+    const [siteName, setSiteName] = useState("GenzLoots");
+
+    useEffect(() => {
+        fetch("/api/settings/public")
+            .then(r => r.json())
+            .then(d => { if (d.siteName) setSiteName(d.siteName); })
+            .catch(() => {});
+    }, []);
+
     const stats = [
         { icon: <TrendingUp size={14} />, label: "Products Curated", value: "Daily" },
         { icon: <Tag size={14} />,        label: "Checkout Options", value: "COD + Online" },
@@ -48,7 +59,7 @@ export default function Footer() {
                                 <Logo />
                             </div>
                             <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
-                                Shop curated products on GenzLoots with secure checkout, order tracking, and direct customer support from one place.
+                                Shop curated products on {siteName} with secure checkout, order tracking, and direct customer support from one place.
                             </p>
                         </div>
 
@@ -75,8 +86,6 @@ export default function Footer() {
                                 ))}
                             </ul>
                         </div>
-
-
                     </div>
 
                     <div className="mt-10 rounded-md border border-[var(--border)] bg-[var(--bg-card)]/70 px-4 py-4 text-sm leading-6 text-[var(--text-secondary)]">
@@ -87,7 +96,7 @@ export default function Footer() {
                     {/* Bottom bar */}
                     <div className="border-t border-[var(--border-subtle)] mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <p className="text-[var(--text-muted)] text-xs">
-                            © {new Date().getFullYear()} GenzLoots. All rights reserved.
+                            © {new Date().getFullYear()} {siteName}. All rights reserved.
                         </p>
                         <div className="flex items-center gap-4">
                             <Link href="/privacy" className="text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-xs transition-colors">

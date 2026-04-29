@@ -344,7 +344,7 @@ export default async function ProductDetailPage({ params }: Params) {
                 {related.length > 0 && (
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6">Related Deals</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                             {related.map((p) => (
                                 <ProductCard key={p.id} product={p} />
                             ))}

@@ -3,7 +3,8 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ShoppingBag, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 export default function RegisterPage() {
     const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
@@ -62,12 +63,9 @@ export default function RegisterPage() {
             <div className="w-full max-w-md">
                 {/* Brand */}
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2 mb-4">
-                        <div className="w-10 h-10 bg-[var(--brand)] rounded-xl flex items-center justify-center shadow-[var(--shadow-brand)]">
-                            <ShoppingBag size={20} className="text-white" />
-                        </div>
-                        <span className="text-2xl font-extrabold text-[var(--text-primary)]">GenzLoots</span>
-                    </Link>
+                    <div className="flex justify-center mb-4">
+                        <Logo href="/" className="scale-125" />
+                    </div>
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Create your account</h1>
                     <p className="text-sm text-[var(--text-secondary)] mt-1">Shop smarter with exclusive deals</p>
                 </div>

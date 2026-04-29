@@ -2,6 +2,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Lock, Mail, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 function LoginForm() {
     const [email, setEmail] = useState("");
@@ -49,7 +50,7 @@ function LoginForm() {
 
             <div className="w-full max-w-md animate-fade-in-up relative z-10">
 
-                {/* Logo */}
+                    {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="relative inline-block mb-4">
                         <div className="w-16 h-16 bg-gradient-to-br from-[hsl(214_89%_52%)] to-[hsl(214_89%_40%)] rounded-md flex items-center justify-center shadow-[0_0_40px_hsl(214_89%_52%/0.35)] mx-auto">
@@ -58,7 +59,9 @@ function LoginForm() {
                         {/* Glow ring */}
                         <div className="absolute inset-0 rounded-md border-2 border-[hsl(214_89%_52%/0.30)] scale-110 opacity-60 animate-[pulseGlow_2s_ease-in-out_infinite]" />
                     </div>
-                    <h1 className="text-3xl font-extrabold gradient-text tracking-tight">GenzLoots</h1>
+                    <div className="flex justify-center mb-1">
+                        <Logo href="/admin" className="scale-110" />
+                    </div>
                     <p className="text-[var(--text-muted)] text-sm mt-1">Admin Dashboard</p>
                 </div>
 

@@ -3,7 +3,8 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, ShoppingBag, ArrowRight, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -40,12 +41,9 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
                 {/* Logo / Brand */}
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2 mb-4">
-                        <div className="w-10 h-10 bg-[var(--brand)] rounded-xl flex items-center justify-center shadow-[var(--shadow-brand)]">
-                            <ShoppingBag size={20} className="text-white" />
-                        </div>
-                        <span className="text-2xl font-extrabold text-[var(--text-primary)]">GenzLoots</span>
-                    </Link>
+                    <div className="flex justify-center mb-4">
+                        <Logo href="/" className="scale-125" />
+                    </div>
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Welcome back!</h1>
                     <p className="text-sm text-[var(--text-secondary)] mt-1">Sign in to track your orders & cart</p>
                 </div>

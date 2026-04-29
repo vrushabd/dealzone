@@ -27,6 +27,7 @@ const productApiSelect = {
     seller: true,
     rating: true,
     availability: true,
+    boughtCount: true,
     createdAt: true,
     updatedAt: true,
     category: { select: { id: true, name: true, slug: true, icon: true } },
@@ -107,6 +108,11 @@ export async function POST(request: NextRequest) {
                        : 'unknown';
         const normalizedReviews = normalizeIncomingReviews(data.reviews);
 
+        // Random bought count if not provided (seeded 80-300)
+        const boughtCount = data.boughtCount
+            ? parseInt(data.boughtCount, 10)
+            : Math.floor(Math.random() * 221) + 80;
+
         const product = await prisma.product.create({
             data: {
                 title: data.title,
@@ -129,6 +135,7 @@ export async function POST(request: NextRequest) {
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
                 availability: data.availability || "in_stock",
+                boughtCount,
                 reviews: normalizedReviews.length > 0 ? {
                     create: normalizedReviews.map((r: ProductReviewPayload) => ({
                         rating: r.rating,

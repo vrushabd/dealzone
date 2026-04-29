@@ -17,6 +17,7 @@ interface Product {
     amazonLink?: string | null; flipkartLink?: string | null; meeshoLink?: string | null;
     cashbackAmazon?: number | null; cashbackFlipkart?: number | null;
     seller?: string | null; rating?: number | null; availability?: string | null;
+    boughtCount?: number | null;
     featured: boolean; categoryId?: string | null; category?: { name: string } | null;
     reviews?: ProductReview[];
 }
@@ -50,7 +51,7 @@ export default function ProductForm({
         discount: string; amazonLink: string; flipkartLink: string; meeshoLink: string;
         featured: boolean; categoryId: string; description: string;
         cashbackAmazon: string; cashbackFlipkart: string;
-        seller: string; rating: string; availability: string; reviews: ProductReview[];
+        seller: string; rating: string; availability: string; boughtCount: string; reviews: ProductReview[];
     }>({
         title: initial?.title || "",
         image: initial?.image || "",
@@ -69,9 +70,10 @@ export default function ProductForm({
         seller: initial?.seller || "",
         rating: initial?.rating?.toString() || "",
         availability: initial?.availability || "in_stock",
+        boughtCount: initial?.boughtCount?.toString() || "",
         reviews: initial?.reviews || [],
     });
-    type StringFields = Omit<typeof form, 'featured' | 'reviews'>;
+    type StringFields = Omit<typeof form, 'featured' | 'reviews'>
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -176,6 +178,7 @@ export default function ProductForm({
         { key: "cashbackFlipkart", label: "Flipkart Cashback (₹)", placeholder: "0", type: "number" },
         { key: "seller", label: "Seller Name", placeholder: "Appario Retail", type: "text" },
         { key: "rating", label: "Rating (out of 5)", placeholder: "4.5", type: "number" },
+        { key: "boughtCount", label: "Bought Count (leave blank = auto)", placeholder: "e.g. 1200", type: "number" },
     ];
 
     return (

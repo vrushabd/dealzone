@@ -1,5 +1,4 @@
 "use client";
-import { signIn } from "next-auth/react";
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Lock, Mail, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
@@ -17,14 +16,27 @@ function LoginForm() {
         e.preventDefault();
         setLoading(true);
         setError("");
-        const res = await signIn("admin-credentials", { email, password, redirect: false });
-        setLoading(false);
-        if (res?.error) {
-            setError("Invalid email or password. Please try again.");
-        } else {
-            const callbackUrl = searchParams.get("callbackUrl") || "/admin";
-            router.push(callbackUrl);
-            router.refresh();
+
+        try {
+            const res = await fetch("/api/admin/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Invalid email or password. Please try again.");
+            } else {
+                const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+                router.push(callbackUrl);
+                router.refresh();
+            }
+        } catch {
+            setError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 

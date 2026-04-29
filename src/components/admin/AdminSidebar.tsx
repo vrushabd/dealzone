@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import {
     Zap, LayoutDashboard, ShoppingBag, BookOpen, Tag,
-    LogOut, ExternalLink, Menu, X, ChevronRight, Settings, TrendingUp, Bell, Package, MessageSquareWarning
+    LogOut, ExternalLink, Menu, X, ChevronRight, Settings, Bell, Package, MessageSquareWarning, MessageSquare
 } from "lucide-react";
 
 import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
@@ -17,7 +17,7 @@ const navItems = [
     { href: "/admin/orders", label: "Orders", icon: Package },
     { href: "/admin/posts", label: "Blog Posts", icon: BookOpen },
     { href: "/admin/categories", label: "Categories", icon: Tag },
-    { href: "/admin/tracked-products", label: "Price Tracked", icon: TrendingUp },
+    { href: "/admin/comments", label: "Comments", icon: MessageSquare },
     { href: "/admin/alerts", label: "Alerts", icon: Bell },
     { href: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
     { href: "/admin/settings", label: "Settings", icon: Settings },
@@ -135,7 +135,7 @@ export default function AdminSidebar() {
                 >
                     <Menu size={20} />
                 </button>
-                <span className="font-bold text-[var(--text-primary)] flex-1">GenzLoots Admin</span>
+                <Logo className="scale-90 origin-left" />
             </div>
 
             {/* Mobile drawer */}

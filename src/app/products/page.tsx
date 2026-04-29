@@ -48,7 +48,7 @@ const productCardSelect = {
     cashbackFlipkart: true,
     cashbackPaytm: true,
     cashbackPhonePe: true,
-    rating: true,
+    rating: true, boughtCount: true,
     category: { select: { name: true, slug: true } },
     _count: { select: { orderItems: true } },
 };
@@ -116,32 +116,41 @@ export default async function ProductsPage({
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Sidebar Filters */}
+                    {/* Sidebar Filters — horizontal pill strip on mobile, vertical sidebar on desktop */}
                     <aside className="lg:w-56 flex-shrink-0">
-                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 sticky top-24">
+                        {/* Mobile: horizontal scrollable filter pills */}
+                        <div className="lg:hidden overflow-x-auto no-scrollbar pb-1">
+                            <div className="flex gap-2 w-max">
+                                <Link href="/products" className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${!category ? "bg-[hsl(214_89%_52%)] text-white border-transparent" : "bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)]"}`}>All</Link>
+                                {categories.map((cat) => (
+                                    <Link key={cat.id} href={`/categories/${cat.slug}`} className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${category === cat.slug ? "bg-[hsl(214_89%_52%)] text-white border-transparent" : "bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)]"}`}>{cat.name}</Link>
+                                ))}
+                                <span className="flex-shrink-0 w-px h-6 bg-[var(--border)] self-center" />
+                                {[
+                                    { label: "Newest", value: "" },
+                                    { label: "Price ↑", value: "price_asc" },
+                                    { label: "Price ↓", value: "price_desc" },
+                                ].map((s) => (
+                                    <Link key={s.value} href={`/products?${category ? `category=${category}&` : ""}sort=${s.value}`} className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${(sort || "") === s.value ? "bg-[hsl(214_89%_52%)] text-white border-transparent" : "bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)]"}`}>{s.label}</Link>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Desktop: vertical sidebar */}
+                        <div className="hidden lg:block bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 sticky top-24">
                             <div className="flex items-center gap-2 mb-4">
                                 <Filter size={16} className="text-[hsl(214_89%_55%)]" />
                                 <h2 className="font-semibold text-[var(--text-primary)]">Filters</h2>
                             </div>
-
                             <div className="mb-6">
                                 <h3 className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-3">Category</h3>
                                 <div className="space-y-1">
-                                    <Link href="/products" className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${!category ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}>
-                                        All
-                                    </Link>
+                                    <Link href="/products" className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${!category ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}>All</Link>
                                     {categories.map((cat) => (
-                                        <Link
-                                            key={cat.id}
-                                            href={`/categories/${cat.slug}`}
-                                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${category === cat.slug ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}
-                                        >
-                                            {cat.name}
-                                        </Link>
+                                        <Link key={cat.id} href={`/categories/${cat.slug}`} className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${category === cat.slug ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}>{cat.name}</Link>
                                     ))}
                                 </div>
                             </div>
-
                             <div>
                                 <h3 className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-3">Sort by</h3>
                                 <div className="space-y-1">
@@ -150,13 +159,7 @@ export default async function ProductsPage({
                                         { label: "Price: Low to High", value: "price_asc" },
                                         { label: "Price: High to Low", value: "price_desc" },
                                     ].map((s) => (
-                                        <Link
-                                            key={s.value}
-                                            href={`/products?${category ? `category=${category}&` : ""}sort=${s.value}`}
-                                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${(sort || "") === s.value ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}
-                                        >
-                                            {s.label}
-                                        </Link>
+                                        <Link key={s.value} href={`/products?${category ? `category=${category}&` : ""}sort=${s.value}`} className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${(sort || "") === s.value ? "bg-[hsl(214_89%_52%)] text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"}`}>{s.label}</Link>
                                     ))}
                                 </div>
                             </div>
@@ -168,9 +171,7 @@ export default async function ProductsPage({
                         {products.length === 0 ? (
                             <div className="text-center py-24 text-gray-500">
                                 <p className="text-lg">No deals found in this category.</p>
-                                <Link href="/products" className="text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] mt-4 inline-block">
-                                    Browse all deals →
-                                </Link>
+                                <Link href="/products" className="text-[hsl(214_89%_55%)] hover:text-[hsl(214_89%_60%)] mt-4 inline-block">Browse all deals →</Link>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">

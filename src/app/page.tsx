@@ -27,7 +27,7 @@ const productCardSelect = {
     amazonLink: true, flipkartLink: true,
     cashbackAmazon: true, cashbackFlipkart: true,
     cashbackPaytm: true, cashbackPhonePe: true,
-    rating: true,
+    rating: true, boughtCount: true,
     category: { select: { name: true, slug: true } },
     _count: { select: { orderItems: true } },
 };

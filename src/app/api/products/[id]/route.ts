@@ -95,7 +95,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 seller: data.seller || null,
                 rating: data.rating ? parseFloat(data.rating) : null,
                 availability: data.availability || "in_stock",
-                boughtCount: data.boughtCount ? parseInt(data.boughtCount, 10) : undefined,
+                boughtCount: (data.boughtCount !== undefined && data.boughtCount !== null && data.boughtCount !== "")
+                    ? parseInt(data.boughtCount, 10)
+                    : null,
                 reviews: Array.isArray(data.reviews) ? {
                     deleteMany: {},
                     ...(normalizedReviews.length > 0 ? {

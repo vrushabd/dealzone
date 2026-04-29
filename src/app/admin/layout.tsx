@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { SessionProvider } from "next-auth/react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -8,15 +9,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const isLoginPage = pathname === "/admin/login";
     const isFullScreenEditor = pathname?.startsWith("/admin/posts/") && pathname !== "/admin/posts";
 
-    if (isLoginPage) {
-        return (
-            <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
-                {children}
-            </div>
-        );
-    }
-
-    return (
+    const content = isLoginPage ? (
+        <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
+            {children}
+        </div>
+    ) : (
         <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] md:flex">
             <AdminSidebar />
             <main className="flex-1 min-h-screen overflow-y-auto">
@@ -25,5 +22,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
             </main>
         </div>
+    );
+
+    return (
+        <SessionProvider basePath="/api/auth">
+            {content}
+        </SessionProvider>
     );
 }

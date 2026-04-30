@@ -116,7 +116,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         />
                     ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <ShoppingCart size={44} className="text-[var(--text-muted)]" />
+                            <UilShoppingCart size={44} className="text-[var(--text-muted)]" />
                         </div>
                     )}
                     {/* Bottom gradient on image */}
@@ -137,7 +137,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         className="absolute top-3 right-3 inline-flex h-8 items-center justify-center gap-1 rounded-md bg-[var(--bg-base)]/92 px-2.5 border border-[var(--border)] text-[var(--text-secondary)] hover:text-[hsl(214_89%_52%)] hover:border-[hsl(214_89%_52%/0.40)] hover:bg-[hsl(214_89%_52%/0.08)] transition-all duration-200 shadow-[var(--shadow-card)] z-20"
                         title="Set Price Alert"
                     >
-                        <Bell size={13} />
+                        <UilBell size={13} />
                         <span className="text-[10px] font-semibold">Notify</span>
                     </button>
                 )}
@@ -145,7 +145,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 {/* Category chip */}
                 {product.category && (
                     <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[var(--bg-base)]/85 backdrop-blur text-[var(--text-secondary)] text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-[var(--border)] pointer-events-none z-20">
-                        <Tag size={7} />
+                        <UilTagAlt size={8} />
                         {product.category.name}
                     </div>
                 )}

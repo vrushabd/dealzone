@@ -114,7 +114,7 @@ export default function ChatbotWidget() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl rounded-2xl w-[360px] sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[80vh] flex flex-col mb-4 overflow-hidden animate-fade-in-up">
@@ -239,12 +239,11 @@ export default function ChatbotWidget() {
                 </div>
             )}
 
-            {/* Toggle Button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 ${isOpen ? 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)]' : 'bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] text-white'}`}
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 ${isOpen ? 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)]' : 'bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] text-white'}`}
             >
-                {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+                {isOpen ? <X size={20} className="sm:w-6 sm:h-6" /> : <MessageSquare size={20} className="sm:w-6 sm:h-6" />}
             </button>
         </div>
     );

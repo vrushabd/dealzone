@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Tag, ShoppingCart, Bell, X, Check, TrendingDown, ArrowRight, Star } from "lucide-react";
+import { UilTagAlt, UilShoppingCart, UilBell, UilMultiply, UilCheck, UilArrowDown, UilArrowRight, UilStar } from '@iconscout/react-unicons';
 import { useCart, CartProduct } from "@/components/cart/CartContext";
 
 
@@ -164,13 +164,13 @@ export default function ProductCard({ product }: { product: Product }) {
                             onClick={() => setIsAlertOpen(false)}
                             className="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                         >
-                            <X size={18} />
+                            <UilMultiply size={18} />
                         </button>
 
                         {isSuccess ? (
                             <div className="text-center">
                                 <div className="w-12 h-12 bg-[hsl(142_72%_50%/0.15)] border border-[hsl(142_72%_50%/0.3)] rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <Check className="text-[hsl(142_72%_50%)]" size={22} />
+                                    <UilCheck className="text-[hsl(142_72%_50%)]" size={22} />
                                 </div>
                                 <h4 className="text-white font-bold mb-1">Alert Set!</h4>
                                 <p className="text-[hsl(215_12%_42%)] text-xs">We&apos;ll notify you when it drops.</p>
@@ -179,7 +179,7 @@ export default function ProductCard({ product }: { product: Product }) {
                             <form onSubmit={handleAlertSubmit} className="space-y-2.5">
                                 <div className="text-center mb-1">
                                     <div className="w-8 h-8 bg-[hsl(214_89%_52%/0.08)] rounded-md flex items-center justify-center mx-auto mb-2">
-                                        <TrendingDown size={16} className="text-[hsl(214_89%_52%)]" />
+                                        <UilArrowDown size={16} className="text-[hsl(214_89%_52%)]" />
                                     </div>
                                     <h4 className="text-[var(--text-primary)] font-bold text-sm">Price Drop Alert</h4>
                                     <p className="text-[var(--text-muted)] text-[10px] mt-0.5">Notify me when price falls to:</p>
@@ -228,7 +228,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     {typeof product.rating === "number" && product.rating > 1.5 ? (
                         <>
                             <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
-                                <Star size={11} className="fill-current" />
+                                <UilStar size={11} className="fill-current" />
                                 {product.rating.toFixed(1)}
                             </span>
                             <span className="text-[var(--text-muted)]">/ 5 rating</span>
@@ -241,20 +241,20 @@ export default function ProductCard({ product }: { product: Product }) {
                     </span>
                 </div>
 
-                {/* Pricing — fixed min-height so rows align */}
-                <div className="flex flex-col gap-1 mb-3 min-h-[3.5rem]">
-                    <div className="flex items-baseline gap-2">
-                        {product.price && (
-                            <span className="text-xl font-extrabold text-[hsl(214_89%_52%)] leading-none">
-                                ₹{product.price.toLocaleString("en-IN")}
-                            </span>
-                        )}
-                        {product.originalPrice && product.originalPrice !== product.price && (
-                            <span className="text-xs text-[var(--text-muted)] line-through">
-                                ₹{product.originalPrice.toLocaleString("en-IN")}
-                            </span>
-                        )}
-                    </div>
+            {/* Pricing — fixed min-height so rows align */}
+            <div className="flex flex-col gap-0.5 mb-2.5 sm:mb-3 min-h-[3rem] sm:min-h-[3.5rem]">
+                <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
+                    {product.price && (
+                        <span className="text-lg sm:text-xl font-extrabold text-[hsl(214_89%_52%)] leading-none">
+                            ₹{product.price.toLocaleString("en-IN")}
+                        </span>
+                    )}
+                    {product.originalPrice && product.originalPrice !== product.price && (
+                        <span className="text-[10px] sm:text-xs text-[var(--text-muted)] line-through">
+                            ₹{product.originalPrice.toLocaleString("en-IN")}
+                        </span>
+                    )}
+                </div>
 
                     {savings && savings > 0 && (
                         <div className="flex items-center gap-1.5">
@@ -265,22 +265,21 @@ export default function ProductCard({ product }: { product: Product }) {
                     )}
                 </div>
 
-                {/* CTA — Add to Cart */}
                 <div className="mt-auto">
                     {product.price && product.price > 0 ? (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1.5 sm:gap-2">
                             <button
                                 onClick={handleAddToCart}
-                                className={`flex items-center justify-center gap-2 w-full text-sm font-bold py-2 px-4 rounded-md transition-all duration-200 shine-on-hover ${
+                                className={`flex items-center justify-center gap-1 sm:gap-2 w-full text-[11px] sm:text-sm font-bold py-1.5 sm:py-2 px-2 sm:px-4 rounded-md transition-all duration-200 shine-on-hover ${
                                     addedToCart
                                         ? "bg-green-500 hover:bg-green-500 text-white"
                                         : "bg-[hsl(214_89%_52%)] hover:bg-[hsl(214_89%_45%)] text-white"
                                 }`}
                             >
                                 {addedToCart ? (
-                                    <><Check size={13} /> Added!</>
+                                    <><UilCheck size={12} /> Added!</>
                                 ) : (
-                                    <><ShoppingCart size={13} /> Add to Cart<ArrowRight size={13} className="ml-auto" /></>
+                                    <><UilShoppingCart size={12} className="sm:w-[14px] sm:h-[14px]" /> Add to Cart</>
                                 )}
                             </button>
 
@@ -288,18 +287,18 @@ export default function ProductCard({ product }: { product: Product }) {
                                 <button
                                     type="button"
                                     onClick={() => setIsAlertOpen(true)}
-                                    className="flex items-center justify-center gap-2 w-full border border-[hsl(214_89%_52%/0.24)] bg-[hsl(214_89%_52%/0.06)] hover:bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_45%)] text-sm font-semibold py-2 px-4 rounded-md transition-all duration-200"
+                                    className="flex items-center justify-center gap-1 sm:gap-2 w-full border border-[hsl(214_89%_52%/0.24)] bg-[hsl(214_89%_52%/0.06)] hover:bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_45%)] text-[11px] sm:text-sm font-semibold py-1.5 sm:py-2 px-2 sm:px-4 rounded-md transition-all duration-200"
                                 >
-                                    <Bell size={13} />
+                                    <UilBell size={12} className="sm:w-[14px] sm:h-[14px]" />
                                     Notify Me
                                 </button>
                             )}
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1.5 sm:gap-2">
                             <Link
                                 href={`/products/${product.slug}`}
-                                className="flex items-center justify-center gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold py-2.5 px-4 rounded-md transition-all duration-200"
+                                className="flex items-center justify-center gap-1 sm:gap-2 w-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-primary)] text-[11px] sm:text-sm font-semibold py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-md transition-all duration-200"
                             >
                                 View Details
                             </Link>
@@ -308,9 +307,9 @@ export default function ProductCard({ product }: { product: Product }) {
                                 <button
                                     type="button"
                                     onClick={() => setIsAlertOpen(true)}
-                                    className="flex items-center justify-center gap-2 w-full border border-[hsl(214_89%_52%/0.24)] bg-[hsl(214_89%_52%/0.06)] hover:bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_45%)] text-sm font-semibold py-2.5 px-4 rounded-md transition-all duration-200"
+                                    className="flex items-center justify-center gap-1 sm:gap-2 w-full border border-[hsl(214_89%_52%/0.24)] bg-[hsl(214_89%_52%/0.06)] hover:bg-[hsl(214_89%_52%/0.12)] text-[hsl(214_89%_45%)] text-[11px] sm:text-sm font-semibold py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-md transition-all duration-200"
                                 >
-                                    <Bell size={13} />
+                                    <UilBell size={12} className="sm:w-[14px] sm:h-[14px]" />
                                     Notify Me
                                 </button>
                             )}

@@ -8,7 +8,7 @@ import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_HANDLE, getSiteUrl } from "
 import { prisma } from "@/lib/prisma";
 import { cache } from "react";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", preload: false });
 
 // Cached so it only runs once per request even when called from generateMetadata + RootLayout
 const getSettings = cache(async () => {

@@ -1,23 +1,46 @@
 "use client";
 import Link from "next/link";
-import { ExternalLink, ShieldCheck, TrendingUp, Tag } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { useEffect, useState } from "react";
+import {
+    UilChartGrowth, UilTagAlt, UilShieldCheck,
+    UilInstagram, UilFacebook, UilTwitterAlt, UilYoutube,
+    UilWhatsapp, UilEnvelope,
+} from "@iconscout/react-unicons";
+
+interface PublicSettings {
+    siteName: string;
+    contactEmail?: string | null;
+    whatsappNumber?: string | null;
+    instagramUrl?: string | null;
+    facebookUrl?: string | null;
+    twitterUrl?: string | null;
+    youtubeUrl?: string | null;
+}
 
 export default function Footer() {
-    const [siteName, setSiteName] = useState("ZenCult");
+    const [settings, setSettings] = useState<PublicSettings>({ siteName: "ZenCult" });
 
     useEffect(() => {
         fetch("/api/settings/public")
             .then(r => r.json())
-            .then(d => { if (d.siteName) setSiteName(d.siteName); })
+            .then(d => setSettings(d))
             .catch(() => {});
     }, []);
 
+    const { siteName, contactEmail, whatsappNumber, instagramUrl, facebookUrl, twitterUrl, youtubeUrl } = settings;
+
+    const socialLinks = [
+        { href: instagramUrl, icon: <UilInstagram size={18} />, label: "Instagram", color: "hover:text-pink-400" },
+        { href: facebookUrl,  icon: <UilFacebook size={18} />,  label: "Facebook",  color: "hover:text-blue-400" },
+        { href: twitterUrl,   icon: <UilTwitterAlt size={18} />, label: "Twitter",  color: "hover:text-sky-400" },
+        { href: youtubeUrl,   icon: <UilYoutube size={18} />,   label: "YouTube",   color: "hover:text-red-400" },
+    ].filter(s => !!s.href);
+
     const stats = [
-        { icon: <TrendingUp size={14} />, label: "Products Curated", value: "Daily" },
-        { icon: <Tag size={14} />,        label: "Checkout Options", value: "COD + Online" },
-        { icon: <ShieldCheck size={14} />, label: "Support", value: "Order Updates" },
+        { icon: <UilChartGrowth size={14} />, label: "Products Curated", value: "Daily" },
+        { icon: <UilTagAlt size={14} />,     label: "Checkout Options",  value: "COD + Online" },
+        { icon: <UilShieldCheck size={14} />, label: "Support",          value: "Order Updates" },
     ];
 
     return (
@@ -53,14 +76,56 @@ export default function Footer() {
                 {/* Main footer content */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-                        {/* Brand */}
+                        {/* Brand + Social */}
                         <div className="md:col-span-2">
                             <div className="mb-4">
                                 <Logo />
                             </div>
-                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
+                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs mb-5">
                                 Shop curated products on {siteName} with secure checkout, order tracking, and direct customer support from one place.
                             </p>
+
+                            {/* Contact row */}
+                            <div className="flex flex-wrap gap-3 mb-5">
+                                {whatsappNumber && (
+                                    <a
+                                        href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-full hover:bg-green-500/20 transition-all"
+                                    >
+                                        <UilWhatsapp size={14} />
+                                        WhatsApp Us
+                                    </a>
+                                )}
+                                {contactEmail && (
+                                    <a
+                                        href={`mailto:${contactEmail}`}
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[hsl(214_89%_60%)] bg-[hsl(214_89%_52%/0.08)] border border-[hsl(214_89%_52%/0.20)] px-3 py-1.5 rounded-full hover:bg-[hsl(214_89%_52%/0.15)] transition-all"
+                                    >
+                                        <UilEnvelope size={14} />
+                                        Email Us
+                                    </a>
+                                )}
+                            </div>
+
+                            {/* Social icons */}
+                            {socialLinks.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                    {socialLinks.map(s => (
+                                        <a
+                                            key={s.label}
+                                            href={s.href!}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label={s.label}
+                                            className={`w-8 h-8 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] ${s.color} transition-all hover:border-current hover:scale-110`}
+                                        >
+                                            {s.icon}
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* Links */}

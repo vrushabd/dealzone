@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { UilTagAlt, UilShoppingCart, UilBell, UilMultiply, UilCheck, UilArrowDown, UilArrowRight, UilStar } from '@iconscout/react-unicons';
+import { UilTagAlt, UilShoppingCart, UilBell, UilMultiply, UilCheck, UilArrowDown, UilArrowRight, UilStar, UilShoppingBag } from '@iconscout/react-unicons';
 import { useCart, CartProduct } from "@/components/cart/CartContext";
 
 
@@ -237,7 +237,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 </div>
                 <div className="mb-2">
                     <span className="inline-flex items-center gap-1 text-[11px] text-[hsl(24_95%_53%)] bg-[hsl(24_95%_53%/0.1)] px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                        🔥 {totalBought}+ bought
+                        <UilShoppingBag size={11} /> {totalBought}+ bought
                     </span>
                 </div>
 

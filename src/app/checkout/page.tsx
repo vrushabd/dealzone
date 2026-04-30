@@ -102,12 +102,18 @@ export default function CheckoutPage() {
         }
     }, [refreshCart, status]);
 
-    // Redirect empty cart
+    // Redirect empty cart — but give Buy Now flow extra time to populate cart
     useEffect(() => {
-        if (status === "authenticated" && !cartLoading && items.length === 0 && step !== "done") {
-            router.push("/products");
+        if (status !== "authenticated" || cartLoading || step === "done") return;
+        if (items.length === 0) {
+            // For buynow flow, wait longer before redirecting (cart may still be loading)
+            const delay = isBuyNow ? 2500 : 800;
+            const timer = setTimeout(() => {
+                if (items.length === 0) router.push("/products");
+            }, delay);
+            return () => clearTimeout(timer);
         }
-    }, [status, cartLoading, items.length, step, router]);
+    }, [status, cartLoading, items.length, step, router, isBuyNow]);
 
     const shippingFee = paymentMethod === "COD" ? SHIPPING_FEE_COD : 0;
     const total = cartTotal + shippingFee;

@@ -10,8 +10,8 @@ interface BuyButtonsProps {
     outOfStock?: boolean;
 }
 
-const BUY_NOW_STORAGE_KEY = "genzloots_pending_buy_now_product";
-const ADD_TO_CART_STORAGE_KEY = "genzloots_pending_add_to_cart_product";
+const BUY_NOW_STORAGE_KEY = "zencult_pending_buy_now_product";
+const ADD_TO_CART_STORAGE_KEY = "zencult_pending_add_to_cart_product";
 
 export default function BuyButtons({ productId, productSlug, outOfStock }: BuyButtonsProps) {
     const { data: session, status } = useSession();
@@ -28,7 +28,7 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
             const res = await fetch("/api/cart", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ productId, quantity: 1, mode: "increment" }),
+                body: JSON.stringify({ productId, quantity: 1, mode: "set" }),
             });
 
             const data = await res.json().catch(() => ({}));
@@ -37,6 +37,8 @@ export default function BuyButtons({ productId, productSlug, outOfStock }: BuyBu
             }
 
             window.dispatchEvent(new CustomEvent("cart-updated"));
+            // Small delay to ensure cart is synced before redirect
+            await new Promise(r => setTimeout(r, 200));
             router.push("/checkout?buynow=1");
         } catch (error: unknown) {
             setBuyError(error instanceof Error ? error.message : "Buy now failed");

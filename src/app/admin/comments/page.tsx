@@ -206,7 +206,7 @@ export default function AdminCommentsPage() {
                                             {review.author || "Anonymous"}
                                         </span>
                                         {review.title && (
-                                            <span className="text-xs italic text-[var(--text-muted)]">"{review.title}"</span>
+                                            <span className="text-xs italic text-[var(--text-muted)]">&quot;{review.title}&quot;</span>
                                         )}
                                     </div>
                                     <p className={`text-sm text-[var(--text-secondary)] leading-relaxed ${!expanded && review.comment.length > 180 ? "line-clamp-2" : ""}`}>

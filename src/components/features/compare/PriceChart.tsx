@@ -2,8 +2,6 @@
 
 import React from 'react';
 import {
-    LineChart,
-    Line,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -15,7 +13,11 @@ import {
 
 interface PriceChartProps {
     productId: string;
-    data: any[];
+    data: Array<{
+        date: string | Date;
+        price: number;
+        [key: string]: unknown;
+    }>;
 }
 
 export default function PriceChart({ data }: PriceChartProps) {

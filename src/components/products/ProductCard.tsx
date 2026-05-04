@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { UilTagAlt, UilShoppingCart, UilBell, UilMultiply, UilCheck, UilArrowDown, UilArrowRight, UilStar, UilShoppingBag } from '@iconscout/react-unicons';
+import { UilTagAlt, UilShoppingCart, UilBell, UilMultiply, UilCheck, UilArrowDown, UilStar, UilShoppingBag } from '@iconscout/react-unicons';
 import { useCart, CartProduct } from "@/components/cart/CartContext";
 
 

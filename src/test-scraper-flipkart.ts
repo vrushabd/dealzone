@@ -21,7 +21,7 @@ async function main() {
                 const data = JSON.parse(match[1]);
                 console.log("JSON-LD Price:", data.offers?.price);
                 console.log("JSON-LD Image:", data.image);
-            } catch (e) {
+            } catch {
                 console.log("Error parsing JSON-LD");
             }
         }

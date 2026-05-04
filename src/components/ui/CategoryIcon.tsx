@@ -64,7 +64,7 @@ interface Props {
     variant?: "bar" | "card" | "page";
 }
 
-export default function CategoryIcon({ slug, name, variant = "card" }: Props) {
+export default function CategoryIcon({ slug, variant = "card" }: Props) {
     const Icon = iconMap[slug] ?? UilTagAlt;
     const color = colorMap[slug] ?? "text-[hsl(214_89%_55%)] bg-[hsl(214_89%_52%/0.08)] border-[hsl(214_89%_52%/0.20)]";
 

@@ -4,7 +4,9 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { signInWithPopup } from "firebase/auth";
 import Logo from "@/components/ui/Logo";
+import { firebaseAuth, googleProvider } from "@/lib/firebaseClient";
 
 export default function RegisterPage() {
     const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
@@ -53,6 +55,31 @@ export default function RegisterPage() {
             setTimeout(() => router.push("/"), 1500);
         } catch {
             setError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const result = await signInWithPopup(firebaseAuth, googleProvider);
+            const idToken = await result.user.getIdToken();
+            const res = await signIn("firebase-google", {
+                idToken,
+                redirect: false,
+            });
+
+            if (res?.error) {
+                setError("Google sign in failed. Please try again.");
+                return;
+            }
+
+            router.push("/");
+        } catch {
+            setError("Google sign in failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -154,6 +181,21 @@ export default function RegisterPage() {
                                     )}
                                 </button>
                             </form>
+
+                            <div className="my-5 flex items-center gap-3">
+                                <div className="h-px flex-1 bg-[var(--border)]" />
+                                <span className="text-xs text-[var(--text-muted)]">or</span>
+                                <div className="h-px flex-1 bg-[var(--border)]" />
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={handleGoogleSignIn}
+                                disabled={loading}
+                                className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[hsl(214_89%_55%)] text-[var(--text-primary)] font-semibold py-3 px-4 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                Continue with Google
+                            </button>
 
                             <p className="text-center text-sm text-[var(--text-muted)] mt-5">
                                 Already have an account?{" "}

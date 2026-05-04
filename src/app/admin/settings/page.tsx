@@ -177,12 +177,18 @@ export default function AdminSettingsPage() {
                         <div>
                             <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5 flex items-center gap-1.5"><ImageIcon size={14} className="text-[var(--text-muted)]" /> Logo Image URL</label>
                             <input type="url" placeholder="https://yoursite.com/logo.png" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} className="input-base w-full text-sm" />
-                            {logoUrl && <img src={logoUrl} alt="Logo preview" className="mt-2 h-10 w-auto object-contain rounded border border-[var(--border)] p-1 bg-[var(--bg-elevated)]" onError={e => (e.currentTarget.style.display = "none")} />}
+                            {logoUrl && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={logoUrl} alt="Logo preview" className="mt-2 h-10 w-auto object-contain rounded border border-[var(--border)] p-1 bg-[var(--bg-elevated)]" onError={e => (e.currentTarget.style.display = "none")} />
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5 flex items-center gap-1.5"><ImageIcon size={14} className="text-[var(--text-muted)]" /> Favicon URL</label>
                             <input type="url" placeholder="https://yoursite.com/favicon.ico" value={faviconUrl} onChange={e => setFaviconUrl(e.target.value)} className="input-base w-full text-sm" />
-                            {faviconUrl && <img src={faviconUrl} alt="Favicon preview" className="mt-2 h-8 w-8 object-contain rounded border border-[var(--border)] p-0.5 bg-[var(--bg-elevated)]" onError={e => (e.currentTarget.style.display = "none")} />}
+                            {faviconUrl && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={faviconUrl} alt="Favicon preview" className="mt-2 h-8 w-8 object-contain rounded border border-[var(--border)] p-0.5 bg-[var(--bg-elevated)]" onError={e => (e.currentTarget.style.display = "none")} />
+                            )}
                         </div>
                     </div>
                 </div>

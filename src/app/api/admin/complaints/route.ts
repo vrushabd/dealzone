@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/adminAuth";
 
 // GET all complaints (admin only)
 export async function GET() {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { response } = await requireAdminSession();
+    if (response) return response;
 
     const complaints = await prisma.complaint.findMany({
         orderBy: { createdAt: "desc" },
@@ -17,8 +16,8 @@ export async function GET() {
 
 // PATCH update complaint status (admin only)
 export async function PATCH(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { response } = await requireAdminSession();
+    if (response) return response;
 
     const { id, status } = await req.json();
     if (!id || !status) return NextResponse.json({ error: "id and status required" }, { status: 400 });
@@ -32,8 +31,8 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE complaint (admin only)
 export async function DELETE(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { response } = await requireAdminSession();
+    if (response) return response;
 
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });

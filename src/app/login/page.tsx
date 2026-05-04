@@ -4,7 +4,9 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import { signInWithPopup } from "firebase/auth";
 import Logo from "@/components/ui/Logo";
+import { firebaseAuth, googleProvider } from "@/lib/firebaseClient";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -33,6 +35,32 @@ export default function LoginPage() {
         } else {
             router.push(callbackUrl);
             router.refresh();
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const result = await signInWithPopup(firebaseAuth, googleProvider);
+            const idToken = await result.user.getIdToken();
+            const res = await signIn("firebase-google", {
+                idToken,
+                redirect: false,
+            });
+
+            if (res?.error) {
+                setError("Google sign in failed. Please try again.");
+                return;
+            }
+
+            router.push(callbackUrl);
+            router.refresh();
+        } catch {
+            setError("Google sign in failed. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -123,6 +151,21 @@ export default function LoginPage() {
                         </button>
                     </form>
 
+                    <div className="my-5 flex items-center gap-3">
+                        <div className="h-px flex-1 bg-[var(--border)]" />
+                        <span className="text-xs text-[var(--text-muted)]">or</span>
+                        <div className="h-px flex-1 bg-[var(--border)]" />
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        disabled={loading}
+                        className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[hsl(214_89%_55%)] text-[var(--text-primary)] font-semibold py-3 px-4 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        Continue with Google
+                    </button>
+
                     <p className="text-center text-sm text-[var(--text-muted)] mt-6">
                         Don&apos;t have an account?{" "}
                         <Link href="/register" className="text-[hsl(214_89%_55%)] font-semibold hover:underline">
@@ -132,7 +175,7 @@ export default function LoginPage() {
                 </div>
 
                 <p className="text-center text-xs text-[var(--text-muted)] mt-6">
-                    <Link href="/admin/login" className="hover:text-[var(--text-secondary)] transition-colors">
+                    <Link href="/enlightenment-panel" className="hover:text-[var(--text-secondary)] transition-colors">
                         Admin Login →
                     </Link>
                 </p>

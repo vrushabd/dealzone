@@ -10,7 +10,7 @@ export interface ScrapedProduct {
     seller?: string;
     rating?: number;
     availability?: string;
-    platform: 'amazon' | 'flipkart' | 'meesho' | 'unknown';
+    platform: 'amazon' | 'flipkart' | 'meesho' | 'myntra' | 'unknown';
     url: string;
     category?: string;
     description?: string;
@@ -21,6 +21,18 @@ export interface ScrapedProduct {
 }
 
 type JsonRecord = Record<string, unknown>;
+
+type MyntraWindowState = {
+    title?: string;
+    price?: number;
+    originalPrice?: number;
+    image?: string;
+    images?: string[];
+    category?: string;
+    description?: string;
+    rating?: number;
+    reviews?: ScrapedProduct['reviews'];
+};
 
 type StructuredDataProduct = {
     title?: string;
@@ -121,11 +133,13 @@ function normalizeImageSource(value: string): string {
         .trim();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function stripHtml(value: string | null | undefined): string {
     if (!value) return '';
     return normalizeText(value.replace(/<[^>]+>/g, ' '));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extractJsonAssignment(html: string, variableName: string): string | null {
     const start = html.indexOf(variableName);
     if (start === -1) return null;
@@ -408,6 +422,10 @@ function isLikelyProductUrl(url: string, platform: ScrapedProduct['platform']): 
             return segments.length >= 2;
         }
 
+        if (platform === 'myntra') {
+            return pathname.includes('/buy') || pathname.split('/').filter(Boolean).length >= 2;
+        }
+
         return false;
     } catch {
         return false;
@@ -432,6 +450,10 @@ function normalizeProductUrl(parsed: URL, platform: ScrapedProduct['platform']):
     }
 
     if (platform === 'meesho') {
+        return `${parsed.origin}${parsed.pathname}`;
+    }
+
+    if (platform === 'myntra') {
         return `${parsed.origin}${parsed.pathname}`;
     }
 
@@ -709,6 +731,21 @@ function parseFlipkartWindowState(html: string): StructuredDataProduct {
     }
 }
 
+function parseMyntraWindowState(html: string): MyntraWindowState {
+    const images = Array.from(html.matchAll(/https?:\\?\/\\?\/[^"',\s]+?\.(?:jpg|jpeg|png|webp)[^"',\s]*/gi))
+        .map((match) => match[0].replace(/\\\//g, "/"))
+        .filter((value, index, all) => all.indexOf(value) === index)
+        .slice(0, 8);
+
+    return {
+        price: normalizePrice(html.match(/"price"\s*:\s*"?([\d,.]+)/)?.[1]),
+        originalPrice: normalizePrice(html.match(/"mrp"\s*:\s*"?([\d,.]+)/)?.[1]),
+        image: images[0],
+        images,
+        rating: normalizePrice(html.match(/"rating"\s*:\s*"?([\d.]+)/)?.[1]),
+    };
+}
+
 function parseMeeshoNextData(html: string): Partial<ScrapedProduct> {
     try {
         const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([^<]+)<\/script>/);
@@ -832,7 +869,7 @@ function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProd
         normalizePrice(html?.match(/"rating"\s*:\s*(\d+(?:\.\d+)?)/)?.[1]);
 
     // 7. Reviews fallback
-    let reviews: ScrapedReview[] = nextData.reviews || [];
+    const reviews: ScrapedReview[] = nextData.reviews || [];
     if (reviews.length === 0 && html) {
         const reviewMatches = html.matchAll(/"reviewText"\s*:\s*"([^"]+)".*?"rating"\s*:\s*(\d+(?:\.\d+)?).*?"author"\s*:\s*"([^"]+)"/g);
         for (const match of reviewMatches) {
@@ -1015,6 +1052,8 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
         'm.flipkart.com',
         'www.meesho.com',
         'meesho.com',
+        'www.myntra.com',
+        'myntra.com',
     ];
     if (!allowedHosts.includes(hostname)) {
         return null;
@@ -1024,6 +1063,7 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
         hostname.includes('amazon') ? 'amazon' :
         hostname.includes('flipkart') ? 'flipkart' :
         hostname.includes('meesho') ? 'meesho' :
+        hostname.includes('myntra') ? 'myntra' :
         'unknown';
 
     url = normalizeProductUrl(new URL(url), platform);
@@ -1089,8 +1129,8 @@ export async function scrapeProduct(rawUrl: string): Promise<ScrapedProduct | nu
                 result = parseAmazon(root, url);
             } else if (platform === 'flipkart') {
                 result = parseFlipkart(root, url, desktop.html);
-            } else if (platform === 'meesho') {
-                result = parseMeesho(root, url, desktop.html);
+            } else if (platform === 'myntra') {
+                result = parseMyntra(root, url, desktop.html);
             }
 
             result = applyStructuredData(result, parseJsonLd(desktop.html, platform), platform, url);

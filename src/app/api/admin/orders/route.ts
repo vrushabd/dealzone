@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/adminAuth";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/admin/orders — all orders for admin
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-        return NextResponse.json({ error: "Admin only" }, { status: 403 });
-    }
+    const { response } = await requireAdminSession();
+    if (response) return response;
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");

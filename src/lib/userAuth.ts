@@ -1,11 +1,14 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "./prisma";
-import bcrypt from "bcryptjs";
+import {
+    signInWithFirebasePassword,
+    syncFirebaseUserToPrisma,
+    verifyFirebaseIdToken,
+} from "./firebaseAuth";
 
 /**
  * Separate NextAuth options for CUSTOMER sessions.
- * Admin auth lives in /src/lib/auth.ts and redirects to /admin/login.
+ * Admin auth lives in /src/lib/auth.ts and redirects to /enlightenment-panel.
  * Customer auth uses this config and redirects to /login.
  */
 export const userAuthOptions: NextAuthOptions = {
@@ -20,14 +23,41 @@ export const userAuthOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials.email },
+                const firebaseUser = await signInWithFirebasePassword(
+                    credentials.email.trim().toLowerCase(),
+                    credentials.password
+                );
+
+                const user = await syncFirebaseUserToPrisma({
+                    firebaseUid: firebaseUser.localId,
+                    email: firebaseUser.email || credentials.email.trim().toLowerCase(),
+                    name: firebaseUser.displayName || firebaseUser.email || "ZenCult User",
                 });
 
-                if (!user) return null;
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                };
+            },
+        }),
+        CredentialsProvider({
+            id: "firebase-google",
+            name: "Google",
+            credentials: {
+                idToken: { label: "Firebase ID token", type: "text" },
+            },
+            async authorize(credentials) {
+                if (!credentials?.idToken) return null;
 
-                const isValid = await bcrypt.compare(credentials.password, user.password);
-                if (!isValid) return null;
+                const firebaseUser = await verifyFirebaseIdToken(credentials.idToken);
+                if (!firebaseUser.email) return null;
+
+                const user = await syncFirebaseUserToPrisma({
+                    firebaseUid: firebaseUser.localId,
+                    email: firebaseUser.email,
+                    name: firebaseUser.displayName || firebaseUser.email,
+                });
 
                 return {
                     id: user.id,

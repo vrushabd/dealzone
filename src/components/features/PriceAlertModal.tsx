@@ -49,12 +49,13 @@ export default function PriceAlertModal({ productId, currentPrice, productName, 
                 </div>
                 
                 <p className="text-sm text-[var(--text-secondary)] mb-6">
-                    We'll email you immediately when the price of <span className="font-semibold text-[var(--text-primary)]">"{productName}"</span> drops below your target!
+                    We&apos;ll email you immediately when the price of <span className="font-semibold text-[var(--text-primary)]">&quot;{productName}&quot;</span> drops below your target!
                 </p>
 
                 {status === 'success' ? (
                     <div className="bg-green-500/10 border border-green-500/20 text-green-500 p-4 rounded-lg flex items-center gap-3">
                         <CheckCircle size={24} className="flex-shrink-0" />
+                        {/* eslint-disable-next-line react/no-unescaped-entities */}
                         <p className="text-sm font-medium">Alert set! We'll notify {email} when the price drops to ₹{targetPrice}.</p>
                     </div>
                 ) : (

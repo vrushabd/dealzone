@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
 import { encode } from "next-auth/jwt";
+import { ADMIN_EMAIL, ensureDefaultFirebaseAdmin, signInWithFirebasePassword } from "@/lib/firebaseAuth";
 
 export async function POST(req: NextRequest) {
     try {
@@ -11,15 +10,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
         }
 
-        const admin = await prisma.admin.findUnique({ where: { email } });
-        if (!admin) {
+        const normalizedEmail = String(email).trim().toLowerCase();
+        if (normalizedEmail !== ADMIN_EMAIL) {
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
-        const isValid = await bcrypt.compare(password, admin.password);
-        if (!isValid) {
-            return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-        }
+        const admin = await ensureDefaultFirebaseAdmin();
+        const firebaseUser = await signInWithFirebasePassword(normalizedEmail, password);
+        if (firebaseUser.localId !== admin.localId) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 
         // Use NextAuth's own encode() so getServerSession() can decode it correctly
         const secret = process.env.NEXTAUTH_SECRET!;
@@ -27,9 +25,10 @@ export async function POST(req: NextRequest) {
 
         const token = await encode({
             token: {
-                sub: admin.id,
-                id: admin.id,
-                email: admin.email,
+                sub: firebaseUser.localId,
+                id: firebaseUser.localId,
+                email: normalizedEmail,
+                name: "ZenCult Admin",
                 role: "admin",
             },
             secret,

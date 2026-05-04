@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { createFirebaseUser, syncFirebaseUserToPrisma } from "@/lib/firebaseAuth";
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,20 +13,24 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
         }
 
-        const existing = await prisma.user.findUnique({ where: { email } });
-        if (existing) {
-            return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
-        }
-
-        const hashed = await bcrypt.hash(password, 12);
-        const user = await prisma.user.create({
-            data: { name, email, password: hashed, phone: phone || null },
-            select: { id: true, name: true, email: true },
+        const firebaseUser = await createFirebaseUser({
+            email: String(email).trim().toLowerCase(),
+            password,
+            displayName: name.trim(),
+        });
+        const user = await syncFirebaseUserToPrisma({
+            firebaseUid: firebaseUser.localId,
+            email: firebaseUser.email || String(email).trim().toLowerCase(),
+            name: name.trim(),
+            phone: phone || null,
         });
 
-        return NextResponse.json({ user }, { status: 201 });
+        return NextResponse.json({ user: { id: user.id, name: user.name, email: user.email } }, { status: 201 });
     } catch (err) {
         console.error("[register]", err);
-        return NextResponse.json({ error: "Registration failed" }, { status: 500 });
+        const message = err instanceof Error && err.message === "EMAIL_EXISTS"
+            ? "An account with this email already exists"
+            : "Registration failed";
+        return NextResponse.json({ error: message }, { status: message.includes("already") ? 409 : 500 });
     }
 }

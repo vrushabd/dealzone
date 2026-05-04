@@ -122,7 +122,7 @@ export default function AdminSidebar() {
                     pathname={safePathname}
                     collapsed={collapsed}
                     onNavigate={() => setMobileOpen(false)}
-                    onSignOut={() => signOut({ callbackUrl: "/admin/login" })}
+                    onSignOut={() => signOut({ callbackUrl: "/enlightenment-panel" })}
                 />
             </aside>
 
@@ -154,7 +154,7 @@ export default function AdminSidebar() {
                             pathname={safePathname}
                             collapsed={false}
                             onNavigate={() => setMobileOpen(false)}
-                            onSignOut={() => signOut({ callbackUrl: "/admin/login" })}
+                            onSignOut={() => signOut({ callbackUrl: "/enlightenment-panel" })}
                         />
                     </aside>
                 </div>

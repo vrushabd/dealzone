@@ -46,7 +46,7 @@ type TrendingProduct = {
 export default async function AdminDashboard() {
     const session = await getServerSession(authOptions);
     if (!session) {
-        redirect("/admin/login");
+        redirect("/enlightenment-panel");
     }
 
     const now = new Date();

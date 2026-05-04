@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TrendingDown, TrendingUp, Minus, Calendar, ShoppingCart, Sparkles, Zap } from 'lucide-react';
+import { TrendingDown, TrendingUp, Minus, Calendar, Zap } from 'lucide-react';
 
 interface PredictionCardProps {
     prediction: {
@@ -82,7 +82,7 @@ export default function PredictionCard({ prediction }: PredictionCardProps) {
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">AI Rationale</span>
                     </div>
                     <p className="text-lg font-bold text-gray-200 leading-relaxed italic">
-                        "{prediction.reason}"
+                        &quot;{prediction.reason}&quot;
                     </p>
                 </div>
 

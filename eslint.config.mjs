@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "list_models_native.js",
+    "query_items.js",
+    "test-scraper-flipkart.js",
+    "prisma/patch-images.js",
   ]),
 ]);
 

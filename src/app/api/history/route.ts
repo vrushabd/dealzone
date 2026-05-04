@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
         }));
 
         return NextResponse.json(mappedHistory);
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('History API Error:', error);
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
     }
 }

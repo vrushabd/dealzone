@@ -172,7 +172,9 @@ export async function POST(req: NextRequest) {
                 },
             });
 
-            await tx.cartItem.deleteMany({ where: { userId } });
+            if (paymentMethod === "COD") {
+                await tx.cartItem.deleteMany({ where: { userId } });
+            }
 
             return createdOrder;
         });

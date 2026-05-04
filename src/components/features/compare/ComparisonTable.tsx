@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShoppingCart, TrendingUp, Sparkles, ShieldAlert, Cpu, History } from 'lucide-react';
+import { ShoppingCart, Sparkles, ShieldAlert, Cpu, History } from 'lucide-react';
 import { ScrapedProduct } from '@/lib/features/scraper/scraper';
 
 interface ComparisonTableProps {
@@ -35,11 +35,14 @@ export default function ComparisonTable({ products, onOpenDetails }: ComparisonT
                                     <span className="text-[10px] font-black uppercase tracking-[0.4em]">Shield Active</span>
                                 </div>
                             ) : (
-                                <img
-                                    src={product.image || '/placeholder-product.png'}
-                                    alt={product.title}
-                                    className="h-full w-auto object-contain transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl"
-                                />
+                                <>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={product.image || '/placeholder-product.png'}
+                                        alt={product.title}
+                                        className="h-full w-auto object-contain transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl"
+                                    />
+                                </>
                             )}
 
                             {isBestDeal && !isBlocked && (

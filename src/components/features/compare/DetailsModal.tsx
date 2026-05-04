@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { X, Loader2, BarChart2, Sparkles, TrendingUp, Package, History, ShieldAlert } from 'lucide-react';
+import { X, Loader2, BarChart2, Sparkles, History, ShieldAlert } from 'lucide-react';
 import PriceChart from './PriceChart';
 import PredictionCard from './PredictionCard';
 
@@ -11,10 +11,32 @@ interface DetailsModalProps {
     onClose: () => void;
 }
 
+type PriceHistoryPoint = {
+    date: string | Date;
+    price: number;
+    [key: string]: unknown;
+};
+
+type Prediction = {
+    error?: string;
+    predictedPrice: number;
+    trend: 'down' | 'up' | 'stable';
+    confidence: number;
+    reason: string;
+    productId: string;
+    daysUntilNextDrop?: number;
+};
+
+type ProductDetails = {
+    title?: string;
+    platform?: string;
+    originalUrl?: string;
+};
+
 export default function DetailsModal({ productId, isOpen, onClose }: DetailsModalProps) {
-    const [history, setHistory] = useState<any[]>([]);
-    const [prediction, setPrediction] = useState<any>(null);
-    const [product, setProduct] = useState<any>(null);
+    const [history, setHistory] = useState<PriceHistoryPoint[]>([]);
+    const [prediction, setPrediction] = useState<Prediction | null>(null);
+    const [product, setProduct] = useState<ProductDetails | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -100,7 +122,7 @@ export default function DetailsModal({ productId, isOpen, onClose }: DetailsModa
                                 </p>
                             </div>
                             <a
-                                href={product.originalUrl}
+                                href={product?.originalUrl || "#"}
                                 target="_blank"
                                 className="px-8 py-3 bg-white text-black font-black rounded-md hover:bg-gray-100 transition-all"
                             >

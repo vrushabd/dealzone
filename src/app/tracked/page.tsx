@@ -3,8 +3,20 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, ArrowDown, ExternalLink, Trash2, Loader2, Tag } from 'lucide-react';
 
+type TrackedItem = {
+    id: string;
+    targetPrice?: number | null;
+    product: {
+        title: string;
+        image?: string | null;
+        price: number;
+        amazonLink?: string | null;
+        flipkartLink?: string | null;
+    };
+};
+
 export default function TrackedPage() {
-    const [tracked, setTracked] = useState<any[]>([]);
+    const [tracked, setTracked] = useState<TrackedItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -46,16 +58,17 @@ export default function TrackedPage() {
                     <div className="bg-[var(--bg-card)] p-12 rounded-3xl text-center border-2 border-dashed border-[var(--border)]">
                         <Tag className="mx-auto text-[var(--text-placeholder)] mb-4" size={48} />
                         <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">No products tracked yet</h3>
-                        <p className="text-[var(--text-secondary)] mb-6">Start by comparing products and clicking the "Track Price" button.</p>
+                        <p className="text-[var(--text-secondary)] mb-6">Start by comparing products and clicking the &quot;Track Price&quot; button.</p>
                         <a href="/compare" className="px-6 py-3 bg-[hsl(214_89%_52%)] text-white font-bold rounded-xl hover:bg-[hsl(214_89%_45%)] transition-colors">
                             Go to Comparison
                         </a>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-4">
-                        {tracked.map((item, index) => (
-                            <div key={index} className="bg-[var(--bg-card)] p-6 rounded-3xl border border-[var(--border)] flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
-                                <img src={item.product.image} className="w-20 h-20 object-contain" alt="" />
+                        {tracked.map((item) => (
+                            <div key={item.id} className="bg-[var(--bg-card)] p-6 rounded-3xl border border-[var(--border)] flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={item.product.image || ""} className="w-20 h-20 object-contain" alt="" />
                                 <div className="flex-1">
                                     <h3 className="font-bold text-[var(--text-primary)] line-clamp-1">{item.product.title}</h3>
                                     <div className="flex items-center gap-4 mt-1">
@@ -70,7 +83,7 @@ export default function TrackedPage() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <a
-                                        href={item.product.amazonLink || item.product.flipkartLink}
+                                        href={item.product.amazonLink || item.product.flipkartLink || "#"}
                                         target="_blank"
                                         className="p-3 bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] rounded-xl transition-colors"
                                     >

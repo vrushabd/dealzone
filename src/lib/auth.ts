@@ -1,7 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "./prisma";
-import bcrypt from "bcryptjs";
+import { ADMIN_EMAIL, ensureDefaultFirebaseAdmin, signInWithFirebasePassword } from "./firebaseAuth";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -15,21 +14,20 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
-                const admin = await prisma.admin.findUnique({
-                    where: { email: credentials.email },
-                });
+                const email = credentials.email.trim().toLowerCase();
+                if (email !== ADMIN_EMAIL) return null;
 
-                if (!admin) return null;
+                const admin = await ensureDefaultFirebaseAdmin();
+                const user = await signInWithFirebasePassword(email, credentials.password);
 
-                const isValid = await bcrypt.compare(credentials.password, admin.password);
-                if (!isValid) return null;
+                if (user.localId !== admin.localId) return null;
 
-                return { id: admin.id, email: admin.email, role: "admin" };
+                return { id: user.localId, email, name: "ZenCult Admin", role: "admin" };
             },
         }),
     ],
     pages: {
-        signIn: "/admin/login",
+        signIn: "/enlightenment-panel",
     },
     session: {
         strategy: "jwt",

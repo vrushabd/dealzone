@@ -7,8 +7,8 @@ export async function proxy(req: NextRequest) {
         secret: process.env.NEXTAUTH_SECRET,
     });
 
-    if (!token) {
-        const loginUrl = new URL('/admin/login', req.url);
+    if (token?.role !== 'admin') {
+        const loginUrl = new URL('/enlightenment-panel', req.url);
         loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
         return NextResponse.redirect(loginUrl);
     }
@@ -17,5 +17,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/((?!login).*)'],
+    matcher: ['/admin/:path*'],
 };

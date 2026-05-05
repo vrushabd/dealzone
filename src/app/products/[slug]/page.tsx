@@ -7,7 +7,6 @@ import Footer from "@/components/layout/Footer";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductCard from "@/components/products/ProductCard";
 
-import BuyAdvice from "@/components/features/BuyAdvice";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
 
 import {
@@ -319,8 +318,6 @@ export default async function ProductDetailPage({ params }: Params) {
                             </div>
                         )}
 
-                        {/* AI Buy Advisor */}
-                        <BuyAdvice productId={product.id} currentPrice={product.price ?? 0} />
 
                         {/* Description */}
                         {product.description && (

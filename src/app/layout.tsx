@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/layout/AnalyticsTracker";
+import ChatbotWidget from "@/components/chat/ChatbotWidget";
 import AnnouncementBanner from "@/components/layout/AnnouncementBanner";
 import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_HANDLE, getSiteUrl } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
@@ -85,6 +86,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <body className="bg-[var(--bg-base)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-300">
                 <AnnouncementBanner />
                 <Providers forcedDefaultTheme={defaultTheme}>{children}</Providers>
+                <ChatbotWidget />
                 <AnalyticsTracker />
             </body>
         </html>

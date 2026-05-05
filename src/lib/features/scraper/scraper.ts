@@ -828,21 +828,22 @@ function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProd
     // 2. Regex fallbacks for price
     let price = nextData.price || 0;
     if (!price && html) {
-        const priceMatch = html.match(/"discounted_price"\s*:\s*(\d+(?:\.\d+)?)/) ||
-                           html.match(/"price"\s*:\s*(\d+(?:\.\d+)?)/) ||
-                           html.match(/"finalPrice"\s*:\s*(\d+(?:\.\d+)?)/);
+        const priceMatch = html.match(/"discounted_price"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
+                           html.match(/"price"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
+                           html.match(/"finalPrice"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
+                           html.match(/₹\s*([\d,]+(?:\.\d+)?)/);
         if (priceMatch) price = normalizePrice(priceMatch[1]) || 0;
     }
     if (!price) {
-        const textPrice = root.querySelector('h4')?.text || '';
+        const textPrice = root.querySelector('h4, [class*="Price"]')?.text || '';
         if (textPrice.includes('₹')) price = normalizePrice(textPrice) || 0;
     }
 
     // 3. Original price fallback
     let originalPrice = nextData.originalPrice;
     if (!originalPrice && html) {
-        const mrpMatch = html.match(/"mrp"\s*:\s*(\d+(?:\.\d+)?)/) ||
-                        html.match(/"original_price"\s*:\s*(\d+(?:\.\d+)?)/);
+        const mrpMatch = html.match(/"mrp"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
+                        html.match(/"original_price"\s*:\s*"?(\d+(?:\.\d+)?)"?/);
         if (mrpMatch) originalPrice = normalizePrice(mrpMatch[1]);
     }
 
@@ -851,27 +852,27 @@ function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProd
     if (!title) {
         title = normalizeProductTitle(
             root.querySelector('h1')?.text ||
-            html?.match(/"name"\s*:\s*"([^"]+)"/)?.[1] || ''
+            html?.match(/"name"\s*:\s*"([^"]+)"/)?.[1] ||
+            html?.match(/"product_name"\s*:\s*"([^"]+)"/)?.[1] || ''
         );
     }
 
     // 5. Images fallback
     let images = nextData.images && nextData.images.length > 0 ? nextData.images : [];
     if (images.length === 0 && html) {
-        images = dedupeImages([
-            root.querySelector('img[src*="images.meesho.com"]')?.getAttribute('src'),
-            ...(html.match(/"(https:\/\/images\.meesho\.com[^"]+)"/g) || []).map(s => s.replace(/"/g, '')),
-        ], 'meesho');
+        const allImgUrls = Array.from(html.matchAll(/"(https:\/\/[^"]*?images\.meesho\.com[^"]+)"/g)).map(m => m[1]);
+        const domImgUrls = Array.from(root.querySelectorAll('img')).map(img => img.getAttribute('src') || '').filter(src => src.includes('images.meesho.com'));
+        images = dedupeImages([...allImgUrls, ...domImgUrls], 'meesho');
     }
 
     // 6. Rating fallback
     const rating = nextData.rating ||
-        normalizePrice(html?.match(/"rating"\s*:\s*(\d+(?:\.\d+)?)/)?.[1]);
+        normalizePrice(html?.match(/"rating"\s*:\s*"?(\d+(?:\.\d+)?)"?/)?.[1]);
 
     // 7. Reviews fallback
     const reviews: ScrapedReview[] = nextData.reviews || [];
     if (reviews.length === 0 && html) {
-        const reviewMatches = html.matchAll(/"reviewText"\s*:\s*"([^"]+)".*?"rating"\s*:\s*(\d+(?:\.\d+)?).*?"author"\s*:\s*"([^"]+)"/g);
+        const reviewMatches = html.matchAll(/"reviewText"\s*:\s*"([^"]+)".*?"rating"\s*:\s*"?(\d+(?:\.\d+)?)"?.*?"author"\s*:\s*"([^"]+)"/g);
         for (const match of reviewMatches) {
             const comment = normalizeText(match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"'));
             if (comment.length > 5) {
@@ -882,7 +883,11 @@ function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProd
     }
 
     const description = nextData.description ||
-        normalizeText(html?.match(/"description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || '');
+        normalizeText(
+            html?.match(/"description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || 
+            html?.match(/"product_description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || 
+            Array.from(root.querySelectorAll('[class*="Description"], [class*="Details"]')).map(el => el.text).join('\n') || ''
+        );
 
     const category = nextData.category ||
         normalizeText(root.querySelectorAll('.breadcrumb-item').pop()?.text || '');

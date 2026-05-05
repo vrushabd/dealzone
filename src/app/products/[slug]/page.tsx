@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductCard from "@/components/products/ProductCard";
 
+import ExpandableDescription from "@/components/products/ExpandableDescription";
 import PriceAlertButton from "@/components/features/PriceAlertButton";
 
 import {
@@ -321,10 +322,7 @@ export default async function ProductDetailPage({ params }: Params) {
 
                         {/* Description */}
                         {product.description && (
-                            <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-md p-5">
-                                <h2 className="font-semibold text-[var(--text-secondary)] mb-3">About this product</h2>
-                                <p className="text-[var(--text-secondary)]/80 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
-                            </div>
+                            <ExpandableDescription text={product.description} />
                         )}
 
 

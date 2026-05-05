@@ -196,7 +196,7 @@ export default function OrderDetailPage() {
                             <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{order.id}</p>
                         </div>
                         <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full bg-[var(--bg-elevated)] border border-[var(--border)] ${cfg.color}`}>
-                            <cfg.icon size={14} /> {cfg.label}
+                            <cfg.icon size={14} /> {order.paymentMethod === "online" && order.paymentStatus !== "paid" && order.status === "pending" ? "Awaiting Payment" : cfg.label}
                         </span>
                     </div>
 
@@ -263,7 +263,7 @@ export default function OrderDetailPage() {
                                     <span>{order.shippingFee > 0 ? `₹${order.shippingFee}` : "FREE"}</span>
                                 </div>
                                 <div className="flex justify-between font-bold text-[var(--text-primary)] text-base pt-1 border-t border-[var(--border)]">
-                                    <span>Total Paid</span>
+                                    <span>{order.paymentStatus === "paid" || order.paymentMethod === "COD" ? "Total Paid" : "Total to Pay"}</span>
                                     <span className="text-[var(--brand)]">₹{order.total.toLocaleString("en-IN")}</span>
                                 </div>
                             </div>

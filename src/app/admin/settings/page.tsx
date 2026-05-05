@@ -184,7 +184,7 @@ export default function AdminSettingsPage() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5 flex items-center gap-1.5"><ImageIcon size={14} className="text-[var(--text-muted)]" /> Favicon URL</label>
-                            <input type="url" placeholder="https://yoursite.com/favicon.ico" value={faviconUrl} onChange={e => setFaviconUrl(e.target.value)} className="input-base w-full text-sm" />
+                            <input type="url" placeholder="https://yoursite.com/favicon.ico" value={faviconUrl} onChange={e => setFaviconUrl(e.target.value)} autoComplete="off" data-1p-ignore className="input-base w-full text-sm" />
                             {faviconUrl && (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={faviconUrl} alt="Favicon preview" className="mt-2 h-8 w-8 object-contain rounded border border-[var(--border)] p-0.5 bg-[var(--bg-elevated)]" onError={e => (e.currentTarget.style.display = "none")} />
@@ -200,12 +200,12 @@ export default function AdminSettingsPage() {
                 <div className="p-6 space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Google Gemini API Key</label>
-                        <input type="password" placeholder="AIzaSy..." value={geminiApiKey} onChange={e => setGeminiApiKey(e.target.value)} className="input-base w-full max-w-lg font-mono text-sm" />
+                        <input type="password" placeholder="AIzaSy..." value={geminiApiKey} onChange={e => setGeminiApiKey(e.target.value)} autoComplete="new-password" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />
                         <p className="text-xs text-[var(--text-muted)] mt-1.5">Get from <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>.</p>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Resend API Key</label>
-                        <input type="password" placeholder="re_..." value={resendApiKey} onChange={e => setResendApiKey(e.target.value)} className="input-base w-full max-w-lg font-mono text-sm" />
+                        <input type="password" placeholder="re_..." value={resendApiKey} onChange={e => setResendApiKey(e.target.value)} autoComplete="new-password" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />
                         <p className="text-xs text-[var(--text-muted)] mt-1.5">Used for order confirmation and price-drop alert emails.</p>
                     </div>
                 </div>
@@ -216,7 +216,7 @@ export default function AdminSettingsPage() {
                 {sectionHeader(<Bug size={18} className="text-[hsl(214_89%_52%)]" />, "Scraping (Meesho)", "ScrapingBee bypasses Meesho's anti-bot protection. Get a key at scrapingbee.com.")}
                 <div className="p-6">
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">ScrapingBee API Key</label>
-                    <input type="password" placeholder="U3ZFC..." value={scrapingBeeApiKey} onChange={e => setScrapingBeeApiKey(e.target.value)} className="input-base w-full max-w-lg font-mono text-sm" />
+                    <input type="password" placeholder="U3ZFC..." value={scrapingBeeApiKey} onChange={e => setScrapingBeeApiKey(e.target.value)} autoComplete="new-password" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />
                     <p className="text-xs text-[var(--text-muted)] mt-1.5">Overrides the <code className="bg-[var(--bg-elevated)] px-1 rounded">SCRAPINGBEE_API_KEY</code> env variable.</p>
                 </div>
             </div>
@@ -227,11 +227,11 @@ export default function AdminSettingsPage() {
                 <div className="p-6 space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Razorpay Key ID</label>
-                        <input type="text" placeholder="rzp_live_..." value={razorpayKeyId} onChange={e => setRazorpayKeyId(e.target.value)} className="input-base w-full max-w-lg font-mono text-sm" />
+                        <input type="text" placeholder="rzp_live_..." value={razorpayKeyId} onChange={e => setRazorpayKeyId(e.target.value)} autoComplete="off" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Razorpay Key Secret</label>
-                        <input type="password" placeholder="••••••••••••••••••••••••" value={razorpayKeySecret} onChange={e => setRazorpayKeySecret(e.target.value)} className="input-base w-full max-w-lg font-mono text-sm" />
+                        <input type="password" placeholder="••••••••••••••••••••••••" value={razorpayKeySecret} onChange={e => setRazorpayKeySecret(e.target.value)} autoComplete="new-password" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />
                         <p className="text-xs text-[var(--text-muted)] mt-1.5">Get from <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline">Razorpay Dashboard → API Keys</a>.</p>
                     </div>
                 </div>

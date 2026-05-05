@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Star, Send, Loader2, CheckCircle2, AlertCircle, User, Lock } from "lucide-react";
+import { Star, Send, Loader2, CheckCircle2, AlertCircle, User, Lock, Quote } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 interface Review {
@@ -15,6 +15,7 @@ interface Review {
 interface Props {
     productSlug: string;
     initialReviews: Review[];
+    overallRating?: number | null;
 }
 
 function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -40,7 +41,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
     );
 }
 
-export default function ProductReviewSection({ productSlug, initialReviews }: Props) {
+export default function ProductReviewSection({ productSlug, initialReviews, overallRating }: Props) {
     const { data: session, status } = useSession();
     const [reviews, setReviews] = useState<Review[]>(initialReviews);
     const [rating, setRating] = useState(0);
@@ -91,21 +92,28 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
         }
     };
 
-    const avgRating = reviews.length > 0
+    const calculatedAvg = reviews.length > 0
         ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length)
         : 0;
+        
+    const displayRating = overallRating || calculatedAvg;
 
     return (
-        <section className="mt-10">
+        <section className="mt-16 pt-10 border-t border-[var(--border)]">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">Customer Reviews</h2>
-                {reviews.length > 0 && (
-                    <span className="flex items-center gap-1 text-amber-500 text-sm font-semibold">
-                        <Star size={14} className="fill-amber-400 text-amber-400" />
-                        {avgRating.toFixed(1)}
-                        <span className="text-[var(--text-muted)] font-normal">({reviews.length})</span>
-                    </span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h2 className="text-2xl font-extrabold text-[var(--text-primary)]">Customer Reviews</h2>
+                    <p className="text-[var(--text-secondary)] mt-1 text-sm">Real feedback and ratings from verified buyers</p>
+                </div>
+                {displayRating > 0 && (
+                    <div className="flex flex-col sm:items-end">
+                        <div className="flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 px-4 py-2 rounded-full">
+                            <Star size={18} className="fill-amber-500 text-amber-500" />
+                            <span className="text-amber-600 font-bold text-base">{displayRating.toFixed(1)} <span className="text-amber-600/70 font-medium text-sm">/ 5</span></span>
+                        </div>
+                        {overallRating ? <span className="text-xs text-[var(--text-muted)] mt-1.5 px-2">Overall Rating</span> : null}
+                    </div>
                 )}
             </div>
 
@@ -191,33 +199,48 @@ export default function ProductReviewSection({ productSlug, initialReviews }: Pr
 
             {/* Reviews List */}
             {reviews.length === 0 ? (
-                <div className="text-center py-8 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] rounded-xl max-w-2xl">
-                    <Star size={24} className="mx-auto mb-2 opacity-30" />
-                    <p className="text-sm font-medium">No reviews yet</p>
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-[var(--text-muted)] bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl max-w-3xl">
+                    <div className="w-16 h-16 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center mb-4">
+                        <Star size={28} className="text-[var(--border)]" />
+                    </div>
+                    <p className="text-base font-semibold text-[var(--text-primary)] mb-1">No reviews yet</p>
+                    <p className="text-sm">Be the first to share your experience with this product.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-full">
                     {reviews.map(review => (
-                        <div key={review.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3.5">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="flex gap-0.5">
+                        <div key={review.id} className="relative bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl p-5 hover:shadow-lg hover:border-[var(--brand)]/30 transition-all duration-300 group flex flex-col h-full">
+                            <Quote size={24} className="absolute top-4 right-4 text-[var(--border)] opacity-50 group-hover:text-[var(--brand)]/20 transition-colors" />
+                            
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex gap-1">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star key={i} size={12} className={i < Math.floor(review.rating) ? "fill-amber-400 text-amber-400" : "text-[var(--border)] fill-transparent"} />
+                                        <Star key={i} size={14} className={i < Math.floor(review.rating) ? "fill-amber-400 text-amber-400" : "text-[var(--bg-elevated)] fill-transparent"} />
                                     ))}
                                 </div>
-                                <span className="text-[11px] text-[var(--text-muted)]">
-                                    {new Date(review.createdAt).toLocaleDateString("en-IN")}
+                                <span className="text-xs text-[var(--text-muted)] font-medium">
+                                    {new Date(review.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
                                 </span>
                             </div>
-                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-2 italic">
+                            
+                            {review.title && (
+                                <h4 className="text-sm font-bold text-[var(--text-primary)] mb-2 line-clamp-1">{review.title}</h4>
+                            )}
+                            
+                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6 flex-1">
                                 &quot;{review.comment}&quot;
                             </p>
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-5 h-5 rounded-full bg-[var(--brand-glow)] border border-[var(--border)] flex items-center justify-center text-[var(--brand)]">
-                                    <User size={10} />
+                            
+                            <div className="flex items-center gap-2 mt-auto pt-4 border-t border-[var(--border)]/50">
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--brand)] to-[hsl(214_89%_40%)] flex items-center justify-center text-white shadow-sm">
+                                    <User size={12} />
                                 </div>
-                                <span className="text-[11px] text-[var(--text-muted)] font-medium">{review.author || "Verified Buyer"}</span>
-                                <span className="text-[9px] bg-green-500/10 text-green-600 rounded-full px-1.5 py-0.5 font-semibold">✓ Verified</span>
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-[var(--text-primary)] font-semibold line-clamp-1">{review.author || "Verified Buyer"}</span>
+                                    <span className="text-[10px] text-green-500 font-medium flex items-center gap-0.5">
+                                        <CheckCircle2 size={10} /> Verified Purchase
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     ))}

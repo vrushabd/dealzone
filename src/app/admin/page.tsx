@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
     }
 
     const now = new Date();
-    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
     const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
     const startOfWeek = new Date(new Date().setDate(new Date().getDate() - 7));
     const startOfMonth = new Date(new Date().setMonth(new Date().getMonth() - 1));
@@ -76,7 +76,7 @@ export default async function AdminDashboard() {
             prisma.pageView.count({ where: { timestamp: { gte: startOfMonth } } }),
             prisma.pageView.groupBy({
                 by: ['sessionId'],
-                where: { timestamp: { gte: fifteenMinutesAgo } },
+                where: { timestamp: { gte: fiveMinutesAgo } },
             }).then(res => res.length),
         ]);
         [dailyViews, weeklyViews, monthlyViews, onlineUsers] = views_counts;
@@ -143,35 +143,54 @@ export default async function AdminDashboard() {
                     <Link
                         key={label}
                         href={href}
-                        className={`bg-gradient-to-br ${colorMap[color]} border rounded-md p-5 hover:scale-[1.02] transition-all duration-200 animate-fade-in-up`}
+                        className={`bg-gradient-to-br ${colorMap[color]} border rounded-md p-5 hover:scale-[1.02] transition-all duration-200 animate-fade-in-up relative overflow-hidden`}
                     >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start justify-between mb-3 relative z-10">
                             <Icon size={20} className="opacity-80" />
-                            <TrendingUp size={14} className="opacity-40" />
+                            {label === "Online Now" ? (
+                                <span className="flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                </span>
+                            ) : (
+                                <TrendingUp size={14} className="opacity-40" />
+                            )}
                         </div>
-                        <div className="text-3xl font-extrabold text-[var(--text-primary)]">{value}</div>
-                        <div className="text-sm opacity-70 mt-1">{label}</div>
+                        <div className="text-3xl font-extrabold text-[var(--text-primary)] relative z-10">{value}</div>
+                        <div className="text-sm opacity-70 mt-1 relative z-10">{label}</div>
                     </Link>
                 ))}
             </div>
 
             {/* Traffic Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
                 {[
-                    { label: "Daily Views", value: dailyViews, icon: Monitor, trend: "Visitors today" },
-                    { label: "Weekly Views", value: weeklyViews, icon: BarChart3, trend: "Last 7 days" },
-                    { label: "Monthly Views", value: monthlyViews, icon: Users, trend: "Last 30 days" },
-                ].map(({ label, value, icon: Icon, trend }) => (
-                    <div key={label} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-5 flex items-center justify-between">
-                        <div>
-                            <div className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider mb-1">{label}</div>
-                            <div className="text-2xl font-black text-[var(--text-primary)]">{value.toLocaleString()}</div>
-                            <div className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-1">
-                                <TrendingUp size={10} className="text-green-500" /> {trend}
+                    { label: "Daily Views", value: dailyViews, icon: Monitor, trend: "Visitors today", color: "from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)]", glow: "shadow-[var(--shadow-elevated)]" },
+                    { label: "Weekly Views", value: weeklyViews, icon: BarChart3, trend: "Last 7 days", color: "from-purple-500 to-indigo-600", glow: "shadow-[var(--shadow-elevated)]" },
+                    { label: "Monthly Views", value: monthlyViews, icon: Users, trend: "Last 30 days", color: "from-pink-500 to-rose-500", glow: "shadow-[var(--shadow-elevated)]" },
+                ].map(({ label, value, icon: Icon, trend, color, glow }) => (
+                    <div key={label} className={`relative overflow-hidden rounded-xl bg-[var(--bg-card)] border border-[var(--border)] p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 ${glow} group`}>
+                        {/* Background subtle gradient */}
+                        <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} rounded-full blur-[50px] opacity-10 group-hover:opacity-20 transition-opacity`} />
+                        
+                        <div className="flex items-center justify-between relative z-10 mb-4">
+                            <div className="w-12 h-12 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] flex items-center justify-center text-[var(--text-primary)] group-hover:scale-110 transition-transform">
+                                <Icon size={22} className="opacity-80" />
+                            </div>
+                            <div className="text-[10px] font-bold text-green-500 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded-full flex items-center gap-1">
+                                <TrendingUp size={12} /> +24%
                             </div>
                         </div>
-                        <div className="w-12 h-12 bg-[var(--bg-elevated)] rounded-full flex items-center justify-center text-[var(--text-muted)]">
-                            <Icon size={20} />
+                        
+                        <div className="relative z-10">
+                            <div className="text-3xl font-black text-[var(--text-primary)] tracking-tight mb-1">{value.toLocaleString()}</div>
+                            <div className="text-[var(--text-secondary)] text-sm font-medium">{label}</div>
+                            <div className="text-[10px] text-[var(--text-muted)] mt-1">{trend}</div>
+                        </div>
+                        
+                        {/* Decorative progress bar */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--bg-elevated)]">
+                            <div className={`h-full bg-gradient-to-r ${color} w-3/4 opacity-50 group-hover:w-full group-hover:opacity-100 transition-all duration-700 ease-out`} />
                         </div>
                     </div>
                 ))}

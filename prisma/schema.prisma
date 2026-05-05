@@ -22,6 +22,7 @@ model Product {
   categoryId       String?
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
+  rank             Int                   @default(0)
   cashbackAmazon   Float?                @default(0)
   cashbackFlipkart Float?                @default(0)
   cashbackPaytm    Float?                @default(0)

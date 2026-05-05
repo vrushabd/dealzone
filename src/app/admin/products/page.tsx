@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, ShoppingBag, Search, Loader2, Star, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, ShoppingBag, Search, Loader2, Star, ExternalLink, ArrowUp, ArrowDown } from "lucide-react";
 import Link from "next/link";
 
 interface Product {
@@ -11,6 +11,7 @@ interface Product {
     seller?: string | null; rating?: number | null;
     availability?: string | null;
     featured: boolean; categoryId?: string | null; category?: { name: string } | null;
+    rank?: number;
 }
 
 export default function AdminProductsPage() {
@@ -49,6 +50,19 @@ export default function AdminProductsPage() {
         await fetch(`/api/products/${id}`, { method: "DELETE" });
         setDeleting(null);
         load();
+    };
+
+    const handleRank = async (id: string, direction: "up" | "down") => {
+        try {
+            await fetch(`/api/products/${id}/rank`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ direction })
+            });
+            load();
+        } catch (e) {
+            console.error("Failed to update rank", e);
+        }
     };
 
     const filtered = products.filter(p =>
@@ -122,11 +136,20 @@ export default function AdminProductsPage() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0">
+                                <div className="text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0 mr-12 sm:mr-32">
                                     {p.price && <div className="text-[var(--brand)] text-sm font-semibold">₹{p.price.toLocaleString("en-IN")}</div>}
                                     {p.originalPrice && <div className="text-[var(--text-muted)] text-xs line-through">₹{p.originalPrice.toLocaleString("en-IN")}</div>}
+                                    {p.rank !== undefined && p.rank > 0 && <div className="text-xs text-[var(--brand)] mt-1 font-semibold">Rank: {p.rank}</div>}
                                 </div>
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute right-4 top-4 sm:relative sm:right-auto sm:top-auto">
+                                    <div className="flex flex-col gap-0.5 mr-2">
+                                        <button onClick={() => handleRank(p.id, "up")} className="p-0.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded text-[var(--text-muted)] hover:text-[var(--brand)] hover:border-[var(--brand)] transition-colors">
+                                            <ArrowUp size={12} />
+                                        </button>
+                                        <button onClick={() => handleRank(p.id, "down")} className="p-0.5 bg-[var(--bg-elevated)] border border-[var(--border)] rounded text-[var(--text-muted)] hover:text-red-400 hover:border-red-400 transition-colors">
+                                            <ArrowDown size={12} />
+                                        </button>
+                                    </div>
                                     <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-[var(--brand)] hover:bg-[var(--brand-glow)] rounded-lg transition-all">
                                         <ExternalLink size={15} />
                                     </a>

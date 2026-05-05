@@ -22,6 +22,7 @@ const productApiSelect = {
     meeshoLink: true,
     featured: true,
     categoryId: true,
+    rank: true,
     cashbackAmazon: true,
     cashbackFlipkart: true,
     seller: true,
@@ -69,7 +70,7 @@ export async function GET(req: NextRequest) {
 
         const products = await prisma.product.findMany({
             where,
-            orderBy: { createdAt: 'desc' },
+            orderBy: [{ rank: 'desc' }, { createdAt: 'desc' }],
             select: productApiSelect,
         });
 

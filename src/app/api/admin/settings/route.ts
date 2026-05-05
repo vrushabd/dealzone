@@ -14,7 +14,6 @@ export async function GET() {
             siteTagline: settings?.siteTagline || "Best Amazon, Flipkart & Myntra Deals",
             logoUrl: settings?.logoUrl || "",
             faviconUrl: settings?.faviconUrl || "",
-            geminiApiKey: settings?.geminiApiKey || "",
             resendApiKey: settings?.resendApiKey || "",
             scrapingBeeApiKey: settings?.scrapingBeeApiKey || "",
             razorpayKeyId: settings?.razorpayKeyId || "",
@@ -43,7 +42,7 @@ export async function POST(req: NextRequest) {
     try {
         const {
             defaultTheme, siteName, siteTagline, logoUrl, faviconUrl,
-            geminiApiKey, resendApiKey, scrapingBeeApiKey, razorpayKeyId, razorpayKeySecret,
+            resendApiKey, scrapingBeeApiKey, razorpayKeyId, razorpayKeySecret,
             contactEmail, whatsappNumber, instagramUrl, facebookUrl, twitterUrl, youtubeUrl,
             announcementText, announcementLink, shippingFee, freeShippingThreshold
         } = await req.json();
@@ -61,7 +60,7 @@ export async function POST(req: NextRequest) {
         if (siteTagline !== undefined) updateData.siteTagline = siteTagline.trim() || "Best Amazon, Flipkart & Myntra Deals";
         if (logoUrl !== undefined) updateData.logoUrl = logoUrl.trim() || null;
         if (faviconUrl !== undefined) updateData.faviconUrl = faviconUrl.trim() || null;
-        if (geminiApiKey !== undefined) updateData.geminiApiKey = geminiApiKey.trim() || null;
+
         if (resendApiKey !== undefined) updateData.resendApiKey = resendApiKey.trim() || null;
         if (scrapingBeeApiKey !== undefined) updateData.scrapingBeeApiKey = scrapingBeeApiKey.trim() || null;
         if (razorpayKeyId !== undefined) updateData.razorpayKeyId = razorpayKeyId.trim() || null;
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest) {
                 siteTagline: (updateData.siteTagline as string) || "Best Amazon, Flipkart & Myntra Deals",
                 logoUrl: updateData.logoUrl as string | null,
                 faviconUrl: updateData.faviconUrl as string | null,
-                geminiApiKey: updateData.geminiApiKey as string | null,
+
                 resendApiKey: updateData.resendApiKey as string | null,
                 scrapingBeeApiKey: updateData.scrapingBeeApiKey as string | null,
                 razorpayKeyId: updateData.razorpayKeyId as string | null,

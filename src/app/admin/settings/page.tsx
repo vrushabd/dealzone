@@ -16,7 +16,6 @@ export default function AdminSettingsPage() {
     const [faviconUrl, setFaviconUrl] = useState("");
 
     // API Keys
-    const [geminiApiKey, setGeminiApiKey] = useState("");
     const [resendApiKey, setResendApiKey] = useState("");
     const [scrapingBeeApiKey, setScrapingBeeApiKey] = useState("");
     const [razorpayKeyId, setRazorpayKeyId] = useState("");
@@ -48,7 +47,6 @@ export default function AdminSettingsPage() {
                 setSiteTagline(data.siteTagline || "");
                 setLogoUrl(data.logoUrl || "");
                 setFaviconUrl(data.faviconUrl || "");
-                setGeminiApiKey(data.geminiApiKey || "");
                 setResendApiKey(data.resendApiKey || "");
                 setScrapingBeeApiKey(data.scrapingBeeApiKey || "");
                 setRazorpayKeyId(data.razorpayKeyId || "");
@@ -88,7 +86,6 @@ export default function AdminSettingsPage() {
                     siteTagline: siteTagline.trim(),
                     logoUrl: logoUrl.trim(),
                     faviconUrl: faviconUrl.trim(),
-                    geminiApiKey: geminiApiKey.trim(),
                     resendApiKey: resendApiKey.trim(),
                     scrapingBeeApiKey: scrapingBeeApiKey.trim(),
                     razorpayKeyId: razorpayKeyId.trim(),
@@ -194,15 +191,10 @@ export default function AdminSettingsPage() {
                 </div>
             </div>
 
-            {/* ── AI + Email Keys ── */}
+            {/* ── Email Keys ── */}
             <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm">
-                {sectionHeader(<Key size={18} className="text-[hsl(214_89%_52%)]" />, "AI & Email API Keys", "Used for the chatbot (Gemini) and email notifications (Resend). Overrides the .env fallback.")}
+                {sectionHeader(<Key size={18} className="text-[hsl(214_89%_52%)]" />, "Email API Keys", "Used for email notifications (Resend). Overrides the .env fallback.")}
                 <div className="p-6 space-y-5">
-                    <div>
-                        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Google Gemini API Key</label>
-                        <input type="password" placeholder="AIzaSy..." value={geminiApiKey} onChange={e => setGeminiApiKey(e.target.value)} autoComplete="new-password" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />
-                        <p className="text-xs text-[var(--text-muted)] mt-1.5">Get from <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>.</p>
-                    </div>
                     <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Resend API Key</label>
                         <input type="password" placeholder="re_..." value={resendApiKey} onChange={e => setResendApiKey(e.target.value)} autoComplete="new-password" data-1p-ignore className="input-base w-full max-w-lg font-mono text-sm" />

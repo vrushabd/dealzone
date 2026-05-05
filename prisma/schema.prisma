@@ -240,6 +240,7 @@ model Order {
   paymentStatus     String      @default("pending")   // pending | paid | failed
   razorpayOrderId   String?
   razorpayPaymentId String?
+  cancelRequested   Boolean     @default(false)
   subtotal          Float
   shippingFee       Float       @default(0)
   total             Float

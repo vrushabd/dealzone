@@ -68,9 +68,15 @@ export async function runProductSync(triggeredBy: "manual" | "cron" = "manual") 
                     : url.includes("meesho")
                         ? "meesho"
                         : "flipkart";
+                const finalOrigPrice = scraped.originalPrice || product.originalPrice;
+                const newDiscount = (finalOrigPrice && scraped.price && finalOrigPrice > scraped.price) 
+                    ? Math.round(((finalOrigPrice - scraped.price) / finalOrigPrice) * 100) 
+                    : null;
+
                 const updateData: Prisma.ProductUpdateInput = {
                     price: scraped.price,
-                    originalPrice: scraped.originalPrice || product.originalPrice,
+                    originalPrice: finalOrigPrice,
+                    discount: newDiscount,
                     image: scraped.image || product.image,
                     updatedAt: new Date(),
                 };

@@ -114,6 +114,11 @@ export async function POST(request: NextRequest) {
             ? parseInt(data.boughtCount, 10)
             : Math.floor(Math.random() * 221) + 80;
 
+        const priceVal = data.price ? parseFloat(data.price) : null;
+        const origPriceVal = data.originalPrice ? parseFloat(data.originalPrice) : null;
+        const discountVal = data.discount ? parseFloat(data.discount) : 
+            (origPriceVal && priceVal && origPriceVal > priceVal) ? Math.round(((origPriceVal - priceVal) / origPriceVal) * 100) : null;
+
         const product = await prisma.product.create({
             data: {
                 title: data.title,
@@ -121,9 +126,9 @@ export async function POST(request: NextRequest) {
                 description: data.description || null,
                 image: data.image || null,
                 images: Array.isArray(data.images) ? data.images : [],
-                price: data.price ? parseFloat(data.price) : null,
-                originalPrice: data.originalPrice ? parseFloat(data.originalPrice) : null,
-                discount: data.discount ? parseFloat(data.discount) : null,
+                price: priceVal,
+                originalPrice: origPriceVal,
+                discount: discountVal,
                 amazonLink: data.amazonLink || null,
                 flipkartLink: data.flipkartLink || null,
                 meeshoLink: data.meeshoLink || null,

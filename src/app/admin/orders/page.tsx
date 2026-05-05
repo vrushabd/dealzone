@@ -40,6 +40,7 @@ interface Order {
     createdAt: string;
     items: OrderItem[];
     user: { name: string; email: string; phone?: string };
+    cancelRequested?: boolean;
 }
 
 const STATUS_OPTIONS = ["pending", "confirmed", "ordered", "shipped", "delivered", "cancelled"];
@@ -231,6 +232,11 @@ export default function AdminOrdersPage() {
                                                     <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${statusColors[order.status] || statusColors.pending}`}>
                                                         {order.status.toUpperCase()}
                                                     </span>
+                                                    {order.cancelRequested && order.status !== "cancelled" && (
+                                                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full border text-red-500 bg-red-500/10 border-red-500/30 animate-pulse">
+                                                            CANCEL REQUESTED
+                                                        </span>
+                                                    )}
                                                     <span className={`text-xs px-2 py-0.5 rounded-full border ${order.paymentMethod === "COD" ? "text-amber-400 border-amber-400/20 bg-amber-400/10" : "text-green-400 border-green-400/20 bg-green-400/10"}`}>
                                                         {order.paymentMethod === "COD" ? "💵 COD" : "✅ Paid Online"}
                                                     </span>

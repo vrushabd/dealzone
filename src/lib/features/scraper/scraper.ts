@@ -746,22 +746,65 @@ function parseMyntraWindowState(html: string): MyntraWindowState {
     };
 }
 
+function findMeeshoProductInJson(obj: unknown): JsonRecord | null {
+    if (!obj || typeof obj !== 'object' || obj === null) return null;
+
+    const record = obj as JsonRecord;
+
+    // Check if this object represents a product
+    const hasPrice = 'discounted_price' in record || 'finalPrice' in record || 'price' in record;
+    const hasName = 'product_name' in record || 'name' in record;
+    const hasImages = Array.isArray(record.images) || Array.isArray(record.product_images);
+
+    if ((hasPrice && hasName) || (hasImages && hasName)) {
+        return record;
+    }
+
+    // Recursively search
+    for (const key of Object.keys(record)) {
+        if (key === 'related_products' || key === 'similar_products') continue; // Avoid grabbing wrong product
+        const found = findMeeshoProductInJson(record[key]);
+        if (found) return found;
+    }
+    return null;
+}
+
 function parseMeeshoNextData(html: string): Partial<ScrapedProduct> {
     try {
-        const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([^<]+)<\/script>/);
-        if (!match) return {};
-        const data = JSON.parse(match[1]) as JsonRecord;
+        // Find ALL JSON objects inside script tags, not just __NEXT_DATA__
+        const scriptMatches = html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi);
+        let productData: JsonRecord | null = null;
 
-        // Traverse common Meesho data paths
-        const pageProps = isRecord(data.props) && isRecord(data.props.pageProps) ? data.props.pageProps : null;
-        if (!pageProps) return {};
+        for (const match of scriptMatches) {
+            const scriptContent = match[1].trim();
+            if (!scriptContent.startsWith('{') && !scriptContent.includes('JSON.parse')) continue;
 
-        // Try product from pageData or data.product
-        const productData: JsonRecord =
-            (isRecord(pageProps.data) && isRecord(pageProps.data.product) ? pageProps.data.product : null) ||
-            (isRecord(pageProps.product) ? pageProps.product : null) ||
-            (isRecord(pageProps.productDetails) ? pageProps.productDetails : null) ||
-            {};
+            try {
+                // Handle JSON.parse("...") patterns used by some bundlers
+                let jsonStr = scriptContent;
+                if (jsonStr.includes('JSON.parse(')) {
+                    const strMatch = jsonStr.match(/JSON\.parse\(['"](.*?)['"]\)/);
+                    if (strMatch) {
+                        jsonStr = strMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                    }
+                }
+                
+                // If it's just raw JSON assigned to a window variable
+                const cleanJsonMatch = jsonStr.match(/({[\s\S]+})/);
+                if (cleanJsonMatch) {
+                    const data = JSON.parse(cleanJsonMatch[1]);
+                    const found = findMeeshoProductInJson(data);
+                    if (found) {
+                        productData = found;
+                        break;
+                    }
+                }
+            } catch {
+                continue;
+            }
+        }
+
+        if (!productData) return {};
 
         const name = typeof productData.name === 'string' ? productData.name :
                      typeof productData.product_name === 'string' ? productData.product_name : '';
@@ -769,7 +812,6 @@ function parseMeeshoNextData(html: string): Partial<ScrapedProduct> {
         const price = normalizePrice(productData.discounted_price ?? productData.price ?? productData.finalPrice ?? 0);
         const originalPrice = normalizePrice(productData.mrp ?? productData.original_price ?? productData.originalPrice);
 
-        // Images — can be array of objects or strings
         const rawImages: string[] = [];
         const imgArr = Array.isArray(productData.images) ? productData.images :
                        Array.isArray(productData.product_images) ? productData.product_images : [];
@@ -788,10 +830,8 @@ function parseMeeshoNextData(html: string): Partial<ScrapedProduct> {
         const category = typeof productData.primary_category_name === 'string' ? productData.primary_category_name :
                         typeof productData.category_name === 'string' ? productData.category_name : '';
 
-        // Reviews
         const reviews: ScrapedReview[] = [];
-        const reviewArr = Array.isArray(productData.reviews) ? productData.reviews :
-                         Array.isArray(pageProps.reviews) ? pageProps.reviews : [];
+        const reviewArr = Array.isArray(productData.reviews) ? productData.reviews : [];
         for (const r of reviewArr.slice(0, 5)) {
             if (!isRecord(r)) continue;
             const comment = normalizeText(String(r.review_text ?? r.reviewText ?? r.comment ?? ''));
@@ -821,33 +861,32 @@ function parseMeeshoNextData(html: string): Partial<ScrapedProduct> {
     }
 }
 
+function extractMeeshoDOMImages(root: HTMLElement): string[] {
+    const urls = new Set<string>();
+    // Try src, data-src, and srcset across all images
+    root.querySelectorAll('img').forEach(img => {
+        const src = img.getAttribute('src');
+        const dataSrc = img.getAttribute('data-src');
+        const srcSet = img.getAttribute('srcset');
+        
+        [src, dataSrc].forEach(val => {
+            if (val && val.includes('images.meesho.com')) urls.add(val.split('?')[0]);
+        });
+        
+        if (srcSet) {
+            srcSet.split(',').forEach(part => {
+                const url = part.trim().split(' ')[0];
+                if (url && url.includes('images.meesho.com')) urls.add(url.split('?')[0]);
+            });
+        }
+    });
+    return Array.from(urls);
+}
+
 function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProduct {
-    // 1. Try __NEXT_DATA__ JSON first (most reliable)
     const nextData = html ? parseMeeshoNextData(html) : {};
 
-    // 2. Regex fallbacks for price
-    let price = nextData.price || 0;
-    if (!price && html) {
-        const priceMatch = html.match(/"discounted_price"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
-                           html.match(/"price"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
-                           html.match(/"finalPrice"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
-                           html.match(/₹\s*([\d,]+(?:\.\d+)?)/);
-        if (priceMatch) price = normalizePrice(priceMatch[1]) || 0;
-    }
-    if (!price) {
-        const textPrice = root.querySelector('h4, [class*="Price"]')?.text || '';
-        if (textPrice.includes('₹')) price = normalizePrice(textPrice) || 0;
-    }
-
-    // 3. Original price fallback
-    let originalPrice = nextData.originalPrice;
-    if (!originalPrice && html) {
-        const mrpMatch = html.match(/"mrp"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
-                        html.match(/"original_price"\s*:\s*"?(\d+(?:\.\d+)?)"?/);
-        if (mrpMatch) originalPrice = normalizePrice(mrpMatch[1]);
-    }
-
-    // 4. Title fallback
+    // 1. Title fallback
     let title = nextData.title || '';
     if (!title) {
         title = normalizeProductTitle(
@@ -857,37 +896,46 @@ function parseMeesho(root: HTMLElement, url: string, html?: string): ScrapedProd
         );
     }
 
-    // 5. Images fallback
-    let images = nextData.images && nextData.images.length > 0 ? nextData.images : [];
-    if (images.length === 0 && html) {
-        const allImgUrls = Array.from(html.matchAll(/"(https:\/\/[^"]*?images\.meesho\.com[^"]+)"/g)).map(m => m[1]);
-        const domImgUrls = Array.from(root.querySelectorAll('img')).map(img => img.getAttribute('src') || '').filter(src => src.includes('images.meesho.com'));
-        images = dedupeImages([...allImgUrls, ...domImgUrls], 'meesho');
+    // 2. Price fallback
+    let price = nextData.price || 0;
+    if (!price && html) {
+        const priceMatch = html.match(/"(?:discounted_price|price|finalPrice)"\s*:\s*"?(\d+(?:\.\d+)?)"?/) ||
+                           html.match(/₹\s*([\d,]+(?:\.\d+)?)/);
+        if (priceMatch) price = normalizePrice(priceMatch[1]) || 0;
+    }
+    if (!price) {
+        const textPrice = root.querySelector('h4, [class*="Price"], [class*="Amount"]')?.text || '';
+        if (textPrice.includes('₹')) price = normalizePrice(textPrice) || 0;
     }
 
-    // 6. Rating fallback
+    // 3. Original price fallback
+    let originalPrice = nextData.originalPrice;
+    if (!originalPrice && html) {
+        const mrpMatch = html.match(/"(?:mrp|original_price)"\s*:\s*"?(\d+(?:\.\d+)?)"?/);
+        if (mrpMatch) originalPrice = normalizePrice(mrpMatch[1]);
+    }
+
+    // 4. Images fallback
+    let images = nextData.images && nextData.images.length > 0 ? nextData.images : [];
+    if (images.length === 0 && html) {
+        const regexImgUrls = Array.from(html.matchAll(/"(https:\/\/[^"]*?images\.meesho\.com[^"]+)"/g)).map(m => m[1]);
+        const domImgUrls = extractMeeshoDOMImages(root);
+        images = dedupeImages([...regexImgUrls, ...domImgUrls], 'meesho');
+    }
+
+    // 5. Rating fallback
     const rating = nextData.rating ||
         normalizePrice(html?.match(/"rating"\s*:\s*"?(\d+(?:\.\d+)?)"?/)?.[1]);
 
-    // 7. Reviews fallback
-    const reviews: ScrapedReview[] = nextData.reviews || [];
-    if (reviews.length === 0 && html) {
-        const reviewMatches = html.matchAll(/"reviewText"\s*:\s*"([^"]+)".*?"rating"\s*:\s*"?(\d+(?:\.\d+)?)"?.*?"author"\s*:\s*"([^"]+)"/g);
-        for (const match of reviewMatches) {
-            const comment = normalizeText(match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"'));
-            if (comment.length > 5) {
-                reviews.push({ rating: normalizePrice(match[2]) || 5, comment, author: normalizeText(match[3]) || 'Meesho Customer' });
-            }
-            if (reviews.length >= 5) break;
-        }
-    }
-
+    // 6. Description fallback
     const description = nextData.description ||
         normalizeText(
-            html?.match(/"description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || 
-            html?.match(/"product_description"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || 
-            Array.from(root.querySelectorAll('[class*="Description"], [class*="Details"]')).map(el => el.text).join('\n') || ''
+            html?.match(/"(?:description|product_description)"\s*:\s*"([^"]+)"/)?.[1]?.replace(/\\n/g, '\n') || 
+            Array.from(root.querySelectorAll('[class*="Description"], [class*="Details"], .ProductDescription__Description-')).map(el => el.text).join('\n') || ''
         );
+
+    // 7. Reviews fallback
+    const reviews: ScrapedReview[] = nextData.reviews || [];
 
     const category = nextData.category ||
         normalizeText(root.querySelectorAll('.breadcrumb-item').pop()?.text || '');

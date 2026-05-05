@@ -25,6 +25,7 @@ interface Order {
     adminNote?: string;
     createdAt: string;
     items: Array<{ id: string; productTitle: string; productImage?: string; quantity: number; price: number }>;
+    cancelRequested?: boolean;
 }
 
 const statusSteps = ["pending", "confirmed", "ordered", "shipped", "delivered"];
@@ -46,6 +47,22 @@ export default function OrderDetailPage() {
     const [loading, setLoading] = useState(true);
     const [paymentLoading, setPaymentLoading] = useState(false);
     const [paymentError, setPaymentError] = useState("");
+    const [cancelLoading, setCancelLoading] = useState(false);
+
+    const requestCancel = async () => {
+        if (!confirm("Are you sure you want to request cancellation for this order?")) return;
+        setCancelLoading(true);
+        try {
+            const res = await fetch(`/api/user/orders/${id}/cancel`, { method: "POST" });
+            if (res.ok) {
+                await loadOrder();
+            } else {
+                alert("Failed to request cancellation.");
+            }
+        } finally {
+            setCancelLoading(false);
+        }
+    };
 
     const loadOrder = useCallback(async () => {
         if (!id) return;
@@ -195,9 +212,24 @@ export default function OrderDetailPage() {
                             <h1 className="text-xl font-bold text-[var(--text-primary)]">Order Details</h1>
                             <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{order.id}</p>
                         </div>
-                        <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full bg-[var(--bg-elevated)] border border-[var(--border)] ${cfg.color}`}>
-                            <cfg.icon size={14} /> {order.paymentMethod === "online" && order.paymentStatus !== "paid" && order.status === "pending" ? "Awaiting Payment" : cfg.label}
-                        </span>
+                        <div className="flex items-center gap-3">
+                            {order.status !== "cancelled" && order.status !== "delivered" && (
+                                <button
+                                    onClick={requestCancel}
+                                    disabled={order.cancelRequested || cancelLoading}
+                                    className={`text-sm font-semibold px-3 py-1.5 rounded-full border transition-all ${
+                                        order.cancelRequested
+                                            ? "bg-amber-500/10 text-amber-500 border-amber-500/20 opacity-80 cursor-not-allowed"
+                                            : "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20"
+                                    }`}
+                                >
+                                    {cancelLoading ? "Requesting..." : order.cancelRequested ? "Cancellation Requested" : "Cancel Order"}
+                                </button>
+                            )}
+                            <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full bg-[var(--bg-elevated)] border border-[var(--border)] ${cfg.color}`}>
+                                <cfg.icon size={14} /> {order.paymentMethod === "online" && order.paymentStatus !== "paid" && order.status === "pending" ? "Awaiting Payment" : cfg.label}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Progress Bar */}

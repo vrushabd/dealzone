@@ -174,11 +174,6 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <p className="text-center text-xs text-[var(--text-muted)] mt-6">
-                    <Link href="/enlightenment-panel" className="hover:text-[var(--text-secondary)] transition-colors">
-                        Admin Login →
-                    </Link>
-                </p>
             </div>
         </div>
     );

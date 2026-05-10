@@ -130,6 +130,15 @@ export default function AdminOrdersPage() {
         );
     });
 
+    // Group orders by user email
+    const groupedByUser = filtered.reduce<Record<string, { user: Order['user']; orders: Order[] }>>((acc, order) => {
+        const key = order.user.email;
+        if (!acc[key]) acc[key] = { user: order.user, orders: [] };
+        acc[key].orders.push(order);
+        return acc;
+    }, {});
+    const userGroups = Object.values(groupedByUser);
+
     const fullAddress = (o: Order) =>
         `${o.shippingName}\n${o.shippingAddress}\n${o.shippingCity}, ${o.shippingState} - ${o.shippingPincode}\nPhone: ${o.shippingPhone}`;
 
@@ -210,11 +219,34 @@ export default function AdminOrdersPage() {
                 ) : filtered.length === 0 ? (
                     <div className="text-center py-20 text-[var(--text-muted)]">No orders found</div>
                 ) : (
-                    <div className="space-y-4">
-                        {filtered.map(order => {
-                            const isExpanded = expandedId === order.id;
+                    <div className="space-y-6">
+                        {userGroups.map(({ user, orders: userOrders }) => {
+                            const userTotal = userOrders.reduce((s, o) => s + o.total, 0);
                             return (
-                                <div key={order.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden">
+                                <div key={user.email} className="rounded-2xl border border-[var(--border)] overflow-hidden">
+                                    {/* User header */}
+                                    <div className="flex flex-wrap items-center gap-3 px-5 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border)]">
+                                        <div className="w-8 h-8 rounded-full bg-[var(--brand-glow)] border border-[var(--brand)]/30 flex items-center justify-center text-[var(--brand)]">
+                                            <User size={15} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-bold text-[var(--text-primary)] truncate">{user.name}</p>
+                                            <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
+                                            <span className="bg-[var(--bg-card)] border border-[var(--border)] px-2 py-0.5 rounded-full font-semibold">
+                                                {userOrders.length} order{userOrders.length !== 1 ? 's' : ''}
+                                            </span>
+                                            <span className="font-bold text-[var(--brand)]">₹{userTotal.toLocaleString('en-IN')} total</span>
+                                        </div>
+                                    </div>
+
+                                    {/* This user's orders */}
+                                    <div className="divide-y divide-[var(--border)] bg-[var(--bg-card)]">
+                                        {userOrders.map(order => {
+                                            const isExpanded = expandedId === order.id;
+                                            return (
+                                                <div key={order.id} className="overflow-hidden">
 
                                     {/* ── Always-visible card ── */}
                                     <div className="p-4 md:p-5">
@@ -416,7 +448,11 @@ export default function AdminOrdersPage() {
                                     )}
                                 </div>
                             );
-                        })}
+                        })}  {/* end userOrders.map */}
+                                    </div>
+                                </div>
+                            );
+                        })}  {/* end userGroups.map */}
                     </div>
                 )}
             </div>

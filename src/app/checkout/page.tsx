@@ -19,7 +19,7 @@ declare global {
     }
 }
 
-const SHIPPING_FEE_COD = 40;
+const SHIPPING_FEE_COD = 20;
 
 export default function CheckoutPage() {
     const { data: session, status } = useSession();

@@ -40,19 +40,24 @@ export async function generateMetadata(): Promise<Metadata> {
         applicationName: siteName,
         category: "shopping",
         keywords: [
-            "Amazon deals", "Flipkart deals", "Myntra deals",
-            "price tracker", "price drop alerts", "coupons", "shopping offers", siteName,
+            "Amazon deals India", "Flipkart offers", "Meesho deals", "Myntra sale",
+            "best online deals", "price tracker India", "price drop alerts",
+            "discount coupons", "cashback offers", "shopping deals today",
+            "buy online India", "cheapest price", "deal finder India",
+            siteName,
         ],
         alternates: { canonical: "/" },
         openGraph: {
             type: "website",
             locale: "en_IN",
             siteName,
-            images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
+            description: DEFAULT_DESCRIPTION,
+            images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: `${siteName} – ${siteTagline}` }],
         },
         twitter: {
             card: "summary_large_image",
             site: SITE_HANDLE,
+            description: DEFAULT_DESCRIPTION,
         },
         robots: {
             index: true,
@@ -68,6 +73,9 @@ export async function generateMetadata(): Promise<Metadata> {
         icons: {
             icon: [{ url: favicon, type: faviconUrl ? "image/png" : "image/svg+xml" }],
             apple: favicon,
+        },
+        other: {
+            "google-site-verification": process.env.GOOGLE_SITE_VERIFICATION || "",
         },
     };
 }

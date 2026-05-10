@@ -41,7 +41,7 @@ export default function ProductGallery({ images, title, primaryImage }: ProductG
             )}
 
             {/* Main Image */}
-            <div className="relative flex-1 bg-white border border-[var(--border)] rounded-md aspect-square sm:aspect-auto sm:h-[500px] flex items-center justify-center overflow-hidden order-1 md:order-2">
+            <div className="relative flex-1 bg-white border border-[var(--border)] rounded-md aspect-square sm:aspect-auto sm:h-[520px] lg:h-[640px] flex items-center justify-center overflow-hidden order-1 md:order-2">
                 {mainImage ? (
                     <Image
                         src={mainImage}

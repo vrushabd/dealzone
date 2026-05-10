@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { X, Loader2, Zap, Download, CheckCircle, Plus, Trash2, User } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Loader2, Zap, Download, CheckCircle, Plus, Trash2, User, ImagePlus } from "lucide-react";
 import { inferCategoryIdFromText } from "@/lib/features/products/category";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,7 @@ interface ProductReview {
     title?: string | null;
     comment: string;
     author?: string | null;
+    images?: string[];
 }
 interface Product {
     id: string; title: string; slug: string; image?: string | null; images: string[]; description?: string | null;
@@ -32,6 +33,7 @@ function emptyReview(): ProductReview {
         title: "",
         rating: 5,
         comment: "",
+        images: [],
     };
 }
 
@@ -71,11 +73,13 @@ export default function ProductForm({
         rating: initial?.rating?.toString() || "",
         availability: initial?.availability || "in_stock",
         boughtCount: initial?.boughtCount?.toString() || "",
-        reviews: initial?.reviews || [],
+        reviews: (initial?.reviews || []).map(r => ({ ...r, images: (r as ProductReview).images || [] })),
     });
     type StringFields = Omit<typeof form, 'featured' | 'reviews'>
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [reviewUploading, setReviewUploading] = useState<Record<number, boolean>>({});
+    const reviewFileRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -133,16 +137,16 @@ export default function ProductForm({
             const method = initial ? "PUT" : "POST";
             const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
             if (!res.ok) throw new Error((await res.json()).error);
-            router.push("/admin/products");
+            router.push("/enlighten-panel/products");
             router.refresh();
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : "Error saving product");
         } finally { setLoading(false); }
     };
 
-    const onClose = () => router.push("/admin/products");
+    const onClose = () => router.push("/enlighten-panel/products");
 
-    const updateReview = (index: number, key: keyof ProductReview, value: string | number) => {
+    const updateReview = (index: number, key: keyof ProductReview, value: string | number | string[]) => {
         setForm((current) => ({
             ...current,
             reviews: current.reviews.map((review, reviewIndex) =>
@@ -163,6 +167,38 @@ export default function ProductForm({
             ...current,
             reviews: current.reviews.filter((_, reviewIndex) => reviewIndex !== index),
         }));
+    };
+
+    const handleReviewImageUpload = async (index: number, files: FileList | null) => {
+        if (!files || files.length === 0) return;
+        const review = form.reviews[index];
+        const currentImages = review.images || [];
+        const remaining = 3 - currentImages.length;
+        if (remaining <= 0) return;
+
+        setReviewUploading(prev => ({ ...prev, [index]: true }));
+        const newUrls: string[] = [];
+
+        for (const file of Array.from(files).slice(0, remaining)) {
+            const fd = new FormData();
+            fd.append("file", file);
+            try {
+                const res = await fetch("/api/reviews/upload", { method: "POST", body: fd });
+                const data = await res.json();
+                if (res.ok) newUrls.push(data.url);
+            } catch { /* skip */ }
+        }
+
+        updateReview(index, "images", [...currentImages, ...newUrls]);
+        setReviewUploading(prev => ({ ...prev, [index]: false }));
+        const ref = reviewFileRefs.current[index];
+        if (ref) ref.value = "";
+    };
+
+    const removeReviewImage = (reviewIndex: number, imgIndex: number) => {
+        const imgs = [...(form.reviews[reviewIndex].images || [])];
+        imgs.splice(imgIndex, 1);
+        updateReview(reviewIndex, "images", imgs);
     };
 
     const fields = [
@@ -409,6 +445,48 @@ export default function ProductForm({
                                             onChange={(e) => updateReview(index, "comment", e.target.value)}
                                             className="input-base resize-none"
                                             placeholder="Write the review comment"
+                                        />
+                                    </div>
+
+                                    {/* Review Image Upload */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">Photos (max 3)</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {(review.images || []).map((imgUrl, imgIdx) => (
+                                                <div key={imgIdx} className="relative w-14 h-14 rounded-md overflow-hidden border border-[var(--border)] group">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={imgUrl} alt="review" className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeReviewImage(index, imgIdx)}
+                                                        className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X size={10} className="text-white" />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {(review.images || []).length < 3 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => reviewFileRefs.current[index]?.click()}
+                                                    disabled={reviewUploading[index]}
+                                                    className="w-14 h-14 rounded-md border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center gap-0.5 text-[var(--text-muted)] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors text-[9px] font-medium disabled:opacity-50"
+                                                >
+                                                    {reviewUploading[index]
+                                                        ? <Loader2 size={14} className="animate-spin" />
+                                                        : <ImagePlus size={14} />}
+                                                    {reviewUploading[index] ? "..." : "Add"}
+                                                </button>
+                                            )}
+                                        </div>
+                                        <input
+                                            ref={el => { reviewFileRefs.current[index] = el; }}
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            multiple
+                                            className="hidden"
+                                            onChange={e => handleReviewImageUpload(index, e.target.files)}
                                         />
                                     </div>
                                 </div>

@@ -29,7 +29,7 @@ export default function SyncButton() {
         setStatus("loading");
         setMessage(isAuto ? "Auto-syncing…" : "Starting sync…");
         try {
-            const res  = await fetch("/api/admin/sync", { method: "POST" });
+            const res  = await fetch("/api/enlighten-panel/sync", { method: "POST" });
             const data = await res.json();
             if (res.ok) {
                 setStatus("success");
@@ -146,7 +146,7 @@ export default function SyncButton() {
 
             {/* Link to full sync page */}
             <Link
-                href="/admin/sync"
+                href="/enlighten-panel/sync"
                 className="flex items-center justify-between gap-2 w-full px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] transition-all duration-200 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
                 <span>View full sync history &amp; logs</span>

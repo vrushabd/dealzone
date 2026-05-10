@@ -16,7 +16,7 @@ export async function POST(
             return NextResponse.json({ error: "You must be logged in to write a review" }, { status: 401 });
         }
 
-        const { rating, comment } = await req.json();
+        const { rating, comment, images } = await req.json();
 
         if (!comment?.trim()) {
             return NextResponse.json({ error: "Comment is required" }, { status: 400 });
@@ -61,6 +61,10 @@ export async function POST(
             return NextResponse.json({ error: "You have already reviewed this product" }, { status: 409 });
         }
 
+        const imageUrls = Array.isArray(images)
+            ? images.filter((u: unknown) => typeof u === 'string' && u.startsWith('http')).slice(0, 4)
+            : [];
+
         const review = await prisma.productReview.create({
             data: {
                 productId: product.id,
@@ -68,6 +72,7 @@ export async function POST(
                 rating: Number(rating),
                 title: null,
                 comment: comment.trim(),
+                images: imageUrls,
             },
         });
 

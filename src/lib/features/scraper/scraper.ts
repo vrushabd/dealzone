@@ -1612,7 +1612,7 @@ function parseFlipkart(root: HTMLElement, url: string, html?: string): ScrapedPr
         }
     }
 
-    // ── Bank offers & delivery ─────────────────────────────────────────────────
+   
     const bankOffers = root.querySelectorAll('li._1MaY_A span, ._3ttV92 span, [class*="bankOffer"] span')
         .map((element) => normalizeText(element.text))
         .filter((text) => text.length > 15 && (text.toLowerCase().includes('bank') || text.includes('% off') || text.toLowerCase().includes('cashback')));

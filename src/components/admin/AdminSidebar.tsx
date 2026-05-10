@@ -8,19 +8,19 @@ import {
     LogOut, ExternalLink, Menu, X, ChevronRight, Settings, Bell, Package, MessageSquareWarning, MessageSquare
 } from "lucide-react";
 
-import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
+import { GlobalThemeToggle } from "@/components/enlighten-panel/GlobalThemeToggle";
 import Logo from "@/components/ui/Logo";
 
 const navItems = [
-    { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { href: "/admin/products", label: "Products", icon: ShoppingBag },
-    { href: "/admin/orders", label: "Orders", icon: Package },
-    { href: "/admin/posts", label: "Blog Posts", icon: BookOpen },
-    { href: "/admin/categories", label: "Categories", icon: Tag },
-    { href: "/admin/comments", label: "Comments", icon: MessageSquare },
-    { href: "/admin/alerts", label: "Alerts", icon: Bell },
-    { href: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
+    { href: "/enlighten-panel", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: "/enlighten-panel/products", label: "Products", icon: ShoppingBag },
+    { href: "/enlighten-panel/orders", label: "Orders", icon: Package },
+    { href: "/enlighten-panel/posts", label: "Blog Posts", icon: BookOpen },
+    { href: "/enlighten-panel/categories", label: "Categories", icon: Tag },
+    { href: "/enlighten-panel/comments", label: "Comments", icon: MessageSquare },
+    { href: "/enlighten-panel/alerts", label: "Alerts", icon: Bell },
+    { href: "/enlighten-panel/complaints", label: "Complaints", icon: MessageSquareWarning },
+    { href: "/enlighten-panel/settings", label: "Settings", icon: Settings },
 ];
 
 function isActivePath(pathname: string, href: string, exact?: boolean) {

@@ -9,7 +9,7 @@ export function GlobalThemeToggle() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/admin/settings")
+        fetch("/api/enlighten-panel/settings")
             .then(res => res.json())
             .then(data => {
                 if (data.defaultTheme) {
@@ -25,7 +25,7 @@ export function GlobalThemeToggle() {
         setDbTheme(newTheme);          // Update local state
         setTheme(newTheme);            // Actually apply theme to the page NOW
         try {
-            await fetch("/api/admin/settings", {
+            await fetch("/api/enlighten-panel/settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ defaultTheme: newTheme })

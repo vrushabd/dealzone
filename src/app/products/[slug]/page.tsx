@@ -246,7 +246,7 @@ export default async function ProductDetailPage({ params }: Params) {
                         )}
 
                         <div className="flex items-start justify-between gap-4 mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-snug">{product.title}</h1>
+                            <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] leading-snug">{product.title}</h1>
                             {product.availability === "out_of_stock" && (
                                 <span className="bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold px-3 py-1.5 rounded-full flex-shrink-0 uppercase tracking-widest mt-1">
                                     Out of Stock

@@ -8,7 +8,7 @@ import {
     LogOut, ExternalLink, Menu, X, ChevronRight, Settings, Bell, Package, MessageSquareWarning, MessageSquare
 } from "lucide-react";
 
-import { GlobalThemeToggle } from "@/components/enlighten-panel/GlobalThemeToggle";
+import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
 import Logo from "@/components/ui/Logo";
 
 const navItems = [

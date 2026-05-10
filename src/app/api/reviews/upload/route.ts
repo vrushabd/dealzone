@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin, REVIEW_BUCKET } from '@/lib/supabase';
 
-export const config = { api: { bodyParser: false } };
+
 
 // POST /api/reviews/upload — upload image to Supabase, return public URL
 export async function POST(req: NextRequest) {

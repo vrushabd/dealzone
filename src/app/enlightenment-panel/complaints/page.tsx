@@ -26,7 +26,7 @@ export default function AdminComplaintsPage() {
     const fetchComplaints = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/enlighten-panel/complaints");
+            const res = await fetch("/api/enlightenment-panel/complaints");
             const data = await res.json();
             setComplaints(data);
         } catch (e) {
@@ -39,7 +39,7 @@ export default function AdminComplaintsPage() {
     useEffect(() => { fetchComplaints(); }, []);
 
     const updateStatus = async (id: string, status: string) => {
-        await fetch("/api/enlighten-panel/complaints", {
+        await fetch("/api/enlightenment-panel/complaints", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id, status }),
@@ -49,7 +49,7 @@ export default function AdminComplaintsPage() {
 
     const deleteComplaint = async (id: string) => {
         if (!confirm("Delete this complaint?")) return;
-        await fetch("/api/enlighten-panel/complaints", {
+        await fetch("/api/enlightenment-panel/complaints", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id }),

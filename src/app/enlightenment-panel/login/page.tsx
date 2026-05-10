@@ -19,7 +19,7 @@ function LoginForm() {
         setError("");
 
         try {
-            const res = await fetch("/api/enlighten-panel/auth/login", {
+            const res = await fetch("/api/enlightenment-panel/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -30,7 +30,7 @@ function LoginForm() {
             if (!res.ok) {
                 setError(data.error || "Invalid email or password. Please try again.");
             } else {
-                const callbackUrl = searchParams.get("callbackUrl") || "/enlighten-panel";
+                const callbackUrl = searchParams.get("callbackUrl") || "/enlightenment-panel";
                 router.push(callbackUrl);
                 router.refresh();
             }
@@ -60,7 +60,7 @@ function LoginForm() {
                         <div className="absolute inset-0 rounded-md border-2 border-[hsl(214_89%_52%/0.30)] scale-110 opacity-60 animate-[pulseGlow_2s_ease-in-out_infinite]" />
                     </div>
                     <div className="flex justify-center mb-1">
-                        <Logo href="/enlighten-panel" className="scale-110" />
+                        <Logo href="/enlightenment-panel" className="scale-110" />
                     </div>
                     <p className="text-[var(--text-muted)] text-sm mt-1">Admin Dashboard</p>
                 </div>

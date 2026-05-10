@@ -42,7 +42,7 @@ export default function AdminSyncPage() {
     const fetchLogs = useCallback(async () => {
         setLogsLoading(true);
         try {
-            const res = await fetch("/api/enlighten-panel/sync-logs");
+            const res = await fetch("/api/enlightenment-panel/sync-logs");
             const data = await res.json();
             if (res.ok) setLogs(data.logs ?? []);
         } catch { /* silent */ } finally {

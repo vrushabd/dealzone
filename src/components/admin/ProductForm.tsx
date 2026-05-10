@@ -137,14 +137,14 @@ export default function ProductForm({
             const method = initial ? "PUT" : "POST";
             const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
             if (!res.ok) throw new Error((await res.json()).error);
-            router.push("/enlighten-panel/products");
+            router.push("/enlightenment-panel/products");
             router.refresh();
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : "Error saving product");
         } finally { setLoading(false); }
     };
 
-    const onClose = () => router.push("/enlighten-panel/products");
+    const onClose = () => router.push("/enlightenment-panel/products");
 
     const updateReview = (index: number, key: keyof ProductReview, value: string | number | string[]) => {
         setForm((current) => ({

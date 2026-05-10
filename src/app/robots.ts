@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
                 userAgent: "*",
                 allow: "/",
                 disallow: [
-                    "/enlighten-panel/",
+                    "/enlightenment-panel/",
                     "/admin/",
                     "/api/",
                     "/checkout",
@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: "Googlebot",
                 allow: ["/", "/products/", "/categories/", "/blog/", "/coupons"],
-                disallow: ["/enlighten-panel/", "/admin/", "/api/"],
+                disallow: ["/enlightenment-panel/", "/admin/", "/api/"],
             },
         ],
         sitemap: absoluteUrl("/sitemap.xml"),

@@ -11,7 +11,7 @@ interface Params {
 export default async function EditAdminPostPage({ params }: Params) {
     const session = await getServerSession(authOptions);
     if (!session) {
-        redirect("/enlighten-panel/login");
+        redirect("/enlightenment-panel/login");
     }
 
     const { id } = await params;

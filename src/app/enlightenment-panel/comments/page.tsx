@@ -30,7 +30,7 @@ export default function AdminCommentsPage() {
     const fetchReviews = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/enlighten-panel/comments");
+            const res = await fetch("/api/enlightenment-panel/comments");
             const data = await res.json();
             setReviews(data.reviews || []);
         } catch {
@@ -62,7 +62,7 @@ export default function AdminCommentsPage() {
         if (!confirm("Delete this comment?")) return;
         setDeletingId(id);
         try {
-            await fetch(`/api/enlighten-panel/comments/${id}`, { method: "DELETE" });
+            await fetch(`/api/enlightenment-panel/comments/${id}`, { method: "DELETE" });
             setReviews(prev => prev.filter(r => r.id !== id));
         } finally {
             setDeletingId(null);

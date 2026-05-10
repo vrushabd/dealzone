@@ -29,7 +29,7 @@ export default function AdminTrackedProductsPage() {
     const [expanded, setExpanded] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch("/api/enlighten-panel/tracked-products")
+        fetch("/api/enlightenment-panel/tracked-products")
             .then(r => r.json())
             .then(data => setProducts(Array.isArray(data) ? data : []))
             .catch(console.error)

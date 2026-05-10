@@ -41,7 +41,7 @@ export default function AdminSettingsPage() {
     useEffect(() => {
         async function fetchSettings() {
             try {
-                const res = await fetch("/api/enlighten-panel/settings");
+                const res = await fetch("/api/enlightenment-panel/settings");
                 if (!res.ok) throw new Error("Failed to load settings");
                 const data = await res.json();
                 setSiteName(data.siteName || "ZenCult");
@@ -80,7 +80,7 @@ export default function AdminSettingsPage() {
         setSuccess("");
 
         try {
-            const res = await fetch("/api/enlighten-panel/settings", {
+            const res = await fetch("/api/enlightenment-panel/settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

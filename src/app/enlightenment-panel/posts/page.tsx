@@ -45,7 +45,7 @@ export default function AdminPostsPage() {
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Blog Posts</h1>
                     <p className="text-[var(--text-secondary)] text-sm mt-1">{posts.length} posts total</p>
                 </div>
-                <Link href="/enlighten-panel/posts/new"
+                <Link href="/enlightenment-panel/posts/new"
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
                     <Plus size={16} /> New Post
                 </Link>
@@ -63,7 +63,7 @@ export default function AdminPostsPage() {
                 <div className="text-center py-20 text-gray-500">
                     <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
                     {posts.length === 0 ? (
-                        <p>No posts yet. <Link href="/enlighten-panel/posts/new" className="text-[hsl(214_89%_55%)] hover:underline">Write your first post →</Link></p>
+                        <p>No posts yet. <Link href="/enlightenment-panel/posts/new" className="text-[hsl(214_89%_55%)] hover:underline">Write your first post →</Link></p>
                     ) : (
                         <p>No posts match that search yet.</p>
                     )}
@@ -89,7 +89,7 @@ export default function AdminPostsPage() {
                                     <a href={`/blog/${post.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
                                         <Eye size={15} />
                                     </a>
-                                    <Link href={`/enlighten-panel/posts/${post.id}`} className="p-1.5 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
+                                    <Link href={`/enlightenment-panel/posts/${post.id}`} className="p-1.5 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] hover:bg-[hsl(214_89%_52%/0.08)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </Link>
                                     <button onClick={() => handleDelete(post.id)} disabled={deleting === post.id}

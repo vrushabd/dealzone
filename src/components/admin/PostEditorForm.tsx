@@ -74,7 +74,7 @@ export default function PostEditorForm({
                 throw new Error(payload.error || "Failed to save post");
             }
 
-            router.push("/enlighten-panel/posts");
+            router.push("/enlightenment-panel/posts");
             router.refresh();
         } catch (submitError: unknown) {
             setError(submitError instanceof Error ? submitError.message : "Failed to save post");
@@ -89,7 +89,7 @@ export default function PostEditorForm({
                 <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:px-10 md:flex-row md:items-center md:justify-between">
                     <div>
                         <Link
-                            href="/enlighten-panel/posts"
+                            href="/enlightenment-panel/posts"
                             className="mb-2 inline-flex items-center gap-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[hsl(214_89%_55%)]"
                         >
                             <ArrowLeft size={16} />

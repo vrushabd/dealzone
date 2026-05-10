@@ -12,15 +12,15 @@ import { GlobalThemeToggle } from "@/components/admin/GlobalThemeToggle";
 import Logo from "@/components/ui/Logo";
 
 const navItems = [
-    { href: "/enlighten-panel", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { href: "/enlighten-panel/products", label: "Products", icon: ShoppingBag },
-    { href: "/enlighten-panel/orders", label: "Orders", icon: Package },
-    { href: "/enlighten-panel/posts", label: "Blog Posts", icon: BookOpen },
-    { href: "/enlighten-panel/categories", label: "Categories", icon: Tag },
-    { href: "/enlighten-panel/comments", label: "Comments", icon: MessageSquare },
-    { href: "/enlighten-panel/alerts", label: "Alerts", icon: Bell },
-    { href: "/enlighten-panel/complaints", label: "Complaints", icon: MessageSquareWarning },
-    { href: "/enlighten-panel/settings", label: "Settings", icon: Settings },
+    { href: "/enlightenment-panel", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: "/enlightenment-panel/products", label: "Products", icon: ShoppingBag },
+    { href: "/enlightenment-panel/orders", label: "Orders", icon: Package },
+    { href: "/enlightenment-panel/posts", label: "Blog Posts", icon: BookOpen },
+    { href: "/enlightenment-panel/categories", label: "Categories", icon: Tag },
+    { href: "/enlightenment-panel/comments", label: "Comments", icon: MessageSquare },
+    { href: "/enlightenment-panel/alerts", label: "Alerts", icon: Bell },
+    { href: "/enlightenment-panel/complaints", label: "Complaints", icon: MessageSquareWarning },
+    { href: "/enlightenment-panel/settings", label: "Settings", icon: Settings },
 ];
 
 function isActivePath(pathname: string, href: string, exact?: boolean) {

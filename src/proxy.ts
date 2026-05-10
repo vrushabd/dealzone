@@ -9,15 +9,15 @@ export async function proxy(req: NextRequest) {
         return NextResponse.rewrite(new URL('/not-found', req.url));
     }
 
-    // Protect /enlighten-panel routes (except login)
-    if (pathname.startsWith('/enlighten-panel') && !pathname.startsWith('/enlighten-panel/login')) {
+    // Protect /enlightenment-panel routes (except login)
+    if (pathname.startsWith('/enlightenment-panel') && !pathname.startsWith('/enlightenment-panel/login')) {
         const token = await getToken({
             req,
             secret: process.env.NEXTAUTH_SECRET,
         });
 
         if (token?.role !== 'admin') {
-            const loginUrl = new URL('/enlighten-panel/login', req.url);
+            const loginUrl = new URL('/enlightenment-panel/login', req.url);
             loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
             return NextResponse.redirect(loginUrl);
         }
@@ -27,5 +27,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/enlighten-panel/:path*'],
+    matcher: ['/admin/:path*', '/enlightenment-panel/:path*'],
 };

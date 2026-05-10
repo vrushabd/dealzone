@@ -83,8 +83,8 @@ export default function AdminOrdersPage() {
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/enlighten-panel/orders?status=${filterStatus}`);
-            if (res.status === 403) { router.push("/enlighten-panel/login"); return; }
+            const res = await fetch(`/api/enlightenment-panel/orders?status=${filterStatus}`);
+            if (res.status === 403) { router.push("/enlightenment-panel/login"); return; }
             const data = await res.json();
             setOrders(data.orders || []);
         } finally {
@@ -157,7 +157,7 @@ export default function AdminOrdersPage() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] mb-1">
-                            <Link href="/enlighten-panel" className="hover:text-[var(--text-secondary)]">Admin</Link>
+                            <Link href="/enlightenment-panel" className="hover:text-[var(--text-secondary)]">Admin</Link>
                             <span>/</span><span>Orders</span>
                         </div>
                         <h1 className="text-2xl font-bold flex items-center gap-2">

@@ -5,8 +5,8 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isLoginPage = pathname === "/enlighten-panel/login";
-    const isFullScreenEditor = pathname?.startsWith("/enlighten-panel/posts/") && pathname !== "/enlighten-panel/posts";
+    const isLoginPage = pathname === "/enlightenment-panel/login";
+    const isFullScreenEditor = pathname?.startsWith("/enlightenment-panel/posts/") && pathname !== "/enlightenment-panel/posts";
 
     if (isLoginPage) {
         return (

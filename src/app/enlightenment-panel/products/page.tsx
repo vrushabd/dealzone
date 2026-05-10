@@ -76,7 +76,7 @@ export default function AdminProductsPage() {
                     <h1 className="text-2xl font-bold text-[var(--text-primary)]">Products</h1>
                     <p className="text-[var(--text-secondary)] text-sm mt-1">{products.length} total products</p>
                 </div>
-                <Link href="/enlighten-panel/products/new"
+                <Link href="/enlightenment-panel/products/new"
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(214_89%_52%)] to-[hsl(214_89%_45%)] hover:from-[hsl(214_89%_55%)] hover:to-[hsl(214_89%_52%)] text-white font-semibold px-5 py-2.5 rounded-md transition-all btn-glow text-sm">
                     <Plus size={16} /> Add Product
                 </Link>
@@ -106,7 +106,7 @@ export default function AdminProductsPage() {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-[var(--text-muted)]">
                     <ShoppingBag size={40} className="mx-auto mb-3 opacity-30" />
-                    <p>No products found. <Link href="/enlighten-panel/products/new" className="text-[var(--brand)] hover:underline">Add your first product →</Link></p>
+                    <p>No products found. <Link href="/enlightenment-panel/products/new" className="text-[var(--brand)] hover:underline">Add your first product →</Link></p>
                 </div>
             ) : (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md overflow-hidden">
@@ -153,7 +153,7 @@ export default function AdminProductsPage() {
                                     <a href={`/products/${p.slug}`} target="_blank" className="p-1.5 text-[var(--text-muted)] hover:text-[var(--brand)] hover:bg-[var(--brand-glow)] rounded-lg transition-all">
                                         <ExternalLink size={15} />
                                     </a>
-                                    <Link href={`/enlighten-panel/products/${p.id}`} className="p-1.5 text-[var(--text-muted)] hover:text-[var(--brand)] hover:bg-[var(--brand-glow)] rounded-lg transition-all">
+                                    <Link href={`/enlightenment-panel/products/${p.id}`} className="p-1.5 text-[var(--text-muted)] hover:text-[var(--brand)] hover:bg-[var(--brand-glow)] rounded-lg transition-all">
                                         <Pencil size={15} />
                                     </Link>
                                     <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}

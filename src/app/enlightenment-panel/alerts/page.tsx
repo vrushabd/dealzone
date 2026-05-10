@@ -29,7 +29,7 @@ export default function AdminAlertsPage() {
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/enlighten-panel/alerts?status=${filter}`);
+            const res = await fetch(`/api/enlightenment-panel/alerts?status=${filter}`);
             const data = await res.json();
             setAlerts(data.alerts || []);
         } catch {
@@ -45,7 +45,7 @@ export default function AdminAlertsPage() {
         if (!confirm("Remove this alert?")) return;
         setDeleting(id);
         try {
-            await fetch("/api/enlighten-panel/alerts", {
+            await fetch("/api/enlightenment-panel/alerts", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id }),

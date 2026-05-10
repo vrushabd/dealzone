@@ -12,7 +12,7 @@ export default async function NewProductPage() {
     return (
         <div className="max-w-5xl mx-auto py-8 px-4 animate-fade-in-up">
             <Link 
-                href="/enlighten-panel/products" 
+                href="/enlightenment-panel/products" 
                 className="inline-flex items-center gap-2 text-[var(--text-muted)] hover:text-[hsl(214_89%_55%)] text-sm mb-6 transition-colors"
             >
                 <ArrowLeft size={16} /> Back to Products

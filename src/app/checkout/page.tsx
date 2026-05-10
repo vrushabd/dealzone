@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -35,6 +35,13 @@ export default function CheckoutPage() {
     const [error, setError] = useState("");
     const [orderId, setOrderId] = useState("");
     const autoAdvancedRef = useRef(false);
+    const topRef = useRef<HTMLDivElement>(null);
+
+    const finishOrder = useCallback((state: "cod" | "paid" | "pendingPayment") => {
+        setCompletionState(state);
+        setStep("done");
+        setTimeout(() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    }, []);
 
     const [address, setAddress] = useState({
         name: session?.user?.name || "",
@@ -146,8 +153,7 @@ export default function CheckoutPage() {
             await clearCart();
 
             if (paymentMethod === "COD") {
-                setCompletionState("cod");
-                setStep("done");
+                finishOrder("cod");
                 return;
             }
 
@@ -159,8 +165,7 @@ export default function CheckoutPage() {
             });
             const payData = await payRes.json();
             if (!payRes.ok) {
-                setCompletionState("pendingPayment");
-                setStep("done");
+                finishOrder("pendingPayment");
                 throw new Error(payData.error || "Payment init failed");
             }
 
@@ -201,19 +206,16 @@ export default function CheckoutPage() {
                         }),
                     });
                     if (verRes.ok) {
-                        setCompletionState("paid");
-                        setStep("done");
+                        finishOrder("paid");
                     } else {
                         setError("Payment verification failed. Your order is saved and waiting for payment.");
-                        setCompletionState("pendingPayment");
-                        setStep("done");
+                        finishOrder("pendingPayment");
                     }
                 },
                 modal: {
                     ondismiss: () => {
                         setError("Payment cancelled. Your order is saved and waiting for payment.");
-                        setCompletionState("pendingPayment");
-                        setStep("done");
+                        finishOrder("pendingPayment");
                     },
                 },
             });
@@ -237,7 +239,7 @@ export default function CheckoutPage() {
         <>
             <Navbar />
             <main className="min-h-screen bg-[var(--bg-base)] py-10">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                <div ref={topRef} className="max-w-6xl mx-auto px-4 sm:px-6">
 
                     {/* Header */}
                     <div className="mb-8">

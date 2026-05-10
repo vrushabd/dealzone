@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { userAuthOptions } from '@/lib/userAuth';
 import { supabaseAdmin, REVIEW_BUCKET } from '@/lib/supabase';
-
-
 
 // POST /api/reviews/upload — upload image to Supabase, return public URL
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
+    // Try user session first (customers), then admin session
+    const session =
+        (await getServerSession(userAuthOptions)) ||
+        (await getServerSession(authOptions));
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

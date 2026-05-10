@@ -207,12 +207,12 @@ export default function OrderDetailPage() {
                         <span className="text-[var(--text-secondary)]">#{order.id.slice(-8).toUpperCase()}</span>
                     </nav>
 
-                    <div className="flex items-start justify-between mb-6 gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 gap-3">
                         <div>
                             <h1 className="text-xl font-bold text-[var(--text-primary)]">Order Details</h1>
                             <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{order.id}</p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                             {order.status !== "cancelled" && order.status !== "delivered" && (
                                 <button
                                     onClick={requestCancel}

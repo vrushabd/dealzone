@@ -9,6 +9,7 @@ import AnnouncementBanner from "@/components/layout/AnnouncementBanner";
 import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_HANDLE, getSiteUrl } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
 import { cache } from "react";
+import FacebookPixel from "@/components/layout/FacebookPixel";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", preload: false });
 
@@ -98,6 +99,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <ChatbotWidget />
                 <AnalyticsTracker />
                 <Analytics />
+                <FacebookPixel />
             </body>
         </html>
     );
